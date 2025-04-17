@@ -1,0 +1,763 @@
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Garrard Kitchen – Introduction</title><link>https://blog-dev.garrardkitchen.com/docs/</link><description>Recent content in Introduction on Garrard Kitchen</description><generator>Hugo -- gohugo.io</generator><language>en</language><atom:link href="https://blog-dev.garrardkitchen.com/docs/index.xml" rel="self" type="application/rss+xml"/><item><title>.NET Aspire</title><link>https://blog-dev.garrardkitchen.com/nuggets/dotnet-aspire/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://blog-dev.garrardkitchen.com/nuggets/dotnet-aspire/</guid><description/></item><item><title>Getting Started</title><link>https://blog-dev.garrardkitchen.com/docs/getting-started/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://blog-dev.garrardkitchen.com/docs/getting-started/</guid><description>
+&lt;h2>Quick Start from Template&lt;span class="hx-absolute -hx-mt-20" id="quick-start-from-template">&lt;/span>
+&lt;a href="#quick-start-from-template" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>&lt;span class="hx-inline-block hx-align-text-bottom icon">&lt;svg height=1em fill="currentColor" viewBox="3 3 18 18">
+&lt;path d="M12 3C7.0275 3 3 7.12937 3 12.2276C3 16.3109 5.57625 19.7597 9.15374 20.9824C9.60374 21.0631 9.77249 20.7863 9.77249 20.5441C9.77249 20.3249 9.76125 19.5982 9.76125 18.8254C7.5 19.2522 6.915 18.2602 6.735 17.7412C6.63375 17.4759 6.19499 16.6569 5.8125 16.4378C5.4975 16.2647 5.0475 15.838 5.80124 15.8264C6.51 15.8149 7.01625 16.4954 7.18499 16.7723C7.99499 18.1679 9.28875 17.7758 9.80625 17.5335C9.885 16.9337 10.1212 16.53 10.38 16.2993C8.3775 16.0687 6.285 15.2728 6.285 11.7432C6.285 10.7397 6.63375 9.9092 7.20749 9.26326C7.1175 9.03257 6.8025 8.08674 7.2975 6.81794C7.2975 6.81794 8.05125 6.57571 9.77249 7.76377C10.4925 7.55615 11.2575 7.45234 12.0225 7.45234C12.7875 7.45234 13.5525 7.55615 14.2725 7.76377C15.9937 6.56418 16.7475 6.81794 16.7475 6.81794C17.2424 8.08674 16.9275 9.03257 16.8375 9.26326C17.4113 9.9092 17.76 10.7281 17.76 11.7432C17.76 15.2843 15.6563 16.0687 13.6537 16.2993C13.98 16.5877 14.2613 17.1414 14.2613 18.0065C14.2613 19.2407 14.25 20.2326 14.25 20.5441C14.25 20.7863 14.4188 21.0746 14.8688 20.9824C16.6554 20.364 18.2079 19.1866 19.3078 17.6162C20.4077 16.0457 20.9995 14.1611 21 12.2276C21 7.12937 16.9725 3 12 3Z">&lt;/path>
+&lt;/svg>
+&lt;/span>
+ &lt;a href="https://github.com/imfing/hextra-starter-template" target="_blank" rel="noopener">imfing/hextra-starter-template&lt;/a>&lt;/p>
+&lt;p>You could quickly get started by using the above template repository.&lt;/p>
+&lt;img src="https://docs.github.com/assets/cb-77734/mw-1440/images/help/repository/use-this-template-button.webp" width="500">
+&lt;p>We have provided a &lt;a href="https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site#publishing-with-a-custom-github-actions-workflow" target="_blank" rel="noopener">GitHub Actions workflow&lt;/a> which can help automatically build and deploy your site to GitHub Pages, and host it for free.
+For more options, check out &lt;a href="../guide/deploy-site" >Deploy Site&lt;/a>.&lt;/p>
+&lt;p>&lt;a href="https://imfing.github.io/hextra-starter-template/" target="_blank" rel="noopener">🌐 Demo ↗&lt;/a>&lt;/p>
+&lt;h2>Start as New Project&lt;span class="hx-absolute -hx-mt-20" id="start-as-new-project">&lt;/span>
+&lt;a href="#start-as-new-project" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>There are two main ways to add the Hextra theme to your Hugo project:&lt;/p>
+&lt;ol>
+&lt;li>
+&lt;p>&lt;strong>Hugo Modules (Recommended)&lt;/strong>: The simplest and recommended method. &lt;a href="https://gohugo.io/hugo-modules/" target="_blank" rel="noopener">Hugo modules&lt;/a> let you pull in the theme directly from its online source. Theme is downloaded automatically and managed by Hugo.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>Git Submodule&lt;/strong>: Alternatively, add Hextra as a &lt;a href="https://git-scm.com/book/en/v2/Git-Tools-Submodules" target="_blank" rel="noopener">Git Submodule&lt;/a>. The theme is downloaded by Git and stored in your project&amp;rsquo;s &lt;code>themes&lt;/code> folder.&lt;/p>
+&lt;/li>
+&lt;/ol>
+&lt;h3>Setup Hextra as Hugo module&lt;span class="hx-absolute -hx-mt-20" id="setup-hextra-as-hugo-module">&lt;/span>
+&lt;a href="#setup-hextra-as-hugo-module" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;h4>Prerequisites&lt;span class="hx-absolute -hx-mt-20" id="prerequisites">&lt;/span>
+&lt;a href="#prerequisites" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h4>&lt;p>Before starting, you need to have the following software installed:&lt;/p>
+&lt;ul>
+&lt;li>&lt;a href="https://gohugo.io/installation/" target="_blank" rel="noopener">Hugo (extended version)&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://git-scm.com/" target="_blank" rel="noopener">Git&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://go.dev/" target="_blank" rel="noopener">Go&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;h4>Steps&lt;span class="hx-absolute -hx-mt-20" id="steps">&lt;/span>
+&lt;a href="#steps" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h4>&lt;div class="steps hx-ml-4 hx-mb-12 ltr:hx-border-l rtl:hx-border-r hx-border-gray-200 ltr:hx-pl-6 rtl:hx-pr-6 dark:hx-border-neutral-800 [counter-reset:step]">
+&lt;h3>Initialize a new Hugo site&lt;span class="hx-absolute -hx-mt-20" id="initialize-a-new-hugo-site">&lt;/span>
+&lt;a href="#initialize-a-new-hugo-site" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">hugo new site my-site --format&lt;span class="o">=&lt;/span>yaml&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;h3>Configure Hextra theme via module&lt;span class="hx-absolute -hx-mt-20" id="configure-hextra-theme-via-module">&lt;/span>
+&lt;a href="#configure-hextra-theme-via-module" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># initialize hugo module&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">cd&lt;/span> my-site
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">hugo mod init github.com/username/my-site
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># add Hextra theme&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">hugo mod get github.com/imfing/hextra&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>Configure &lt;code>hugo.yaml&lt;/code> to use Hextra theme by adding the following:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-yaml" data-lang="yaml">&lt;span class="line">&lt;span class="cl">&lt;span class="nt">module&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">imports&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="nt">path&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">github.com/imfing/hextra&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;h3>Create your first content pages&lt;span class="hx-absolute -hx-mt-20" id="create-your-first-content-pages">&lt;/span>
+&lt;a href="#create-your-first-content-pages" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>Create new content page for the home page and the documentation page:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">hugo new content/_index.md
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">hugo new content/docs/_index.md&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;h3>Preview the site locally&lt;span class="hx-absolute -hx-mt-20" id="preview-the-site-locally">&lt;/span>
+&lt;a href="#preview-the-site-locally" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">hugo server --buildDrafts --disableFastRender&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>Voila, your new site preview is available at &lt;code>http://localhost:1313/&lt;/code>.&lt;/p>
+&lt;/div>
+&lt;details class="last-of-type:hx-mb-0 hx-rounded-lg hx-bg-neutral-50 dark:hx-bg-neutral-800 hx-p-2 hx-mt-4 hx-group" open>
+&lt;summary class="hx-flex hx-items-center hx-cursor-pointer hx-select-none hx-list-none hx-p-1 hx-rounded hx-transition-colors hover:hx-bg-gray-100 dark:hover:hx-bg-neutral-800 before:hx-mr-1 before:hx-inline-block before:hx-transition-transform before:hx-content-[''] dark:before:hx-invert rtl:before:hx-rotate-180 group-open:before:hx-rotate-90">
+&lt;strong class="hx-text-lg">How to update theme?&lt;/strong>
+&lt;/summary>
+&lt;div class="hx-p-2 hx-overflow-hidden">
+&lt;p>To update all Hugo modules in your project to their latest versions, run the following command:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">hugo mod get -u&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>To update Hextra to the &lt;a href="https://github.com/imfing/hextra/releases" target="_blank" rel="noopener">latest released version&lt;/a>, run the following command:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">hugo mod get -u github.com/imfing/hextra&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>See &lt;a href="https://gohugo.io/hugo-modules/use-modules/#update-all-modules" target="_blank" rel="noopener">Hugo Modules&lt;/a> for more details.&lt;/p>
+&lt;/div>
+&lt;/details>
+&lt;h3>Setup Hextra as Git submodule&lt;span class="hx-absolute -hx-mt-20" id="setup-hextra-as-git-submodule">&lt;/span>
+&lt;a href="#setup-hextra-as-git-submodule" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;h4>Prerequisites&lt;span class="hx-absolute -hx-mt-20" id="prerequisites-1">&lt;/span>
+&lt;a href="#prerequisites-1" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h4>&lt;p>Before starting, you need to have the following software installed:&lt;/p>
+&lt;ul>
+&lt;li>&lt;a href="https://gohugo.io/installation/" target="_blank" rel="noopener">Hugo (extended version)&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://git-scm.com/" target="_blank" rel="noopener">Git&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;h4>Steps&lt;span class="hx-absolute -hx-mt-20" id="steps-1">&lt;/span>
+&lt;a href="#steps-1" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h4>&lt;div class="steps hx-ml-4 hx-mb-12 ltr:hx-border-l rtl:hx-border-r hx-border-gray-200 ltr:hx-pl-6 rtl:hx-pr-6 dark:hx-border-neutral-800 [counter-reset:step]">
+&lt;h3>Initialize a new Hugo site&lt;span class="hx-absolute -hx-mt-20" id="initialize-a-new-hugo-site-1">&lt;/span>
+&lt;a href="#initialize-a-new-hugo-site-1" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">hugo new site my-site --format&lt;span class="o">=&lt;/span>yaml&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;h3>Add Hextra theme as a Git submodule&lt;span class="hx-absolute -hx-mt-20" id="add-hextra-theme-as-a-git-submodule">&lt;/span>
+&lt;a href="#add-hextra-theme-as-a-git-submodule" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">git submodule add https://github.com/imfing/hextra.git themes/hextra&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>Configure &lt;code>hugo.yaml&lt;/code> to use Hextra theme by adding the following:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-yaml" data-lang="yaml">&lt;span class="line">&lt;span class="cl">&lt;span class="nt">theme&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">hextra&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;h3>Create your first content pages&lt;span class="hx-absolute -hx-mt-20" id="create-your-first-content-pages-1">&lt;/span>
+&lt;a href="#create-your-first-content-pages-1" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>Create new content page for the home page and the documentation page:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">hugo new content/_index.md
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">hugo new content/docs/_index.md&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;h3>Preview the site locally&lt;span class="hx-absolute -hx-mt-20" id="preview-the-site-locally-1">&lt;/span>
+&lt;a href="#preview-the-site-locally-1" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">hugo server --buildDrafts --disableFastRender&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>Your new site preview is available at &lt;code>http://localhost:1313/&lt;/code>.&lt;/p>
+&lt;/div>
+&lt;p>When using &lt;a href="https://en.wikipedia.org/wiki/CI/CD" target="_blank" rel="noopener">CI/CD&lt;/a> for Hugo website deployment, it&amp;rsquo;s essential to ensure that the following command is executed before running the &lt;code>hugo&lt;/code> command.&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">git submodule update --init&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>Failure to run this command results in the theme folder not being populated with Hextra theme files, leading to a build failure.&lt;/p>
+&lt;details class="last-of-type:hx-mb-0 hx-rounded-lg hx-bg-neutral-50 dark:hx-bg-neutral-800 hx-p-2 hx-mt-4 hx-group" open>
+&lt;summary class="hx-flex hx-items-center hx-cursor-pointer hx-select-none hx-list-none hx-p-1 hx-rounded hx-transition-colors hover:hx-bg-gray-100 dark:hover:hx-bg-neutral-800 before:hx-mr-1 before:hx-inline-block before:hx-transition-transform before:hx-content-[''] dark:before:hx-invert rtl:before:hx-rotate-180 group-open:before:hx-rotate-90">
+&lt;strong class="hx-text-lg">How to update theme?&lt;/strong>
+&lt;/summary>
+&lt;div class="hx-p-2 hx-overflow-hidden">
+&lt;p>To update all submodules in your repository to their latest commits, run the following command:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">git submodule update --remote&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>To update Hextra to the latest commit, run the following command:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">git submodule update --remote themes/hextra&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>See &lt;a href="https://git-scm.com/book/en/v2/Git-Tools-Submodules" target="_blank" rel="noopener">Git submodules&lt;/a> for more details.&lt;/p>
+&lt;/div>
+&lt;/details>
+&lt;h2>Next&lt;span class="hx-absolute -hx-mt-20" id="next">&lt;/span>
+&lt;a href="#next" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>Explore the following sections to start adding more contents:&lt;/p>
+&lt;div class="hextra-cards hx-mt-4 hx-gap-4 hx-grid not-prose" style="--hextra-cards-grid-cols: 3;">
+&lt;a
+class="hextra-card hx-group hx-flex hx-flex-col hx-justify-start hx-overflow-hidden hx-rounded-lg hx-border hx-border-gray-200 hx-text-current hx-no-underline dark:hx-shadow-none hover:hx-shadow-gray-100 dark:hover:hx-shadow-none hx-shadow-gray-100 active:hx-shadow-sm active:hx-shadow-gray-200 hx-transition-all hx-duration-200 hover:hx-border-gray-300 hx-bg-transparent hx-shadow-sm dark:hx-border-neutral-800 hover:hx-bg-slate-50 hover:hx-shadow-md dark:hover:hx-border-neutral-700 dark:hover:hx-bg-neutral-900"href="../guide/organize-files"
+>&lt;span class="hextra-card-icon hx-flex hx-font-semibold hx-items-start hx-gap-2 hx-p-4 hx-text-gray-700 hover:hx-text-gray-900 dark:hx-text-neutral-200 dark:hover:hx-text-neutral-50">&lt;svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">&lt;path stroke-linecap="round" stroke-linejoin="round" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"/>&lt;/svg>Organize Files&lt;/span>&lt;/a>
+&lt;a
+class="hextra-card hx-group hx-flex hx-flex-col hx-justify-start hx-overflow-hidden hx-rounded-lg hx-border hx-border-gray-200 hx-text-current hx-no-underline dark:hx-shadow-none hover:hx-shadow-gray-100 dark:hover:hx-shadow-none hx-shadow-gray-100 active:hx-shadow-sm active:hx-shadow-gray-200 hx-transition-all hx-duration-200 hover:hx-border-gray-300 hx-bg-transparent hx-shadow-sm dark:hx-border-neutral-800 hover:hx-bg-slate-50 hover:hx-shadow-md dark:hover:hx-border-neutral-700 dark:hover:hx-bg-neutral-900"href="../guide/configuration"
+>&lt;span class="hextra-card-icon hx-flex hx-font-semibold hx-items-start hx-gap-2 hx-p-4 hx-text-gray-700 hover:hx-text-gray-900 dark:hx-text-neutral-200 dark:hover:hx-text-neutral-50">&lt;svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">&lt;path stroke-linecap="round" stroke-linejoin="round" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/>&lt;/svg>Configuration&lt;/span>&lt;/a>
+&lt;a
+class="hextra-card hx-group hx-flex hx-flex-col hx-justify-start hx-overflow-hidden hx-rounded-lg hx-border hx-border-gray-200 hx-text-current hx-no-underline dark:hx-shadow-none hover:hx-shadow-gray-100 dark:hover:hx-shadow-none hx-shadow-gray-100 active:hx-shadow-sm active:hx-shadow-gray-200 hx-transition-all hx-duration-200 hover:hx-border-gray-300 hx-bg-transparent hx-shadow-sm dark:hx-border-neutral-800 hover:hx-bg-slate-50 hover:hx-shadow-md dark:hover:hx-border-neutral-700 dark:hover:hx-bg-neutral-900"href="../guide/markdown"
+>&lt;span class="hextra-card-icon hx-flex hx-font-semibold hx-items-start hx-gap-2 hx-p-4 hx-text-gray-700 hover:hx-text-gray-900 dark:hx-text-neutral-200 dark:hover:hx-text-neutral-50">&lt;svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">&lt;path fill="currentColor" d="M20.56 18H3.44C2.65 18 2 17.37 2 16.59V7.41C2 6.63 2.65 6 3.44 6h17.12c.79 0 1.44.63 1.44 1.41v9.18c0 .78-.65 1.41-1.44 1.41M6.81 15.19v-3.66l1.92 2.35l1.92-2.35v3.66h1.93V8.81h-1.93l-1.92 2.35l-1.92-2.35H4.89v6.38h1.92M19.69 12h-1.92V8.81h-1.92V12h-1.93l2.89 3.28L19.69 12Z"/>&lt;/svg>Markdown&lt;/span>&lt;/a>
+&lt;/div></description></item><item><title>LLM</title><link>https://blog-dev.garrardkitchen.com/nuggets/llm/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://blog-dev.garrardkitchen.com/nuggets/llm/</guid><description/></item><item><title>Multi-language</title><link>https://blog-dev.garrardkitchen.com/docs/advanced/multi-language/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://blog-dev.garrardkitchen.com/docs/advanced/multi-language/</guid><description>
+&lt;p>Hextra supports creating site with multiple languages using Hugo&amp;rsquo;s &lt;a href="https://gohugo.io/content-management/multilingual/" target="_blank" rel="noopener">multilingual mode&lt;/a>.&lt;/p>
+&lt;h2>Enable Multi-language&lt;span class="hx-absolute -hx-mt-20" id="enable-multi-language">&lt;/span>
+&lt;a href="#enable-multi-language" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>To make our site multi-language, we need to tell Hugo the supported languages. We need to add to the site configuration file:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div class="filename not-prose" dir="auto">hugo.yaml&lt;/div>&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-yaml" data-lang="yaml">&lt;span class="line">&lt;span class="cl">&lt;span class="nt">defaultContentLanguage&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">en&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">languages&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">en&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">languageName&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">English&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">weight&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="m">1&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">fr&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">languageName&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">Français&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">weight&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="m">2&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">ja&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">languageName&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">日本語&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">weight&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="m">3&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-8">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;h2>Manage Translations by Filename&lt;span class="hx-absolute -hx-mt-20" id="manage-translations-by-filename">&lt;/span>
+&lt;a href="#manage-translations-by-filename" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>Hugo supports managing translations by filename. For example, if we have a file &lt;code>content/docs/_index.md&lt;/code> in English, we can create a file &lt;code>content/docs/_index.fr.md&lt;/code> for French translation.&lt;/p>
+&lt;div class="hextra-filetree hx-mt-6 hx-select-none hx-text-sm hx-text-gray-800 dark:hx-text-gray-300 not-prose">
+&lt;div class="hx-inline-block hx-rounded-lg hx-border hx-px-4 hx-py-2 dark:hx-border-neutral-800">
+&lt;li class="hx-group hx-flex hx-list-none hx-flex-col">
+&lt;button class="hextra-filetree-folder hx-inline-flex hx-cursor-pointer hx-items-center hx-py-1 hover:hx-opacity-60">
+&lt;span data-state="open" class="data-[state=open]:hx-hidden">&lt;svg width=1em xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">&lt;path stroke-linecap="round" stroke-linejoin="round" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/>&lt;/svg>&lt;/span>
+&lt;span data-state="open" class="data-[state=closed]:hx-hidden">&lt;svg width=1em xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">&lt;path stroke-linecap="round" stroke-linejoin="round" d="M5 19a2 2 0 01-2-2V7a2 2 0 012-2h4l2 2h4a2 2 0 012 2v1M5 19h14a2 2 0 002-2v-5a2 2 0 00-2-2H9a2 2 0 00-2 2v5a2 2 0 01-2 2z"/>&lt;/svg>&lt;/span>
+&lt;span class="ltr:hx-ml-1 rtl:hx-mr-1">content&lt;/span>
+&lt;/button>
+&lt;ul data-state="open" class="ltr:hx-pl-5 rtl:hx-pr-5 data-[state=closed]:hx-hidden">
+&lt;li class="hx-group hx-flex hx-list-none hx-flex-col">
+&lt;button class="hextra-filetree-folder hx-inline-flex hx-cursor-pointer hx-items-center hx-py-1 hover:hx-opacity-60">
+&lt;span data-state="open" class="data-[state=open]:hx-hidden">&lt;svg width=1em xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">&lt;path stroke-linecap="round" stroke-linejoin="round" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/>&lt;/svg>&lt;/span>
+&lt;span data-state="open" class="data-[state=closed]:hx-hidden">&lt;svg width=1em xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">&lt;path stroke-linecap="round" stroke-linejoin="round" d="M5 19a2 2 0 01-2-2V7a2 2 0 012-2h4l2 2h4a2 2 0 012 2v1M5 19h14a2 2 0 002-2v-5a2 2 0 00-2-2H9a2 2 0 00-2 2v5a2 2 0 01-2 2z"/>&lt;/svg>&lt;/span>
+&lt;span class="ltr:hx-ml-1 rtl:hx-mr-1">docs&lt;/span>
+&lt;/button>
+&lt;ul data-state="open" class="ltr:hx-pl-5 rtl:hx-pr-5 data-[state=closed]:hx-hidden">
+&lt;li class="hx-flex hx-list-none">
+&lt;span class="hx-inline-flex hx-cursor-default hx-items-center hx-py-1">&lt;svg width=1em xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">&lt;path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>&lt;/svg>&lt;span class="ltr:hx-ml-1 rtl:hx-mr-1">_index.md&lt;/span>
+&lt;/span>
+&lt;/li>
+&lt;li class="hx-flex hx-list-none">
+&lt;span class="hx-inline-flex hx-cursor-default hx-items-center hx-py-1">&lt;svg width=1em xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">&lt;path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>&lt;/svg>&lt;span class="ltr:hx-ml-1 rtl:hx-mr-1">_index.fr.md&lt;/span>
+&lt;/span>
+&lt;/li>
+&lt;li class="hx-flex hx-list-none">
+&lt;span class="hx-inline-flex hx-cursor-default hx-items-center hx-py-1">&lt;svg width=1em xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">&lt;path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>&lt;/svg>&lt;span class="ltr:hx-ml-1 rtl:hx-mr-1">_index.ja.md&lt;/span>
+&lt;/span>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/div>
+&lt;/div>
+&lt;p>Note: Hugo also supports &lt;a href="https://gohugo.io/content-management/multilingual/#translation-by-content-directory" target="_blank" rel="noopener">Translation by content directory&lt;/a>.&lt;/p>
+&lt;h2>Translate Menu Items&lt;span class="hx-absolute -hx-mt-20" id="translate-menu-items">&lt;/span>
+&lt;a href="#translate-menu-items" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>To translate menu items in the navigation bar, we need to set the &lt;code>identifier&lt;/code> field:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div class="filename not-prose" dir="auto">hugo.yaml&lt;/div>&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-yaml" data-lang="yaml">&lt;span class="line">&lt;span class="cl">&lt;span class="nt">menu&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">main&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="nt">identifier&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">documentation&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">name&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">Documentation&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">pageRef&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">/docs&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">weight&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="m">1&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="nt">identifier&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">blog&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">name&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">Blog&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">pageRef&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">/blog&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">weight&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="m">2&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-8">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>and translate them in the corresponding i18n file:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div class="filename not-prose" dir="auto">i18n/fr.yaml&lt;/div>&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-yaml" data-lang="yaml">&lt;span class="line">&lt;span class="cl">&lt;span class="nt">documentation&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">Documentation&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">blog&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">Blog&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-8">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;h2>Translate Strings&lt;span class="hx-absolute -hx-mt-20" id="translate-strings">&lt;/span>
+&lt;a href="#translate-strings" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>To translate strings on the other places, we need to add the translation to the corresponding i18n file:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div class="filename not-prose" dir="auto">i18n/fr.yaml&lt;/div>&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-yaml" data-lang="yaml">&lt;span class="line">&lt;span class="cl">&lt;span class="nt">readMore&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">Lire la suite&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-8">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>A list of strings used in the theme can be found in the &lt;code>i18n/en.yaml&lt;/code> file.&lt;/p>
+&lt;h2>Read More&lt;span class="hx-absolute -hx-mt-20" id="read-more">&lt;/span>
+&lt;a href="#read-more" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;ul>
+&lt;li>&lt;a href="https://gohugo.io/content-management/multilingual/" target="_blank" rel="noopener">Hugo Multilingual Mode&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://www.regisphilibert.com/blog/2018/08/hugo-multilingual-part-1-managing-content-translation/" target="_blank" rel="noopener">Hugo Multilingual Part 1: Content translation&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://www.regisphilibert.com/blog/2018/08/hugo-multilingual-part-2-i18n-string-localization/" target="_blank" rel="noopener">Hugo Multilingual Part 2: Strings localization&lt;/a>&lt;/li>
+&lt;/ul></description></item><item><title>Local</title><link>https://blog-dev.garrardkitchen.com/nuggets/mcp/mcp-local/</link><pubDate>Thu, 17 Apr 2025 00:00:00 +0000</pubDate><guid>https://blog-dev.garrardkitchen.com/nuggets/mcp/mcp-local/</guid><description>
+&lt;h2>Links&lt;span class="hx-absolute -hx-mt-20" id="links">&lt;/span>
+&lt;a href="#links" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2></description></item><item><title>Remote</title><link>https://blog-dev.garrardkitchen.com/nuggets/mcp/mcp-remote/</link><pubDate>Thu, 17 Apr 2025 00:00:00 +0000</pubDate><guid>https://blog-dev.garrardkitchen.com/nuggets/mcp/mcp-remote/</guid><description>
+&lt;h2>Links&lt;span class="hx-absolute -hx-mt-20" id="links">&lt;/span>
+&lt;a href="#links" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2></description></item><item><title>VSCode</title><link>https://blog-dev.garrardkitchen.com/nuggets/mcp/mcp-vscode/</link><pubDate>Thu, 17 Apr 2025 00:00:00 +0000</pubDate><guid>https://blog-dev.garrardkitchen.com/nuggets/mcp/mcp-vscode/</guid><description>
+&lt;h2>Links&lt;span class="hx-absolute -hx-mt-20" id="links">&lt;/span>
+&lt;a href="#links" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2></description></item><item><title>I am not Steve!</title><link>https://blog-dev.garrardkitchen.com/gaming/minecraft/java-edition/</link><pubDate>Thu, 27 Jan 2022 11:49:14 +0100</pubDate><guid>https://blog-dev.garrardkitchen.com/gaming/minecraft/java-edition/</guid><description>
+&lt;p>&lt;strong>TL;DR:&lt;/strong> £70 lighter, shared family learning and happiness (well, kinda)&lt;/p>
+&lt;p>TBC&amp;hellip;&lt;/p></description></item><item><title>Model Context Protocol</title><link>https://blog-dev.garrardkitchen.com/ai/mcp/mcp-intro/</link><pubDate>Thu, 27 Jan 2022 11:49:14 +0100</pubDate><guid>https://blog-dev.garrardkitchen.com/ai/mcp/mcp-intro/</guid><description>
+&lt;p>When I first came across the Model Context Protocol (MCP), I couldn&amp;rsquo;t help but notice its parallels with OpenAPI. What follows is my attempt to connect the dots. While it&amp;rsquo;s not a perfect one-to-one comparison, it&amp;rsquo;s fascinating how concepts can feel similar simply by swapping a few key terms.&lt;/p>
+&lt;h1>Understanding MCP and Its Comparison to OpenAPI for LLMs&lt;/h1>&lt;p>In the world of APIs, OpenAPI has become the gold standard for describing RESTful APIs in a way that is machine-readable, consistent, and developer-friendly. Similarly, the &lt;strong>Model Communication Protocol (MCP)&lt;/strong> aims to provide a standardized framework for &lt;strong>Large Language Models (LLMs)&lt;/strong> to interact with applications, enabling interoperability, scalability, and ease of integration. This document explores how MCP is comparable to OpenAPI, introduces the concept of &lt;strong>Agent-to-Agent (A2A) communication&lt;/strong>, and examines the problems MCP solves in the LLM ecosystem.&lt;/p>
+&lt;hr>
+&lt;h2>What is MCP?&lt;span class="hx-absolute -hx-mt-20" id="what-is-mcp">&lt;/span>
+&lt;a href="#what-is-mcp" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>MCP, or &lt;strong>Model Communication Protocol&lt;/strong>, is a standard designed to facilitate seamless interaction between LLMs and external systems. It provides a structured way to define how LLMs can:&lt;/p>
+&lt;ul>
+&lt;li>Understand requests from external applications.&lt;/li>
+&lt;li>Respond in a consistent format that applications can parse.&lt;/li>
+&lt;li>Allow multiple LLMs or agents to communicate with each other (Agent-to-Agent communication).&lt;/li>
+&lt;/ul>
+&lt;h3>Core Goals of MCP:&lt;span class="hx-absolute -hx-mt-20" id="core-goals-of-mcp">&lt;/span>
+&lt;a href="#core-goals-of-mcp" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;ol>
+&lt;li>&lt;strong>Interoperability&lt;/strong>: Ensure different LLMs can work within the same ecosystem.&lt;/li>
+&lt;li>&lt;strong>Standardization&lt;/strong>: Provide a protocol for defining inputs, outputs, and behaviors.&lt;/li>
+&lt;li>&lt;strong>Scalability&lt;/strong>: Enable the expansion to more complex systems with multiple agents.&lt;/li>
+&lt;li>&lt;strong>Modularity&lt;/strong>: Allow developers to plug in or swap out LLMs easily.&lt;/li>
+&lt;/ol>
+&lt;hr>
+&lt;h2>How is MCP Comparable to OpenAPI?&lt;span class="hx-absolute -hx-mt-20" id="how-is-mcp-comparable-to-openapi">&lt;/span>
+&lt;a href="#how-is-mcp-comparable-to-openapi" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>OpenAPI is a specification for RESTful APIs that defines how endpoints, methods, and payloads are described. MCP provides a similar structure but is tailored for LLM interactions.&lt;/p>
+&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th>&lt;strong>Aspect&lt;/strong>&lt;/th>
+&lt;th>&lt;strong>OpenAPI&lt;/strong>&lt;/th>
+&lt;th>&lt;strong>MCP&lt;/strong>&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td>&lt;strong>Purpose&lt;/strong>&lt;/td>
+&lt;td>Standardizes RESTful API communication&lt;/td>
+&lt;td>Standardizes communication for LLMs&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;strong>Describes&lt;/strong>&lt;/td>
+&lt;td>Endpoints, methods, payloads, responses&lt;/td>
+&lt;td>Prompts, responses, behaviors of LLMs&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;strong>Format&lt;/strong>&lt;/td>
+&lt;td>JSON or YAML&lt;/td>
+&lt;td>JSON-based protocol&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;strong>Machine-readable&lt;/strong>&lt;/td>
+&lt;td>Yes&lt;/td>
+&lt;td>Yes&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;strong>Interoperability&lt;/strong>&lt;/td>
+&lt;td>Enables systems to integrate with APIs easily&lt;/td>
+&lt;td>Enables systems and LLMs to work together&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;strong>Developer Benefits&lt;/strong>&lt;/td>
+&lt;td>Clear API contracts, faster integration&lt;/td>
+&lt;td>Consistent LLM interaction, easier scaling&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;p>In essence, MCP acts as the &amp;ldquo;contract&amp;rdquo; for how LLMs interact with other systems, just as OpenAPI does for REST APIs.&lt;/p>
+&lt;hr>
+&lt;h2>What is Agent-to-Agent (A2A) Communication?&lt;span class="hx-absolute -hx-mt-20" id="what-is-agent-to-agent-a2a-communication">&lt;/span>
+&lt;a href="#what-is-agent-to-agent-a2a-communication" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>Agent-to-Agent (A2A) is a critical component of MCP. It refers to the ability of multiple agents (LLMs or other AI systems) to communicate with one another in a standardized manner.&lt;/p>
+&lt;h3>Where A2A Fits into MCP:&lt;span class="hx-absolute -hx-mt-20" id="where-a2a-fits-into-mcp">&lt;/span>
+&lt;a href="#where-a2a-fits-into-mcp" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;ul>
+&lt;li>&lt;strong>Collaboration&lt;/strong>: A2A allows different LLMs or agents to collaborate on tasks by sharing information and results.&lt;/li>
+&lt;li>&lt;strong>Decentralization&lt;/strong>: By enabling direct agent communication, A2A reduces the reliance on a centralized system.&lt;/li>
+&lt;li>&lt;strong>Scalability&lt;/strong>: A2A helps scale systems by distributing tasks across multiple agents or models.&lt;/li>
+&lt;/ul>
+&lt;h3>Example Use Case:&lt;span class="hx-absolute -hx-mt-20" id="example-use-case">&lt;/span>
+&lt;a href="#example-use-case" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>Imagine a customer support system where:&lt;/p>
+&lt;ol>
+&lt;li>&lt;strong>Agent 1&lt;/strong> specializes in answering technical questions.&lt;/li>
+&lt;li>&lt;strong>Agent 2&lt;/strong> focuses on billing inquiries.&lt;/li>
+&lt;li>&lt;strong>Agent 3&lt;/strong> is a general-purpose assistant.&lt;/li>
+&lt;/ol>
+&lt;p>With A2A, these agents can coordinate:&lt;/p>
+&lt;ul>
+&lt;li>Agent 3 receives a query and determines it&amp;rsquo;s a billing issue.&lt;/li>
+&lt;li>It forwards the query to Agent 2 using MCP protocols.&lt;/li>
+&lt;li>Agent 2 processes the query and returns the response to Agent 3, which relays it to the user.&lt;/li>
+&lt;/ul>
+&lt;hr>
+&lt;h2>Problems MCP Solves&lt;span class="hx-absolute -hx-mt-20" id="problems-mcp-solves">&lt;/span>
+&lt;a href="#problems-mcp-solves" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;h3>1. &lt;strong>Lack of Standardization&lt;/strong>&lt;span class="hx-absolute -hx-mt-20" id="1-lack-of-standardization">&lt;/span>
+&lt;a href="#1-lack-of-standardization" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;ul>
+&lt;li>Currently, every LLM has its own unique API and interaction model.&lt;/li>
+&lt;li>MCP provides a universal protocol, reducing the need for custom integrations.&lt;/li>
+&lt;/ul>
+&lt;h3>2. &lt;strong>Complex LLM Ecosystems&lt;/strong>&lt;span class="hx-absolute -hx-mt-20" id="2-complex-llm-ecosystems">&lt;/span>
+&lt;a href="#2-complex-llm-ecosystems" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;ul>
+&lt;li>In systems with multiple LLMs or agents, communication can become fragmented.&lt;/li>
+&lt;li>MCP and A2A enable a cohesive framework for inter-agent communication.&lt;/li>
+&lt;/ul>
+&lt;h3>3. &lt;strong>Scalability Challenges&lt;/strong>&lt;span class="hx-absolute -hx-mt-20" id="3-scalability-challenges">&lt;/span>
+&lt;a href="#3-scalability-challenges" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;ul>
+&lt;li>Scaling LLM systems often involves ad-hoc solutions for orchestration.&lt;/li>
+&lt;li>MCP introduces modularity, making it easier to scale and manage these systems.&lt;/li>
+&lt;/ul>
+&lt;h3>4. &lt;strong>Developer Friction&lt;/strong>&lt;span class="hx-absolute -hx-mt-20" id="4-developer-friction">&lt;/span>
+&lt;a href="#4-developer-friction" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;ul>
+&lt;li>Developers often face difficulty in integrating different LLMs.&lt;/li>
+&lt;li>MCP simplifies this process by providing a clear and consistent interface.&lt;/li>
+&lt;/ul>
+&lt;hr>
+&lt;h2>Conclusion&lt;span class="hx-absolute -hx-mt-20" id="conclusion">&lt;/span>
+&lt;a href="#conclusion" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>MCP is to LLMs what OpenAPI is to RESTful APIs—a standard for communication, interaction, and integration. By introducing features like Agent-to-Agent communication, MCP addresses key challenges in scalability, standardization, and interoperability. As the adoption of LLMs grows, MCP will play an essential role in shaping how these models interact with each other and the systems they serve.&lt;/p></description></item><item><title>Comments System</title><link>https://blog-dev.garrardkitchen.com/docs/advanced/comments/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://blog-dev.garrardkitchen.com/docs/advanced/comments/</guid><description>
+&lt;p>Hextra supports adding comments system to your site.
+Currently &lt;a href="https://giscus.app/" target="_blank" rel="noopener">giscus&lt;/a> is supported.&lt;/p>
+&lt;h2>giscus&lt;span class="hx-absolute -hx-mt-20" id="giscus">&lt;/span>
+&lt;a href="#giscus" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>&lt;a href="https://giscus.app/" target="_blank" rel="noopener">giscus&lt;/a> is a comments system powered by &lt;a href="https://docs.github.com/en/discussions" target="_blank" rel="noopener">GitHub Discussions&lt;/a>. It is free and open source.&lt;/p>
+&lt;p>To enable giscus, you need to add the following to the site configuration file:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div class="filename not-prose" dir="auto">hugo.yaml&lt;/div>&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-yaml" data-lang="yaml">&lt;span class="line">&lt;span class="cl">&lt;span class="nt">params&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">comments&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">enable&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kc">false&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">type&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">giscus&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">giscus&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">repo&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">&amp;lt;repository&amp;gt;&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">repoId&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">&amp;lt;repository ID&amp;gt;&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">category&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">&amp;lt;category&amp;gt;&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">categoryId&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">&amp;lt;category ID&amp;gt;&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-8">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>The giscus configurations can be constructed from the &lt;a href="https://giscus.app/" target="_blank" rel="noopener">giscus.app&lt;/a> website. More details can also be found there.&lt;/p>
+&lt;p>Comments can be enabled or disabled for a specific page in the page front matter:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div class="filename not-prose" dir="auto">content/docs/about.md&lt;/div>&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-yaml" data-lang="yaml">&lt;span class="line">&lt;span class="cl">&lt;span class="nn">---&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">title&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">About&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">comments&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kc">true&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nn">---&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-8">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div></description></item><item><title>Customizing Hextra</title><link>https://blog-dev.garrardkitchen.com/docs/advanced/customization/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://blog-dev.garrardkitchen.com/docs/advanced/customization/</guid><description>
+&lt;p>Hextra offers some default customization options in the &lt;code>hugo.yaml&lt;/code> config file to configure the theme.
+This page describes the available options and how to customize the theme further.&lt;/p>
+&lt;h2>Custom CSS&lt;span class="hx-absolute -hx-mt-20" id="custom-css">&lt;/span>
+&lt;a href="#custom-css" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>To add custom CSS, we need to create a file &lt;code>assets/css/custom.css&lt;/code> in our site. Hextra will automatically load this file.&lt;/p>
+&lt;h3>Font Family&lt;span class="hx-absolute -hx-mt-20" id="font-family">&lt;/span>
+&lt;a href="#font-family" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>The font family of the content can be customized using:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div class="filename not-prose" dir="auto">assets/css/custom.css&lt;/div>&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-css" data-lang="css">&lt;span class="line">&lt;span class="cl">&lt;span class="p">.&lt;/span>&lt;span class="nc">content&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">font-family&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="s2">&amp;#34;Times New Roman&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">Times&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="kc">serif&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-8">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;h3>Inline Code Element&lt;span class="hx-absolute -hx-mt-20" id="inline-code-element">&lt;/span>
+&lt;a href="#inline-code-element" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>The color of text mixed with &lt;code>other text&lt;/code> can customized with:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div class="filename not-prose" dir="auto">assets/css/custom.css&lt;/div>&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-css" data-lang="css">&lt;span class="line">&lt;span class="cl">&lt;span class="p">.&lt;/span>&lt;span class="nc">content&lt;/span> &lt;span class="nt">code&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="nd">not&lt;/span>&lt;span class="o">(&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nc">code-block&lt;/span> &lt;span class="nt">code&lt;/span>&lt;span class="o">)&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">color&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="mh">#c97c2e&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-8">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;h3>Primary Color&lt;span class="hx-absolute -hx-mt-20" id="primary-color">&lt;/span>
+&lt;a href="#primary-color" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>The primary color of the theme can be customized by setting the &lt;code>--primary-hue&lt;/code>, &lt;code>--primary-saturation&lt;/code> and &lt;code>--primary-lightness&lt;/code> variables:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div class="filename not-prose" dir="auto">assets/css/custom.css&lt;/div>&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-css" data-lang="css">&lt;span class="line">&lt;span class="cl">&lt;span class="p">:&lt;/span>&lt;span class="nd">root&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nv">--primary-hue&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="mi">100&lt;/span>&lt;span class="kt">deg&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nv">--primary-saturation&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="mi">90&lt;/span>&lt;span class="kt">%&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nv">--primary-lightness&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="mi">50&lt;/span>&lt;span class="kt">%&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-8">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;h3>Further Theme Customization&lt;span class="hx-absolute -hx-mt-20" id="further-theme-customization">&lt;/span>
+&lt;a href="#further-theme-customization" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>The theme can be further customized by overriding the default styles via the exposed css classes. An example for customizing the footer element:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div class="filename not-prose" dir="auto">assets/css/custom.css&lt;/div>&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-css" data-lang="css">&lt;span class="line">&lt;span class="cl">&lt;span class="p">.&lt;/span>&lt;span class="nc">hextra-footer&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c">/* Styles will be applied to the footer element */&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">.&lt;/span>&lt;span class="nc">hextra-footer&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="nd">is&lt;/span>&lt;span class="o">(&lt;/span>&lt;span class="nt">html&lt;/span>&lt;span class="o">[&lt;/span>&lt;span class="nt">class&lt;/span>&lt;span class="o">~=&lt;/span>&lt;span class="s2">&amp;#34;dark&amp;#34;&lt;/span>&lt;span class="o">]&lt;/span> &lt;span class="o">*)&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c">/* Styles will be applied to the footer element in dark mode */&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-8">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>The following classes can be used to customize various parts of the theme.&lt;/p>
+&lt;h4>General&lt;span class="hx-absolute -hx-mt-20" id="general">&lt;/span>
+&lt;a href="#general" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h4>&lt;ul>
+&lt;li>&lt;code>hextra-scrollbar&lt;/code> - The scrollbar element&lt;/li>
+&lt;li>&lt;code>content&lt;/code> - Page content container&lt;/li>
+&lt;/ul>
+&lt;h4>Shortcodes&lt;span class="hx-absolute -hx-mt-20" id="shortcodes">&lt;/span>
+&lt;a href="#shortcodes" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h4>&lt;h5>Badge&lt;span class="hx-absolute -hx-mt-20" id="badge">&lt;/span>
+&lt;a href="#badge" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h5>&lt;ul>
+&lt;li>&lt;code>hextra-badge&lt;/code> - The badge element&lt;/li>
+&lt;/ul>
+&lt;h5>Card&lt;span class="hx-absolute -hx-mt-20" id="card">&lt;/span>
+&lt;a href="#card" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h5>&lt;ul>
+&lt;li>&lt;code>hextra-card&lt;/code> - The card element&lt;/li>
+&lt;li>&lt;code>hextra-card-image&lt;/code> - The card image element&lt;/li>
+&lt;li>&lt;code>hextra-card-icon&lt;/code> - The card icon element&lt;/li>
+&lt;li>&lt;code>hextra-card-subtitle&lt;/code> - The card subtitle element&lt;/li>
+&lt;/ul>
+&lt;h5>Cards&lt;span class="hx-absolute -hx-mt-20" id="cards">&lt;/span>
+&lt;a href="#cards" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h5>&lt;ul>
+&lt;li>&lt;code>hextra-cards&lt;/code> - The cards grid container&lt;/li>
+&lt;/ul>
+&lt;h5>Jupyter Notebook&lt;span class="hx-absolute -hx-mt-20" id="jupyter-notebook">&lt;/span>
+&lt;a href="#jupyter-notebook" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h5>&lt;ul>
+&lt;li>&lt;code>hextra-jupyter-code-cell&lt;/code> - The Jupyter code cell container&lt;/li>
+&lt;li>&lt;code>hextra-jupyter-code-cell-outputs-container&lt;/code> - The Jupyter code cell outputs container&lt;/li>
+&lt;li>&lt;code>hextra-jupyter-code-cell-outputs&lt;/code> - The Jupyter code cell output div element&lt;/li>
+&lt;/ul>
+&lt;h5>PDF&lt;span class="hx-absolute -hx-mt-20" id="pdf">&lt;/span>
+&lt;a href="#pdf" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h5>&lt;ul>
+&lt;li>&lt;code>hextra-pdf&lt;/code> - The PDF container element&lt;/li>
+&lt;/ul>
+&lt;h5>Steps&lt;span class="hx-absolute -hx-mt-20" id="steps">&lt;/span>
+&lt;a href="#steps" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h5>&lt;ul>
+&lt;li>&lt;code>steps&lt;/code> - The steps container&lt;/li>
+&lt;/ul>
+&lt;h5>Tabs&lt;span class="hx-absolute -hx-mt-20" id="tabs">&lt;/span>
+&lt;a href="#tabs" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h5>&lt;ul>
+&lt;li>&lt;code>hextra-tabs-panel&lt;/code> - The tabs panel container&lt;/li>
+&lt;li>&lt;code>hextra-tabs-toggle&lt;/code> - The tabs toggle button&lt;/li>
+&lt;/ul>
+&lt;h5>Filetree&lt;span class="hx-absolute -hx-mt-20" id="filetree">&lt;/span>
+&lt;a href="#filetree" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h5>&lt;ul>
+&lt;li>&lt;code>hextra-filetree&lt;/code> - The filetree container&lt;/li>
+&lt;/ul>
+&lt;h5>Folder&lt;span class="hx-absolute -hx-mt-20" id="folder">&lt;/span>
+&lt;a href="#folder" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h5>&lt;ul>
+&lt;li>&lt;code>hextra-filetree-folder&lt;/code> - The filetree folder container&lt;/li>
+&lt;/ul>
+&lt;h4>Navbar&lt;span class="hx-absolute -hx-mt-20" id="navbar">&lt;/span>
+&lt;a href="#navbar" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h4>&lt;ul>
+&lt;li>&lt;code>nav-container&lt;/code> - The navbar container&lt;/li>
+&lt;li>&lt;code>nav-container-blur&lt;/code> - The navbar container in blur element&lt;/li>
+&lt;li>&lt;code>hamburger-menu&lt;/code> - The hamburger menu button&lt;/li>
+&lt;/ul>
+&lt;h4>Footer&lt;span class="hx-absolute -hx-mt-20" id="footer">&lt;/span>
+&lt;a href="#footer" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h4>&lt;ul>
+&lt;li>&lt;code>hextra-footer&lt;/code> - The footer element&lt;/li>
+&lt;li>&lt;code>hextra-custom-footer&lt;/code> - The custom footer section container&lt;/li>
+&lt;/ul>
+&lt;h4>Search&lt;span class="hx-absolute -hx-mt-20" id="search">&lt;/span>
+&lt;a href="#search" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h4>&lt;ul>
+&lt;li>&lt;code>search-wrapper&lt;/code> - The search wrapper container&lt;/li>
+&lt;li>&lt;code>search-input&lt;/code> - The search input element&lt;/li>
+&lt;li>&lt;code>search-results&lt;/code> - The search results list container&lt;/li>
+&lt;/ul>
+&lt;h4>Table of Contents&lt;span class="hx-absolute -hx-mt-20" id="table-of-contents">&lt;/span>
+&lt;a href="#table-of-contents" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h4>&lt;ul>
+&lt;li>&lt;code>hextra-toc&lt;/code> - The table of contents container&lt;/li>
+&lt;/ul>
+&lt;h4>Sidebar&lt;span class="hx-absolute -hx-mt-20" id="sidebar">&lt;/span>
+&lt;a href="#sidebar" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h4>&lt;ul>
+&lt;li>&lt;code>mobile-menu-overlay&lt;/code> - The overlay element for the mobile menu&lt;/li>
+&lt;li>&lt;code>sidebar-container&lt;/code> - The sidebar container&lt;/li>
+&lt;li>&lt;code>sidebar-active-item&lt;/code> - The active item in the sidebar&lt;/li>
+&lt;/ul>
+&lt;h4>Language Switcher&lt;span class="hx-absolute -hx-mt-20" id="language-switcher">&lt;/span>
+&lt;a href="#language-switcher" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h4>&lt;ul>
+&lt;li>&lt;code>language-switcher&lt;/code> - The language switcher button&lt;/li>
+&lt;li>&lt;code>language-options&lt;/code> - The language options container&lt;/li>
+&lt;/ul>
+&lt;h4>Theme Toggle&lt;span class="hx-absolute -hx-mt-20" id="theme-toggle">&lt;/span>
+&lt;a href="#theme-toggle" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h4>&lt;ul>
+&lt;li>&lt;code>theme-toggle&lt;/code> - The theme toggle button&lt;/li>
+&lt;/ul>
+&lt;h4>Code Copy Button&lt;span class="hx-absolute -hx-mt-20" id="code-copy-button">&lt;/span>
+&lt;a href="#code-copy-button" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h4>&lt;ul>
+&lt;li>&lt;code>hextra-code-copy-btn-container&lt;/code> - The code copy button container&lt;/li>
+&lt;li>&lt;code>hextra-code-copy-btn&lt;/code> - The code copy button&lt;/li>
+&lt;/ul>
+&lt;h4>Code Block&lt;span class="hx-absolute -hx-mt-20" id="code-block">&lt;/span>
+&lt;a href="#code-block" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h4>&lt;ul>
+&lt;li>&lt;code>hextra-code-block&lt;/code> - The code block container&lt;/li>
+&lt;/ul>
+&lt;h4>Feature Card&lt;span class="hx-absolute -hx-mt-20" id="feature-card">&lt;/span>
+&lt;a href="#feature-card" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h4>&lt;ul>
+&lt;li>&lt;code>hextra-feature-card&lt;/code> - The feature card link element&lt;/li>
+&lt;/ul>
+&lt;h4>Feature Grid&lt;span class="hx-absolute -hx-mt-20" id="feature-grid">&lt;/span>
+&lt;a href="#feature-grid" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h4>&lt;ul>
+&lt;li>&lt;code>hextra-feature-grid&lt;/code> - The feature grid container&lt;/li>
+&lt;/ul>
+&lt;h4>Breadcrumbs&lt;span class="hx-absolute -hx-mt-20" id="breadcrumbs">&lt;/span>
+&lt;a href="#breadcrumbs" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h4>&lt;p>No specific class is available for breadcrumbs.&lt;/p>
+&lt;h3>Syntax Highlighting&lt;span class="hx-absolute -hx-mt-20" id="syntax-highlighting">&lt;/span>
+&lt;a href="#syntax-highlighting" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>List of available syntax highlighting themes are available at &lt;a href="https://xyproto.github.io/splash/docs/all.html" target="_blank" rel="noopener">Chroma Styles Gallery&lt;/a>. The stylesheet can be generated using the command:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">hugo gen chromastyles --style&lt;span class="o">=&lt;/span>github&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>To override the default syntax highlighting theme, we can add the generated styles to the custom CSS file.&lt;/p>
+&lt;h2>Custom Scripts&lt;span class="hx-absolute -hx-mt-20" id="custom-scripts">&lt;/span>
+&lt;a href="#custom-scripts" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>You may add custom scripts to the end of the head for every page by adding the following file:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;pre>&lt;code>layouts/partials/custom/head-end.html&lt;/code>&lt;/pre>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;h2>Custom Extra Section in Footer&lt;span class="hx-absolute -hx-mt-20" id="custom-extra-section-in-footer">&lt;/span>
+&lt;a href="#custom-extra-section-in-footer" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>You can add extra section in the footer by creating a file &lt;code>layouts/partials/custom/footer.html&lt;/code> in your site.&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div class="filename not-prose" dir="auto">layouts/partials/custom/footer.html&lt;/div>&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-html" data-lang="html">&lt;span class="line">&lt;span class="cl">&lt;span class="c">&amp;lt;!-- Your footer element here --&amp;gt;&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-8">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>The added section will be added before the copyright section in the footer.
+You can use &lt;a href="https://developer.mozilla.org/en-US/docs/Web/HTML" target="_blank" rel="noopener">HTML&lt;/a> and &lt;a href="https://gohugo.io/templates/" target="_blank" rel="noopener">Hugo template syntax&lt;/a> to add your own content.&lt;/p>
+&lt;p>Hugo variables available in the footer section are: &lt;code>.switchesVisible&lt;/code> and &lt;code>.displayCopyright&lt;/code>.&lt;/p>
+&lt;h2>Custom Layouts&lt;span class="hx-absolute -hx-mt-20" id="custom-layouts">&lt;/span>
+&lt;a href="#custom-layouts" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>The layouts of the theme can be overridden by creating a file with the same name in the &lt;code>layouts&lt;/code> directory of your site.
+For example, to override the &lt;code>single.html&lt;/code> layout for docs, create a file &lt;code>layouts/docs/single.html&lt;/code> in your site.&lt;/p>
+&lt;p>For further information, refer to the &lt;a href="https://gohugo.io/templates/" target="_blank" rel="noopener">Hugo Templates&lt;/a>.&lt;/p>
+&lt;h2>Further Customization&lt;span class="hx-absolute -hx-mt-20" id="further-customization">&lt;/span>
+&lt;a href="#further-customization" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>Didn&amp;rsquo;t find what you were looking for? Feel free to &lt;a href="https://github.com/imfing/hextra/discussions" target="_blank" rel="noopener">open a discussion&lt;/a> or make a contribution to the theme!&lt;/p></description></item></channel></rss>

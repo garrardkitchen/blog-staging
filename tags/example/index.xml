@@ -1,0 +1,522 @@
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Garrard Kitchen – Example</title><link>https://blog-dev.garrardkitchen.com/tags/example/</link><description>Recent content in Example on Garrard Kitchen</description><generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Mon, 06 Apr 2020 15:31:12 +0100</lastBuildDate><atom:link href="https://blog-dev.garrardkitchen.com/tags/example/index.xml" rel="self" type="application/rss+xml"/><item><title>Hugo Shortcodes - my first try</title><link>https://blog-dev.garrardkitchen.com/blog/hugo-shortcodes/</link><pubDate>Mon, 06 Apr 2020 15:31:12 +0100</pubDate><guid>https://blog-dev.garrardkitchen.com/blog/hugo-shortcodes/</guid><description>
+&lt;h1>My first attempt&lt;/h1>&lt;p>Here&amp;rsquo;s my first effort at creating a shortcode.&lt;/p>
+&lt;p>This shortcode is available &lt;a href="https://github.com/garrardkitchen/blog/blob/master/layouts/shortcodes/note.html" target="_blank" rel="noopener">here&lt;/a>&lt;/p>
+&lt;h3>Information&lt;span class="hx-absolute -hx-mt-20" id="information">&lt;/span>
+&lt;a href="#information" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;h4>Basic&lt;span class="hx-absolute -hx-mt-20" id="basic">&lt;/span>
+&lt;a href="#basic" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h4>&lt;p>{{&amp;lt; note
+Sample text
+&amp;gt;}}&lt;/p>
+&lt;div style="padding:2px; margin-top: 20px; margin-bottom: 20px;">
+&lt;style>
+.header {
+color: white;
+font-weight: bold;
+padding-left: 10px;
+padding-top: 5px;
+padding-bottom: 5px;
+border-top-right-radius: 5px;
+border-top-left-radius: 5px;
+font-size: smaller;
+}
+.info {
+background-color: #336699;
+}
+.warning {
+background-color: orange;
+}
+.error {
+background-color: red;
+}
+.note-panel {
+background-color: #c2f5f5;
+padding: 10px;
+border-radius: 5px;
+}
+.panel-info {
+border: 1px solid #336699;
+background-color: rgba(51, 102, 153, 0.2);
+}
+.panel-warning {
+border: 1px solid orange;
+background-color: rgba(255, 166, 0, 0.2);
+}
+.panel-error {
+border: 1px solid red;
+background-color: rgba(255, 0, 0, 0.2);
+}
+.panel-header {
+border-top-left-radius: 0px !important;
+border-top-right-radius: 0px !important;
+}
+&lt;/style>
+&lt;div class="note-panel
+panel-info
+">
+&lt;div style="; ">
+Sample text
+&lt;/div>
+&lt;/div>
+&lt;/div>
+&lt;h4>With italics&lt;span class="hx-absolute -hx-mt-20" id="with-italics">&lt;/span>
+&lt;a href="#with-italics" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h4>&lt;p>{{&amp;lt; note italic=&amp;ldquo;true&amp;rdquo;
+Sample text
+&amp;gt;}}&lt;/p>
+&lt;div style="padding:2px; margin-top: 20px; margin-bottom: 20px;">
+&lt;style>
+.header {
+color: white;
+font-weight: bold;
+padding-left: 10px;
+padding-top: 5px;
+padding-bottom: 5px;
+border-top-right-radius: 5px;
+border-top-left-radius: 5px;
+font-size: smaller;
+}
+.info {
+background-color: #336699;
+}
+.warning {
+background-color: orange;
+}
+.error {
+background-color: red;
+}
+.note-panel {
+background-color: #c2f5f5;
+padding: 10px;
+border-radius: 5px;
+}
+.panel-info {
+border: 1px solid #336699;
+background-color: rgba(51, 102, 153, 0.2);
+}
+.panel-warning {
+border: 1px solid orange;
+background-color: rgba(255, 166, 0, 0.2);
+}
+.panel-error {
+border: 1px solid red;
+background-color: rgba(255, 0, 0, 0.2);
+}
+.panel-header {
+border-top-left-radius: 0px !important;
+border-top-right-radius: 0px !important;
+}
+&lt;/style>
+&lt;div class="note-panel
+panel-info
+">
+&lt;div style=" font-style: italic; ; ">
+Sample text
+&lt;/div>
+&lt;/div>
+&lt;/div>
+&lt;h4>With header&lt;span class="hx-absolute -hx-mt-20" id="with-header">&lt;/span>
+&lt;a href="#with-header" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h4>&lt;p>{{&amp;lt; note title=&amp;ldquo;With header&amp;rdquo;&amp;gt;
+Sample text
+&amp;gt;}}&lt;/p>
+&lt;div style="padding:2px; margin-top: 20px; margin-bottom: 20px;">
+&lt;style>
+.header {
+color: white;
+font-weight: bold;
+padding-left: 10px;
+padding-top: 5px;
+padding-bottom: 5px;
+border-top-right-radius: 5px;
+border-top-left-radius: 5px;
+font-size: smaller;
+}
+.info {
+background-color: #336699;
+}
+.warning {
+background-color: orange;
+}
+.error {
+background-color: red;
+}
+.note-panel {
+background-color: #c2f5f5;
+padding: 10px;
+border-radius: 5px;
+}
+.panel-info {
+border: 1px solid #336699;
+background-color: rgba(51, 102, 153, 0.2);
+}
+.panel-warning {
+border: 1px solid orange;
+background-color: rgba(255, 166, 0, 0.2);
+}
+.panel-error {
+border: 1px solid red;
+background-color: rgba(255, 0, 0, 0.2);
+}
+.panel-header {
+border-top-left-radius: 0px !important;
+border-top-right-radius: 0px !important;
+}
+&lt;/style>
+&lt;div>
+&lt;div style=" font-family: 'Open Sans'; "
+class="header info ">
+&lt;i class="fa fa-question-circle">&lt;/i>
+With header
+&lt;/div>
+&lt;/div>
+&lt;div class="note-panel
+panel-info
+panel-header ">
+&lt;div style="; ">
+Sample text
+&lt;/div>
+&lt;/div>
+&lt;/div>
+&lt;h3>Warning&lt;span class="hx-absolute -hx-mt-20" id="warning">&lt;/span>
+&lt;a href="#warning" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;h4>Basic&lt;span class="hx-absolute -hx-mt-20" id="basic-1">&lt;/span>
+&lt;a href="#basic-1" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h4>&lt;p>{{&amp;lt; note warning=&amp;ldquo;true&amp;rdquo;&amp;gt;
+Sample text
+&amp;gt;}}&lt;/p>
+&lt;div style="padding:2px; margin-top: 20px; margin-bottom: 20px;">
+&lt;style>
+.header {
+color: white;
+font-weight: bold;
+padding-left: 10px;
+padding-top: 5px;
+padding-bottom: 5px;
+border-top-right-radius: 5px;
+border-top-left-radius: 5px;
+font-size: smaller;
+}
+.info {
+background-color: #336699;
+}
+.warning {
+background-color: orange;
+}
+.error {
+background-color: red;
+}
+.note-panel {
+background-color: #c2f5f5;
+padding: 10px;
+border-radius: 5px;
+}
+.panel-info {
+border: 1px solid #336699;
+background-color: rgba(51, 102, 153, 0.2);
+}
+.panel-warning {
+border: 1px solid orange;
+background-color: rgba(255, 166, 0, 0.2);
+}
+.panel-error {
+border: 1px solid red;
+background-color: rgba(255, 0, 0, 0.2);
+}
+.panel-header {
+border-top-left-radius: 0px !important;
+border-top-right-radius: 0px !important;
+}
+&lt;/style>
+&lt;div class="note-panel
+panel-warning warning
+">
+&lt;div style="; ">
+Sample text
+&lt;/div>
+&lt;/div>
+&lt;/div>
+&lt;h4>With italic&lt;span class="hx-absolute -hx-mt-20" id="with-italic">&lt;/span>
+&lt;a href="#with-italic" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h4>&lt;p>{{&amp;lt; note warning=&amp;ldquo;true&amp;rdquo; italic=&amp;ldquo;true&amp;rdquo;
+Sample text
+&amp;gt;}}&lt;/p>
+&lt;div style="padding:2px; margin-top: 20px; margin-bottom: 20px;">
+&lt;style>
+.header {
+color: white;
+font-weight: bold;
+padding-left: 10px;
+padding-top: 5px;
+padding-bottom: 5px;
+border-top-right-radius: 5px;
+border-top-left-radius: 5px;
+font-size: smaller;
+}
+.info {
+background-color: #336699;
+}
+.warning {
+background-color: orange;
+}
+.error {
+background-color: red;
+}
+.note-panel {
+background-color: #c2f5f5;
+padding: 10px;
+border-radius: 5px;
+}
+.panel-info {
+border: 1px solid #336699;
+background-color: rgba(51, 102, 153, 0.2);
+}
+.panel-warning {
+border: 1px solid orange;
+background-color: rgba(255, 166, 0, 0.2);
+}
+.panel-error {
+border: 1px solid red;
+background-color: rgba(255, 0, 0, 0.2);
+}
+.panel-header {
+border-top-left-radius: 0px !important;
+border-top-right-radius: 0px !important;
+}
+&lt;/style>
+&lt;div class="note-panel
+panel-warning warning
+">
+&lt;div style=" font-style: italic; ; ">
+Sample text
+&lt;/div>
+&lt;/div>
+&lt;/div>
+&lt;h4>With header&lt;span class="hx-absolute -hx-mt-20" id="with-header-1">&lt;/span>
+&lt;a href="#with-header-1" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h4>&lt;p>{{&amp;lt; note warning=&amp;ldquo;true&amp;rdquo; title=&amp;ldquo;With header&amp;rdquo;
+Sample text
+&amp;gt;}}&lt;/p>
+&lt;div style="padding:2px; margin-top: 20px; margin-bottom: 20px;">
+&lt;style>
+.header {
+color: white;
+font-weight: bold;
+padding-left: 10px;
+padding-top: 5px;
+padding-bottom: 5px;
+border-top-right-radius: 5px;
+border-top-left-radius: 5px;
+font-size: smaller;
+}
+.info {
+background-color: #336699;
+}
+.warning {
+background-color: orange;
+}
+.error {
+background-color: red;
+}
+.note-panel {
+background-color: #c2f5f5;
+padding: 10px;
+border-radius: 5px;
+}
+.panel-info {
+border: 1px solid #336699;
+background-color: rgba(51, 102, 153, 0.2);
+}
+.panel-warning {
+border: 1px solid orange;
+background-color: rgba(255, 166, 0, 0.2);
+}
+.panel-error {
+border: 1px solid red;
+background-color: rgba(255, 0, 0, 0.2);
+}
+.panel-header {
+border-top-left-radius: 0px !important;
+border-top-right-radius: 0px !important;
+}
+&lt;/style>
+&lt;div>
+&lt;div style=" font-family: 'Open Sans'; "
+class="header warning ">
+&lt;i class="fa fa-exclamation-circle">&lt;/i>
+With header
+&lt;/div>
+&lt;/div>
+&lt;div class="note-panel
+panel-warning warning
+panel-header ">
+&lt;div style="; ">
+Sample text
+&lt;/div>
+&lt;/div>
+&lt;/div>
+&lt;h3>Error&lt;span class="hx-absolute -hx-mt-20" id="error">&lt;/span>
+&lt;a href="#error" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;h4>Basic&lt;span class="hx-absolute -hx-mt-20" id="basic-2">&lt;/span>
+&lt;a href="#basic-2" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h4>&lt;p>{{&amp;lt; note error=&amp;ldquo;true&amp;rdquo;
+Sample text
+&amp;gt;}}&lt;/p>
+&lt;div style="padding:2px; margin-top: 20px; margin-bottom: 20px;">
+&lt;style>
+.header {
+color: white;
+font-weight: bold;
+padding-left: 10px;
+padding-top: 5px;
+padding-bottom: 5px;
+border-top-right-radius: 5px;
+border-top-left-radius: 5px;
+font-size: smaller;
+}
+.info {
+background-color: #336699;
+}
+.warning {
+background-color: orange;
+}
+.error {
+background-color: red;
+}
+.note-panel {
+background-color: #c2f5f5;
+padding: 10px;
+border-radius: 5px;
+}
+.panel-info {
+border: 1px solid #336699;
+background-color: rgba(51, 102, 153, 0.2);
+}
+.panel-warning {
+border: 1px solid orange;
+background-color: rgba(255, 166, 0, 0.2);
+}
+.panel-error {
+border: 1px solid red;
+background-color: rgba(255, 0, 0, 0.2);
+}
+.panel-header {
+border-top-left-radius: 0px !important;
+border-top-right-radius: 0px !important;
+}
+&lt;/style>
+&lt;div class="note-panel
+panel-error
+">
+&lt;div style="; ">
+Sample text
+&lt;/div>
+&lt;/div>
+&lt;/div>
+&lt;h4>With italic&lt;span class="hx-absolute -hx-mt-20" id="with-italic-1">&lt;/span>
+&lt;a href="#with-italic-1" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h4>&lt;p>{{&amp;lt; note error=&amp;ldquo;true&amp;rdquo; italic=&amp;ldquo;true&amp;rdquo;
+Sample text
+&amp;gt;}}&lt;/p>
+&lt;div style="padding:2px; margin-top: 20px; margin-bottom: 20px;">
+&lt;style>
+.header {
+color: white;
+font-weight: bold;
+padding-left: 10px;
+padding-top: 5px;
+padding-bottom: 5px;
+border-top-right-radius: 5px;
+border-top-left-radius: 5px;
+font-size: smaller;
+}
+.info {
+background-color: #336699;
+}
+.warning {
+background-color: orange;
+}
+.error {
+background-color: red;
+}
+.note-panel {
+background-color: #c2f5f5;
+padding: 10px;
+border-radius: 5px;
+}
+.panel-info {
+border: 1px solid #336699;
+background-color: rgba(51, 102, 153, 0.2);
+}
+.panel-warning {
+border: 1px solid orange;
+background-color: rgba(255, 166, 0, 0.2);
+}
+.panel-error {
+border: 1px solid red;
+background-color: rgba(255, 0, 0, 0.2);
+}
+.panel-header {
+border-top-left-radius: 0px !important;
+border-top-right-radius: 0px !important;
+}
+&lt;/style>
+&lt;div class="note-panel
+panel-error
+">
+&lt;div style=" font-style: italic; ; ">
+Sample text
+&lt;/div>
+&lt;/div>
+&lt;/div>
+&lt;h4>With header&lt;span class="hx-absolute -hx-mt-20" id="with-header-2">&lt;/span>
+&lt;a href="#with-header-2" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h4>&lt;p>{{&amp;lt; note error=&amp;ldquo;true&amp;rdquo; title=&amp;ldquo;With header&amp;rdquo;
+Sample text
+&amp;gt;}}&lt;/p>
+&lt;div style="padding:2px; margin-top: 20px; margin-bottom: 20px;">
+&lt;style>
+.header {
+color: white;
+font-weight: bold;
+padding-left: 10px;
+padding-top: 5px;
+padding-bottom: 5px;
+border-top-right-radius: 5px;
+border-top-left-radius: 5px;
+font-size: smaller;
+}
+.info {
+background-color: #336699;
+}
+.warning {
+background-color: orange;
+}
+.error {
+background-color: red;
+}
+.note-panel {
+background-color: #c2f5f5;
+padding: 10px;
+border-radius: 5px;
+}
+.panel-info {
+border: 1px solid #336699;
+background-color: rgba(51, 102, 153, 0.2);
+}
+.panel-warning {
+border: 1px solid orange;
+background-color: rgba(255, 166, 0, 0.2);
+}
+.panel-error {
+border: 1px solid red;
+background-color: rgba(255, 0, 0, 0.2);
+}
+.panel-header {
+border-top-left-radius: 0px !important;
+border-top-right-radius: 0px !important;
+}
+&lt;/style>
+&lt;div>
+&lt;div style=" font-family: 'Open Sans'; "
+class="header error ">
+&lt;i class="fa fa-ban">&lt;/i>
+With header
+&lt;/div>
+&lt;/div>
+&lt;div class="note-panel
+panel-error
+panel-header ">
+&lt;div style="; ">
+Sample text
+&lt;/div>
+&lt;/div>
+&lt;/div></description></item></channel></rss>

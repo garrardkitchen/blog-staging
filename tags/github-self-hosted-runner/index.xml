@@ -1,0 +1,87 @@
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Garrard Kitchen – Github Self-Hosted Runner</title><link>https://blog-dev.garrardkitchen.com/tags/github-self-hosted-runner/</link><description>Recent content in Github Self-Hosted Runner on Garrard Kitchen</description><generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Tue, 18 Jan 2022 11:50:13 +0000</lastBuildDate><atom:link href="https://blog-dev.garrardkitchen.com/tags/github-self-hosted-runner/index.xml" rel="self" type="application/rss+xml"/><item><title>Adding more Github Self-Hosted Runners</title><link>https://blog-dev.garrardkitchen.com/blog/github-self-hosted-runner/</link><pubDate>Tue, 18 Jan 2022 11:50:13 +0000</pubDate><guid>https://blog-dev.garrardkitchen.com/blog/github-self-hosted-runner/</guid><description>
+&lt;h1>Adding more GitHub Self-Hosted Runners&lt;/h1>&lt;p>To help build out our numbers of GitHub Self-Hosted Runner, we took a shortcut and had cloned an existing Linux VM.&lt;/p>
+&lt;p>Unfortunately, the by-product of doing this resulted in (a) the &lt;em>clonee&lt;/em> (source) Linux VM had their Self-Hosted hijacked by the &lt;em>new&lt;/em> VM and (b) we had a Runner registered in GitHub that didn&amp;rsquo;t actually have a running runner - &lt;code>Offline&lt;/code> 🤪.&lt;/p>
+&lt;p>Madness!&lt;/p>
+&lt;p>Ok, so what to do?&amp;hellip;&lt;/p>
+&lt;p>These are the steps I worked thru to rectify this:&lt;/p>
+&lt;ul>
+&lt;li>Firstly, remove Runner off of the new VM&lt;/li>
+&lt;li>Next, rerun the &lt;code>config.sh&lt;/code> step on new VM&lt;/li>
+&lt;li>Finally, restart to Runner service on Clonee VM&lt;/li>
+&lt;/ul>
+&lt;h2>First, let&amp;rsquo;s deal with the New VM&lt;span class="hx-absolute -hx-mt-20" id="first-lets-deal-with-the-new-vm">&lt;/span>
+&lt;a href="#first-lets-deal-with-the-new-vm" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>First of all, we need to remove the correct Runner service so I ran:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-powershell" data-lang="powershell">&lt;span class="line">&lt;span class="cl">&lt;span class="n">sudo&lt;/span> &lt;span class="n">systemctl&lt;/span> &lt;span class="p">|&lt;/span> &lt;span class="n">grep&lt;/span> &lt;span class="n">runner&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">...&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">sudo&lt;/span> &lt;span class="n">systemctl&lt;/span> &lt;span class="p">|&lt;/span> &lt;span class="n">grep&lt;/span> &lt;span class="n">runner&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">actions&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="py">runner&lt;/span>&lt;span class="p">.&amp;lt;&lt;/span>&lt;span class="n">org&lt;/span>&lt;span class="p">&amp;gt;.&amp;lt;&lt;/span>&lt;span class="n">hostname&lt;/span>&lt;span class="p">&amp;gt;.&lt;/span>&lt;span class="py">service&lt;/span> &lt;span class="n">loaded&lt;/span> &lt;span class="n">active&lt;/span> &lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>I then copied the above service (&lt;code>actions.runner.&amp;lt;org&amp;gt;.&amp;lt;hostname&amp;gt;.service&lt;/code>) name into clipboard and past in below (&lt;code>&amp;lt;service-name&amp;gt;&lt;/code>)&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-powershell" data-lang="powershell">&lt;span class="line">&lt;span class="cl">&lt;span class="n">systemctl&lt;/span> &lt;span class="n">stop&lt;/span> &lt;span class="p">&amp;lt;&lt;/span>&lt;span class="nb">service-name&lt;/span>&lt;span class="p">&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">systemctl&lt;/span> &lt;span class="n">disable&lt;/span> &lt;span class="p">&amp;lt;&lt;/span>&lt;span class="nb">service-name&lt;/span>&lt;span class="p">&amp;gt;&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>Next, I returned to the GitHub portal and navigated to the Runners page and selected the new Runner. What I&amp;rsquo;m aiming to do here is to get a token that I can use to remove the Runner from the new VM:&lt;/p>
+&lt;p>&lt;img src="../img/2022-01-18-11-58-18.png" alt="" loading="lazy" />&lt;/p>
+&lt;p>I pressed the &lt;code>Remove&lt;/code> button&lt;/p>
+&lt;p>&lt;img src="../img/2022-01-18-11-53-09.png" alt="" loading="lazy" />&lt;/p>
+&lt;p>then copied and executed this on the new VM:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-powershell" data-lang="powershell">&lt;span class="line">&lt;span class="cl">&lt;span class="p">./&lt;/span>&lt;span class="n">config&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="py">sh&lt;/span> &lt;span class="n">remove&lt;/span> &lt;span class="p">-&lt;/span>&lt;span class="n">-token&lt;/span> &lt;span class="p">&amp;lt;&lt;/span>&lt;span class="n">redacted&lt;/span>&lt;span class="p">&amp;gt;&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>I re-ran the &lt;code>config.sh&lt;/code> by:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-powershell" data-lang="powershell">&lt;span class="line">&lt;span class="cl">&lt;span class="p">./&lt;/span>&lt;span class="n">config&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="py">sh&lt;/span> &lt;span class="p">-&lt;/span>&lt;span class="n">-url&lt;/span> &lt;span class="n">https&lt;/span>&lt;span class="err">:&lt;/span>&lt;span class="p">//&lt;/span>&lt;span class="n">github&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">com&lt;/span>&lt;span class="p">/&amp;lt;&lt;/span>&lt;span class="n">org&lt;/span>&lt;span class="p">&amp;gt;&lt;/span> &lt;span class="p">-&lt;/span>&lt;span class="n">-token&lt;/span> &lt;span class="p">&amp;lt;&lt;/span>&lt;span class="n">redacted&lt;/span>&lt;span class="p">&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">sudo&lt;/span> &lt;span class="p">./&lt;/span>&lt;span class="n">svc&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="py">sh&lt;/span> &lt;span class="n">install&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">sudo&lt;/span> &lt;span class="p">./&lt;/span>&lt;span class="n">svc&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="py">sh&lt;/span> &lt;span class="n">start&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>At this point I saw the Self-Hosted Runner return to the GitHub Runners page - Showing as &lt;code>Idle&lt;/code> and not as &lt;code>Offline&lt;/code>.&lt;/p>
+&lt;h2>Bring the Clonee back online&lt;span class="hx-absolute -hx-mt-20" id="bring-the-clonee-back-online">&lt;/span>
+&lt;a href="#bring-the-clonee-back-online" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>At this point, I could now longer see the Clonee&amp;rsquo;s hostname in the list of Runners.&lt;/p>
+&lt;p>I returned to the Clonee VM and ran:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-powershell" data-lang="powershell">&lt;span class="line">&lt;span class="cl">&lt;span class="nb">cd actions-runners&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">sudo&lt;/span> &lt;span class="p">./&lt;/span>&lt;span class="n">svc&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="py">sh&lt;/span> &lt;span class="n">start&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>This restarts the Runner as a service. It then became visible in the GitHub Runners page.&lt;/p></description></item></channel></rss>

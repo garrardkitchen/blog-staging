@@ -1,0 +1,686 @@
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Garrard Kitchen – Pods</title><link>https://blog-dev.garrardkitchen.com/tags/pods/</link><description>Recent content in Pods on Garrard Kitchen</description><generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Fri, 07 Jan 2022 08:20:20 +0000</lastBuildDate><atom:link href="https://blog-dev.garrardkitchen.com/tags/pods/index.xml" rel="self" type="application/rss+xml"/><item><title>Permission Denied While Trying to Connect to the Docker Daemon Socket</title><link>https://blog-dev.garrardkitchen.com/blog/permission-denied-while-trying-to-connect-to-the-docker-daemon-socket/</link><pubDate>Fri, 07 Jan 2022 08:20:20 +0000</pubDate><guid>https://blog-dev.garrardkitchen.com/blog/permission-denied-while-trying-to-connect-to-the-docker-daemon-socket/</guid><description>
+&lt;p>Out of the blue today, my first day back after Christmas break, I got this when running a GH Actions Workflow on one of our Self-Hosted Linux Runners 😱:&lt;/p>
+&lt;div class="hx-overflow-x-auto hx-mt-6 hx-flex hx-rounded-lg hx-border hx-py-2 ltr:hx-pr-4 rtl:hx-pl-4 contrast-more:hx-border-current contrast-more:dark:hx-border-current hx-border-red-200 hx-bg-red-100 hx-text-red-900 dark:hx-border-red-200/30 dark:hx-bg-red-900/30 dark:hx-text-red-200">
+&lt;div class="ltr:hx-pl-3 ltr:hx-pr-2 rtl:hx-pr-3 rtl:hx-pl-2">&lt;div class="hx-select-none hx-text-xl" style="font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';">🚫&lt;/div>&lt;/div>
+&lt;div class="hx-w-full hx-min-w-0 hx-leading-7">
+&lt;div class="hx-mt-6 hx-leading-7 first:hx-mt-0">Got permission denied while trying to connect to the Docker daemon socket at unix:///var/run/docker.sock: Get &amp;ldquo;&lt;a href="http://%2Fvar%2Frun%2Fdocker.sock/v1.24/containers/json%22" target="_blank" rel="noopener">http://%2Fvar%2Frun%2Fdocker.sock/v1.24/containers/json"&lt;/a>: dial unix /var/run/docker.sock: connect: permission denied&lt;/div>
+&lt;/div>
+&lt;/div>
+&lt;div class="hx-overflow-x-auto hx-mt-6 hx-flex hx-rounded-lg hx-border hx-py-2 ltr:hx-pr-4 rtl:hx-pl-4 contrast-more:hx-border-current contrast-more:dark:hx-border-current hx-border-blue-200 hx-bg-blue-100 hx-text-blue-900 dark:hx-border-blue-200/30 dark:hx-bg-blue-900/30 dark:hx-text-blue-200">
+&lt;div class="ltr:hx-pl-3 ltr:hx-pr-2 rtl:hx-pr-3 rtl:hx-pl-2">&lt;div class="hx-select-none hx-text-xl" style="font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';">ℹ️&lt;/div>&lt;/div>
+&lt;div class="hx-w-full hx-min-w-0 hx-leading-7">
+&lt;div class="hx-mt-6 hx-leading-7 first:hx-mt-0">We have several GitHub Self-Hosted Runners running on Linux and Windows O/S that produce, amongst other artefacts, Linux and Windows images. These images are pushed to ACR. We&amp;rsquo;re in the process of migrating our on-premise real-estate - IIS Web apps, Windows Services, Docker swarm containers - to AKS as well as migrating our SQL Server AG to Azure. We&amp;rsquo;re using Self-Hosted Runners as we have spare compute capacity and some of our applications have a dependency on a legacy NuGet server which requires our CI pipelines to run in our network. We are in the process of also migrating these legacy packages to our Azure DevOps NuGet Feed as part of our modernization initiative. This modernization initiative encompasses upgrading our runtimes to .NET Framework 4.8 and .NET 6.0.&lt;/div>
+&lt;/div>
+&lt;/div>
+&lt;p>It had been running fine prior to my break so what gives? I started to investigate&amp;hellip;&lt;/p>
+&lt;p>I logged in to the Linux VM where this particular Self-Hosted Runner is hosted with the same credentials as used when I installed the Self-Hosted Runner originally. I used the following command to confirm the same outcome:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-powershell" data-lang="powershell">&lt;span class="line">&lt;span class="cl">&lt;span class="n">docker&lt;/span> &lt;span class="n">ps&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>Yup, same thing.&lt;/p>
+&lt;p>The next configuration I wanted to check was whether this user is a member of the &lt;code>docker&lt;/code> group so I used this command:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-powershell" data-lang="powershell">&lt;span class="line">&lt;span class="cl">&lt;span class="n">sudo&lt;/span> &lt;span class="n">groups&lt;/span> &lt;span class="p">&amp;lt;&lt;/span>&lt;span class="n">user&lt;/span>&lt;span class="p">&amp;gt;&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>Mmmmm, that&amp;rsquo;s odd. This user wasn&amp;rsquo;t a member and therefore begs the question, how did this ever work in the first place?!!&lt;/p>
+&lt;p>I added this user using this command:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-powershell" data-lang="powershell">&lt;span class="line">&lt;span class="cl">&lt;span class="n">sudo&lt;/span> &lt;span class="n">usermod&lt;/span> &lt;span class="n">-a&lt;/span> &lt;span class="n">-G&lt;/span> &lt;span class="n">docker&lt;/span> &lt;span class="p">&amp;lt;&lt;/span>&lt;span class="n">user&lt;/span>&lt;span class="p">&amp;gt;&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>I ran &lt;code>docker ps&lt;/code> again but still no dice. 🤔.&lt;/p>
+&lt;p>I then checked the status of the docker service using this command:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-powershell" data-lang="powershell">&lt;span class="line">&lt;span class="cl">&lt;span class="n">sudo&lt;/span> &lt;span class="n">systemctl&lt;/span> &lt;span class="n">status&lt;/span> &lt;span class="n">docker&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>It reported:&lt;/p>
+&lt;div class="hx-overflow-x-auto hx-mt-6 hx-flex hx-rounded-lg hx-border hx-py-2 ltr:hx-pr-4 rtl:hx-pl-4 contrast-more:hx-border-current contrast-more:dark:hx-border-current hx-border-blue-200 hx-bg-blue-100 hx-text-blue-900 dark:hx-border-blue-200/30 dark:hx-bg-blue-900/30 dark:hx-text-blue-200">
+&lt;div class="ltr:hx-pl-3 ltr:hx-pr-2 rtl:hx-pr-3 rtl:hx-pl-2">&lt;div class="hx-select-none hx-text-xl" style="font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';">ℹ️&lt;/div>&lt;/div>
+&lt;div class="hx-w-full hx-min-w-0 hx-leading-7">
+&lt;div class="hx-mt-6 hx-leading-7 first:hx-mt-0">Active: active (running) since Thu 2021-09-16 14:13:04 UTC; 3 months 20 days ago&lt;/div>
+&lt;/div>
+&lt;/div>
+&lt;p>Ok, what next? 🤔&lt;/p>
+&lt;p>I decided to restart the self-hosted service so I entered these commands:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-powershell" data-lang="powershell">&lt;span class="line">&lt;span class="cl">&lt;span class="nb">cd actions-runner&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">sudo&lt;/span> &lt;span class="p">./&lt;/span>&lt;span class="n">svc&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="py">sh&lt;/span> &lt;span class="n">start&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>This is when I saw these failures:&lt;/p>
+&lt;div class="hx-overflow-x-auto hx-mt-6 hx-flex hx-rounded-lg hx-border hx-py-2 ltr:hx-pr-4 rtl:hx-pl-4 contrast-more:hx-border-current contrast-more:dark:hx-border-current hx-border-red-200 hx-bg-red-100 hx-text-red-900 dark:hx-border-red-200/30 dark:hx-bg-red-900/30 dark:hx-text-red-200">
+&lt;div class="ltr:hx-pl-3 ltr:hx-pr-2 rtl:hx-pr-3 rtl:hx-pl-2">&lt;div class="hx-select-none hx-text-xl" style="font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';">🚫&lt;/div>&lt;/div>
+&lt;div class="hx-w-full hx-min-w-0 hx-leading-7">
+&lt;div class="hx-mt-6 hx-leading-7 first:hx-mt-0">&lt;p>Dec 19 22:01:15 &lt;em>redacted&lt;/em> runsvc.sh[291703]: 2021-12-19 22:01:15Z: Runner connect error: The HTTP request timed out after 00:01:00.. Retrying unt…econnected.&lt;/p>
+&lt;p>Dec 19 22:02:35 &lt;em>redacted&lt;/em> runsvc.sh[291703]: 2021-12-19 22:02:35Z: Runner reconnected.&lt;/p>
+&lt;p>Jan 06 14:42:21 &lt;em>redacted&lt;/em> runsvc.sh[291703]: 2022-01-06 14:42:21Z: Running job: deploy&lt;/p>
+&lt;p>Jan 06 14:42:41 &lt;em>redacted&lt;/em> runsvc.sh[291703]: 2022-01-06 14:42:41Z: Job deploy completed with result: Failed&lt;/p>
+&lt;p>Jan 06 14:46:19 &lt;em>redacted&lt;/em> runsvc.sh[291703]: 2022-01-06 14:46:19Z: Running job: deploy&lt;/p>
+&lt;p>&amp;hellip;&lt;/p>
+&lt;/div>
+&lt;/div>
+&lt;/div>
+&lt;p>I restarted the Self-Hosted Runner using these commands:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-powershell" data-lang="powershell">&lt;span class="line">&lt;span class="cl">&lt;span class="n">sudo&lt;/span> &lt;span class="p">./&lt;/span>&lt;span class="n">svc&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="py">sh&lt;/span> &lt;span class="n">stop&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">sudo&lt;/span> &lt;span class="p">./&lt;/span>&lt;span class="n">svc&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="py">sh&lt;/span> &lt;span class="n">start&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>Then I logged out and back in again to confirm docker access &lt;code>docker ps&lt;/code> and finished off by re-running the failed GH Action Workflow. 🥳 Equilibrium is once again restored. As per protocol, I shared issue and resolution with our IT Team in case this crops up again when I&amp;rsquo;m not online to help.&lt;/p></description></item><item><title>Kubernetes on Windows</title><link>https://blog-dev.garrardkitchen.com/blog/kubernetes-on-windows/</link><pubDate>Mon, 06 Apr 2020 10:20:26 +0100</pubDate><guid>https://blog-dev.garrardkitchen.com/blog/kubernetes-on-windows/</guid><description>
+&lt;p>This post is a reminder to me of what needs to be installed in order for a &lt;code>pod&lt;/code>, created from a local image, that is to be served up via a &lt;code>kubernetes cluster&lt;/code>, to be run from your local development environment.&lt;/p>
+&lt;h3>What is Kubernetes and why is it so important?&lt;span class="hx-absolute -hx-mt-20" id="what-is-kubernetes-and-why-is-it-so-important">&lt;/span>
+&lt;a href="#what-is-kubernetes-and-why-is-it-so-important" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>&amp;ldquo;Kubernetes is a portable, extensible, open-source platform for managing containerized workloads and services, that facilitates both declarative configuration and automation. It has a large, rapidly growing ecosystem. Kubernetes services, support, and tools are widely available.&amp;rdquo;&lt;/p>
+&lt;h3>So why is Kubernetes important?&lt;span class="hx-absolute -hx-mt-20" id="so-why-is-kubernetes-important">&lt;/span>
+&lt;a href="#so-why-is-kubernetes-important" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>&amp;ldquo;&lt;code>Containers&lt;/code> are a good way to bundle and run your applications. In a production environment, you need to manage the containers that run the applications and ensure that there is no downtime. For example, if a container goes down, another container needs to start. Wouldn’t it be easier if this behavior was handled by a system?&lt;/p>
+&lt;p>That’s how &lt;code>Kubernetes&lt;/code> comes to the rescue! Kubernetes provides you with a framework to run distributed systems resiliently. It takes care of scaling and failover for your application, provides deployment patterns, and more. For example, Kubernetes can easily manage a canary deployment for your system.&amp;rdquo;&lt;/p>
+&lt;p>&lt;code>Kubernetes&lt;/code> is the community&amp;rsquo;s (has a much larger community than that of &lt;code>Swarm's&lt;/code> community) choice of &lt;code>container&lt;/code> &lt;code>orchestrators&lt;/code>.&lt;/p>
+&lt;h3>Some important notices&lt;span class="hx-absolute -hx-mt-20" id="some-important-notices">&lt;/span>
+&lt;a href="#some-important-notices" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;!--
+&lt;div style="padding:2px; margin-top: 20px; margin-bottom: 20px;">
+&lt;style>
+.header {
+color: white;
+font-weight: bold;
+padding-left: 10px;
+padding-top: 5px;
+padding-bottom: 5px;
+border-top-right-radius: 5px;
+border-top-left-radius: 5px;
+font-size: smaller;
+}
+.info {
+background-color: #336699;
+}
+.warning {
+background-color: orange;
+}
+.error {
+background-color: red;
+}
+.note-panel {
+background-color: #c2f5f5;
+padding: 10px;
+border-radius: 5px;
+}
+.panel-info {
+border: 1px solid #336699;
+background-color: rgba(51, 102, 153, 0.2);
+}
+.panel-warning {
+border: 1px solid orange;
+background-color: rgba(255, 166, 0, 0.2);
+}
+.panel-error {
+border: 1px solid red;
+background-color: rgba(255, 0, 0, 0.2);
+}
+.panel-header {
+border-top-left-radius: 0px !important;
+border-top-right-radius: 0px !important;
+}
+&lt;/style>
+&lt;div>
+&lt;div style=" font-family: 'Open Sans'; "
+class="header info ">
+&lt;i class="fa fa-question-circle">&lt;/i>
+Permissions
+&lt;/div>
+&lt;/div>
+&lt;div class="note-panel
+panel-info
+panel-header ">
+&lt;div style="; ">
+-->
+&lt;!--
+&lt;/div>
+&lt;/div>
+&lt;/div>
+-->
+&lt;div class="hx-overflow-x-auto hx-mt-6 hx-flex hx-rounded-lg hx-border hx-py-2 ltr:hx-pr-4 rtl:hx-pl-4 contrast-more:hx-border-current contrast-more:dark:hx-border-current hx-border-blue-200 hx-bg-blue-100 hx-text-blue-900 dark:hx-border-blue-200/30 dark:hx-bg-blue-900/30 dark:hx-text-blue-200">
+&lt;div class="ltr:hx-pl-3 ltr:hx-pr-2 rtl:hx-pr-3 rtl:hx-pl-2">&lt;div class="hx-select-none hx-text-xl" style="font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';">ℹ️&lt;/div>&lt;/div>
+&lt;div class="hx-w-full hx-min-w-0 hx-leading-7">
+&lt;div class="hx-mt-6 hx-leading-7 first:hx-mt-0">&lt;p>&lt;strong>Permissions&lt;/strong>&lt;/p>
+&lt;p>To install &lt;b>kubectl&lt;/b> and &lt;b>minikube&lt;/b> you must start Powershell with Administrator permissions&lt;/p>
+&lt;/div>
+&lt;/div>
+&lt;/div>
+&lt;!--
+&lt;div style="padding:2px; margin-top: 20px; margin-bottom: 20px;">
+&lt;style>
+.header {
+color: white;
+font-weight: bold;
+padding-left: 10px;
+padding-top: 5px;
+padding-bottom: 5px;
+border-top-right-radius: 5px;
+border-top-left-radius: 5px;
+font-size: smaller;
+}
+.info {
+background-color: #336699;
+}
+.warning {
+background-color: orange;
+}
+.error {
+background-color: red;
+}
+.note-panel {
+background-color: #c2f5f5;
+padding: 10px;
+border-radius: 5px;
+}
+.panel-info {
+border: 1px solid #336699;
+background-color: rgba(51, 102, 153, 0.2);
+}
+.panel-warning {
+border: 1px solid orange;
+background-color: rgba(255, 166, 0, 0.2);
+}
+.panel-error {
+border: 1px solid red;
+background-color: rgba(255, 0, 0, 0.2);
+}
+.panel-header {
+border-top-left-radius: 0px !important;
+border-top-right-radius: 0px !important;
+}
+&lt;/style>
+&lt;div>
+&lt;div style=" font-family: 'Open Sans'; "
+class="header warning ">
+&lt;i class="fa fa-exclamation-circle">&lt;/i>
+Shell
+&lt;/div>
+&lt;/div>
+&lt;div class="note-panel
+panel-warning warning
+panel-header ">
+&lt;div style="; ">
+&lt;/div>
+&lt;/div>
+&lt;/div>
+-->
+&lt;div class="hx-overflow-x-auto hx-mt-6 hx-flex hx-rounded-lg hx-border hx-py-2 ltr:hx-pr-4 rtl:hx-pl-4 contrast-more:hx-border-current contrast-more:dark:hx-border-current hx-border-yellow-100 hx-bg-yellow-50 hx-text-yellow-900 dark:hx-border-yellow-200/30 dark:hx-bg-yellow-700/30 dark:hx-text-yellow-200">
+&lt;div class="ltr:hx-pl-3 ltr:hx-pr-2 rtl:hx-pr-3 rtl:hx-pl-2">&lt;div class="hx-select-none hx-text-xl" style="font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';">⚠️&lt;/div>&lt;/div>
+&lt;div class="hx-w-full hx-min-w-0 hx-leading-7">
+&lt;div class="hx-mt-6 hx-leading-7 first:hx-mt-0">&lt;p>&lt;strong>Shell&lt;/strong>&lt;/p>
+&lt;p>These settings will only viable for the current shell, if you need to run another shell, ensure the &lt;b>minikube docker-env&lt;/b> commands in the &lt;b>Steps to take to configure your environment&lt;/b> section are also executed in the new shell. As minikube is the tool that runs a local cluster in your development environment, we need to tell it to use it&amp;rsquo;s built-in docker daemon and have images pulled from there, and not from a container registry.&lt;/p>
+&lt;/div>
+&lt;/div>
+&lt;/div>
+&lt;h3>How do I install &lt;code>kubectl&lt;/code> (and what the heck is it)?&lt;span class="hx-absolute -hx-mt-20" id="how-do-i-install-kubectl-and-what-the-heck-is-it">&lt;/span>
+&lt;a href="#how-do-i-install-kubectl-and-what-the-heck-is-it" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>&lt;a href="https://github.com/kubernetes/kubectl" target="_blank" rel="noopener">&lt;strong>kubectl&lt;/strong>&lt;/a> is a CLI (command line interface) tool for controlling Kubernetes clusters. You can use this tool to deploy applications, inspect and manage cluster resources and view logs.&lt;/p>
+&lt;p>To ease the installation process, use &lt;a href="https://chocolatey.org/packages" target="_blank" rel="noopener">chocolatey&lt;/a> to install &lt;a href="https://github.com/kubernetes/kubectl" target="_blank" rel="noopener">kubernetes-cli&lt;/a>, run:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-ps" data-lang="ps">&lt;span class="line">&lt;span class="cl">&lt;span class="nf">PS&lt;/span> &lt;span class="nf">C:\&lt;/span>&lt;span class="p">&amp;gt;&lt;/span> &lt;span class="nf">choco&lt;/span> &lt;span class="nf">install&lt;/span> &lt;span class="err">kubernetes-cli&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;h3>How do I install minikube (and what the heck is it)?&lt;span class="hx-absolute -hx-mt-20" id="how-do-i-install-minikube-and-what-the-heck-is-it">&lt;/span>
+&lt;a href="#how-do-i-install-minikube-and-what-the-heck-is-it" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>&lt;code>Minikube&lt;/code> implements a local Kubernetes cluster and is deemed the best tool for local Kubernetes application development.&lt;/p>
+&lt;p>To ease the installation process, use &lt;a href="https://chocolatey.org/packages" target="_blank" rel="noopener">chocolatey&lt;/a> to install &lt;a href="https://github.com/kubernetes/minikube" target="_blank" rel="noopener">&lt;strong>minikube&lt;/strong>&lt;/a>, run:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-ps" data-lang="ps">&lt;span class="line">&lt;span class="cl">&lt;span class="nf">PS&lt;/span> &lt;span class="nf">C:\&lt;/span>&lt;span class="p">&amp;gt;&lt;/span> &lt;span class="nf">choco&lt;/span> &lt;span class="nf">install&lt;/span> &lt;span class="err">minikube&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>Before you start, you must ensure that you have a platform virtualisation system available. Platform virtualisation software provides the mechanism to run virtual machines and containers in isolation and exposes them to one or more networks. It is within a virtual machine that your Kubernetes cluster will run. Windows 10 comes with a virtualisation hypervisor feature called &lt;code>hyper-v&lt;/code>. You need to ensure it is running first. To do this, run:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-ps" data-lang="ps">&lt;span class="line">&lt;span class="cl">&lt;span class="nf">PS&lt;/span> &lt;span class="nf">C:\&lt;/span>&lt;span class="p">&amp;gt;&lt;/span> &lt;span class="nf">Enable-WindowsOptionalFeature&lt;/span> &lt;span class="nf">-Online&lt;/span> &lt;span class="nf">-FeatureName&lt;/span> &lt;span class="nf">Microsoft-Hyper-V&lt;/span> &lt;span class="err">-All&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-ps" data-lang="ps">&lt;span class="line">&lt;span class="cl">&lt;span class="nf">PS&lt;/span> &lt;span class="nf">C:\&lt;/span>&lt;span class="p">&amp;gt;&lt;/span> &lt;span class="nf">minikube&lt;/span> &lt;span class="nf">start&lt;/span> &lt;span class="nf">--driver&lt;/span> &lt;span class="nf">hyperv&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">*&lt;/span> &lt;span class="nf">minikube&lt;/span> &lt;span class="nf">v1.9.1&lt;/span> &lt;span class="nf">on&lt;/span> &lt;span class="nf">Microsoft&lt;/span> &lt;span class="nf">Windows&lt;/span> &lt;span class="mf">10&lt;/span> &lt;span class="nf">Enterprise&lt;/span> &lt;span class="nf">10.0.18363&lt;/span> &lt;span class="nf">Build&lt;/span> &lt;span class="mf">18363&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">*&lt;/span> &lt;span class="nf">Using&lt;/span> &lt;span class="nf">the&lt;/span> &lt;span class="nf">hyperv&lt;/span> &lt;span class="nf">driver&lt;/span> &lt;span class="nf">based&lt;/span> &lt;span class="nf">on&lt;/span> &lt;span class="nf">user&lt;/span> &lt;span class="nf">configuration&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">*&lt;/span> &lt;span class="nf">Downloading&lt;/span> &lt;span class="nf">VM&lt;/span> &lt;span class="nf">boot&lt;/span> &lt;span class="nf">image&lt;/span> &lt;span class="nf">...&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">&amp;gt;&lt;/span> &lt;span class="nf">minikube-v1.9.0.iso.sha256:&lt;/span> &lt;span class="mf">65&lt;/span> &lt;span class="nf">B&lt;/span> &lt;span class="err">/&lt;/span> &lt;span class="mf">65&lt;/span> &lt;span class="nf">B&lt;/span> &lt;span class="p">[&lt;/span>&lt;span class="nf">--------------&lt;/span>&lt;span class="p">]&lt;/span> &lt;span class="mf">100.00&lt;/span>&lt;span class="c1">% ? p/s 0s
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="p">&amp;gt;&lt;/span> &lt;span class="nf">minikube-v1.9.0.iso:&lt;/span> &lt;span class="mf">174.93&lt;/span> &lt;span class="nf">MiB&lt;/span> &lt;span class="err">/&lt;/span> &lt;span class="mf">174.93&lt;/span> &lt;span class="nf">MiB&lt;/span> &lt;span class="p">[&lt;/span> &lt;span class="mf">100.00&lt;/span>&lt;span class="c1">% 1.03 MiB p/s 2m51s
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="nf">*&lt;/span> &lt;span class="nf">Starting&lt;/span> &lt;span class="nf">control&lt;/span> &lt;span class="nf">plane&lt;/span> &lt;span class="nf">node&lt;/span> &lt;span class="nf">m01&lt;/span> &lt;span class="nf">in&lt;/span> &lt;span class="nf">cluster&lt;/span> &lt;span class="nf">minikube&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">*&lt;/span> &lt;span class="nf">Creating&lt;/span> &lt;span class="nf">hyperv&lt;/span> &lt;span class="nf">VM&lt;/span> &lt;span class="s">(CPUs=2, Memory=6000MB, Disk=20000MB)&lt;/span> &lt;span class="nf">...&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">*&lt;/span> &lt;span class="nf">Preparing&lt;/span> &lt;span class="nf">Kubernetes&lt;/span> &lt;span class="nf">v1.18.0&lt;/span> &lt;span class="nf">on&lt;/span> &lt;span class="nf">Docker&lt;/span> &lt;span class="nf">19.03.8&lt;/span> &lt;span class="nf">...&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">*&lt;/span> &lt;span class="nf">Enabling&lt;/span> &lt;span class="nf">addons:&lt;/span> &lt;span class="nf">default-storageclass,&lt;/span> &lt;span class="nf">storage-provisioner&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">*&lt;/span> &lt;span class="nf">Done!&lt;/span> &lt;span class="nf">kubectl&lt;/span> &lt;span class="nf">is&lt;/span> &lt;span class="nf">now&lt;/span> &lt;span class="nf">configured&lt;/span> &lt;span class="nf">to&lt;/span> &lt;span class="nf">use&lt;/span> &lt;span class="err">&amp;#34;minikube&amp;#34;&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;h3>Steps to take to configure your environment&lt;span class="hx-absolute -hx-mt-20" id="steps-to-take-to-configure-your-environment">&lt;/span>
+&lt;a href="#steps-to-take-to-configure-your-environment" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>To set up your minikube environment, run:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-ps" data-lang="ps">&lt;span class="line">&lt;span class="cl">&lt;span class="nf">PS&lt;/span> &lt;span class="nf">C:\&lt;/span>&lt;span class="p">&amp;gt;&lt;/span> &lt;span class="nf">minikube&lt;/span> &lt;span class="nf">docker-env&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">$Env:DOCKER_TLS_VERIFY&lt;/span> &lt;span class="nf">=&lt;/span> &lt;span class="nf">&amp;#34;1&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">$Env:DOCKER_HOST&lt;/span> &lt;span class="nf">=&lt;/span> &lt;span class="nf">&amp;#34;tcp:&lt;/span>&lt;span class="err">/&lt;/span>&lt;span class="nv">/192.168.75.126:2376&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">$Env:DOCKER_CERT_PATH&lt;/span> &lt;span class="nf">=&lt;/span> &lt;span class="nf">&amp;#34;C:\Users\garrard.kitchen\.minikube\certs&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">$Env:MINIKUBE_ACTIVE_DOCKERD&lt;/span> &lt;span class="nf">=&lt;/span> &lt;span class="nf">&amp;#34;minikube&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">#&lt;/span> &lt;span class="nf">To&lt;/span> &lt;span class="nf">point&lt;/span> &lt;span class="nf">your&lt;/span> &lt;span class="nf">shell&lt;/span> &lt;span class="nf">to&lt;/span> &lt;span class="nf">minikube&amp;#39;s&lt;/span> &lt;span class="nf">docker-daemon,&lt;/span> &lt;span class="nf">run:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">#&lt;/span> &lt;span class="nf">&amp;amp;&lt;/span> &lt;span class="nf">minikube&lt;/span> &lt;span class="nf">-p&lt;/span> &lt;span class="nf">minikube&lt;/span> &lt;span class="nf">docker-env&lt;/span> &lt;span class="nf">|&lt;/span> &lt;span class="err">Invoke-Expression&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>To point your shell to minikube&amp;rsquo;s docker-daemon, run:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-ps" data-lang="ps">&lt;span class="line">&lt;span class="cl">&lt;span class="nf">PS&lt;/span> &lt;span class="nf">C:\&lt;/span>&lt;span class="p">&amp;gt;&lt;/span> &lt;span class="nf">minikube&lt;/span> &lt;span class="nf">docker-env&lt;/span> &lt;span class="nf">|&lt;/span> &lt;span class="err">Invoke-Expression&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>To get access to minikube&amp;rsquo;s dashboard, run:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-ps" data-lang="ps">&lt;span class="line">&lt;span class="cl">&lt;span class="nf">PS&lt;/span> &lt;span class="nf">C:\&lt;/span>&lt;span class="p">&amp;gt;&lt;/span> &lt;span class="nf">minikube.exe&lt;/span> &lt;span class="nf">dashboard&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">*&lt;/span> &lt;span class="nf">Verifying&lt;/span> &lt;span class="nf">dashboard&lt;/span> &lt;span class="nf">health&lt;/span> &lt;span class="nf">...&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">*&lt;/span> &lt;span class="nf">Launching&lt;/span> &lt;span class="nf">proxy&lt;/span> &lt;span class="nf">...&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">*&lt;/span> &lt;span class="nf">Verifying&lt;/span> &lt;span class="nf">proxy&lt;/span> &lt;span class="nf">health&lt;/span> &lt;span class="nf">...&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">*&lt;/span> &lt;span class="nf">Opening&lt;/span> &lt;span class="nf">http:&lt;/span>&lt;span class="err">/&lt;/span>&lt;span class="nv">/127.0.0.1:54553/api/v1/namespaces/kubernetes-dashboard/services/http:kubernetes-dashboard:/proxy&lt;/span>&lt;span class="err">/&lt;/span> &lt;span class="nf">in&lt;/span> &lt;span class="nf">your&lt;/span> &lt;span class="nf">default&lt;/span> &lt;span class="err">browser...&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>Here&amp;rsquo;s some sample nodejs (&lt;code>server.js&lt;/code>) code. It starts a server on port 8080:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div class="filename not-prose" dir="auto">server.js&lt;/div>&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-js" data-lang="js">&lt;span class="line">&lt;span class="cl">&lt;span class="kd">var&lt;/span> &lt;span class="nx">http&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nx">require&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s1">&amp;#39;http&amp;#39;&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kd">var&lt;/span> &lt;span class="nx">handleRequest&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="kd">function&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="nx">request&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nx">response&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">console&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">log&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s1">&amp;#39;Received request for URL: &amp;#39;&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="nx">request&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">url&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">response&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">writeHead&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="mi">200&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">response&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">end&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s1">&amp;#39;Hello World!&amp;#39;&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">};&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nx">console&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">log&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s2">&amp;#34;started&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kd">var&lt;/span> &lt;span class="nx">www&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nx">http&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">createServer&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nx">handleRequest&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nx">www&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">listen&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="mi">8080&lt;/span>&lt;span class="p">);&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-8">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>Here&amp;rsquo;s a &lt;code>Dockerfile&lt;/code> for the above &lt;code>nodejs&lt;/code> server. Please observe that it exposes port 8080. This ensures that network TCP traffic can be received by the container via port 8080.&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div class="filename not-prose" dir="auto">dockerfile&lt;/div>&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-Dockerfile" data-lang="Dockerfile">&lt;span class="line">&lt;span class="cl">&lt;span class="k">FROM&lt;/span>&lt;span class="s"> node:13.5.0&lt;/span>&lt;span class="err">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">&lt;/span>&lt;span class="k">EXPOSE&lt;/span>&lt;span class="s"> 8080&lt;/span>&lt;span class="err">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">&lt;/span>&lt;span class="k">COPY&lt;/span> server.js .&lt;span class="err">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">&lt;/span>&lt;span class="k">CMD&lt;/span> &lt;span class="p">[&lt;/span> &lt;span class="s2">&amp;#34;node&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s2">&amp;#34;server.js&amp;#34;&lt;/span> &lt;span class="p">]&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-8">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>To build a image of the above &lt;code>Dockerfile&lt;/code>, run:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-ps" data-lang="ps">&lt;span class="line">&lt;span class="cl">&lt;span class="nf">PS&lt;/span> &lt;span class="nf">C:\&lt;/span>&lt;span class="p">&amp;gt;&lt;/span> &lt;span class="nf">docker&lt;/span> &lt;span class="nf">build&lt;/span> &lt;span class="nf">-t&lt;/span> &lt;span class="nf">hello-world:1&lt;/span> &lt;span class="err">.&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;!--
+&lt;div style="padding:2px; margin-top: 20px; margin-bottom: 20px;">
+&lt;style>
+.header {
+color: white;
+font-weight: bold;
+padding-left: 10px;
+padding-top: 5px;
+padding-bottom: 5px;
+border-top-right-radius: 5px;
+border-top-left-radius: 5px;
+font-size: smaller;
+}
+.info {
+background-color: #336699;
+}
+.warning {
+background-color: orange;
+}
+.error {
+background-color: red;
+}
+.note-panel {
+background-color: #c2f5f5;
+padding: 10px;
+border-radius: 5px;
+}
+.panel-info {
+border: 1px solid #336699;
+background-color: rgba(51, 102, 153, 0.2);
+}
+.panel-warning {
+border: 1px solid orange;
+background-color: rgba(255, 166, 0, 0.2);
+}
+.panel-error {
+border: 1px solid red;
+background-color: rgba(255, 0, 0, 0.2);
+}
+.panel-header {
+border-top-left-radius: 0px !important;
+border-top-right-radius: 0px !important;
+}
+&lt;/style>
+&lt;div>
+&lt;div style=" font-family: 'Open Sans'; "
+class="header warning ">
+&lt;i class="fa fa-exclamation-circle">&lt;/i>
+Include a build tag
+&lt;/div>
+&lt;/div>
+&lt;div class="note-panel
+panel-warning warning
+panel-header ">
+&lt;div style="; ">
+&lt;/div>
+&lt;/div>
+&lt;/div>
+-->
+&lt;div class="hx-overflow-x-auto hx-mt-6 hx-flex hx-rounded-lg hx-border hx-py-2 ltr:hx-pr-4 rtl:hx-pl-4 contrast-more:hx-border-current contrast-more:dark:hx-border-current hx-border-yellow-100 hx-bg-yellow-50 hx-text-yellow-900 dark:hx-border-yellow-200/30 dark:hx-bg-yellow-700/30 dark:hx-text-yellow-200">
+&lt;div class="ltr:hx-pl-3 ltr:hx-pr-2 rtl:hx-pr-3 rtl:hx-pl-2">&lt;div class="hx-select-none hx-text-xl" style="font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';">⚠️&lt;/div>&lt;/div>
+&lt;div class="hx-w-full hx-min-w-0 hx-leading-7">
+&lt;div class="hx-mt-6 hx-leading-7 first:hx-mt-0">&lt;p>&lt;strong>Include a build tag&lt;/strong>&lt;/p>
+&lt;p>You must specify a version tag and it has to be something other than &lt;strong>latest&lt;/strong>. Here, I have used &lt;strong>1&lt;/strong>. If you don&amp;rsquo;t follow these instructions, minikube will attempt to pull the image from a docker registry (normally DockerHub).&lt;/p>
+&lt;/div>
+&lt;/div>
+&lt;/div>
+&lt;p>To check that the image exists in Minikube&amp;rsquo;s built-in Docker daemon, run:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-ps" data-lang="ps">&lt;span class="line">&lt;span class="cl">&lt;span class="nf">PS&lt;/span> &lt;span class="nf">C:\&lt;/span>&lt;span class="p">&amp;gt;&lt;/span> &lt;span class="nf">minikube&lt;/span> &lt;span class="nf">ssh&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">$&lt;/span> &lt;span class="nf">docker&lt;/span> &lt;span class="err">images&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>You should see something similar to this:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;pre>&lt;code>$ minikube ssh
+_ _
+_ _ ( ) ( )
+___ ___ (_) ___ (_)| |/&amp;#39;) _ _ | |_ __
+/&amp;#39; _ ` _ `\| |/&amp;#39; _ `\| || , &amp;lt; ( ) ( )| &amp;#39;_`\ /&amp;#39;__`\
+| ( ) ( ) || || ( ) || || |\`\ | (_) || |_) )( ___/
+(_) (_) (_)(_)(_) (_)(_)(_) (_)`\___/&amp;#39;(_,__/&amp;#39;`\____)
+$ docker images
+REPOSITORY TAG IMAGE ID CREATED SIZE
+hello-world 1 55f40b7f5c32 13 days ago 660MB
+hello-world latest 50c4285f25a5 13 days ago 660MB
+nginx latest ed21b7a8aee9 2 weeks ago 127MB
+k8s.gcr.io/kube-proxy v1.18.0 43940c34f24f 3 weeks ago 117MB
+k8s.gcr.io/kube-scheduler v1.18.0 a31f78c7c8ce 3 weeks ago 95.3MB
+k8s.gcr.io/kube-apiserver v1.18.0 74060cea7f70 3 weeks ago 173MB
+k8s.gcr.io/kube-controller-manager v1.18.0 d3e55153f52f 3 weeks ago 162MB
+kubernetesui/dashboard v2.0.0-rc6 cdc71b5a8a0e 5 weeks ago 221MB
+k8s.gcr.io/pause 3.2 80d28bedfe5d 2 months ago 683kB
+k8s.gcr.io/coredns 1.6.7 67da37a9a360 2 months ago 43.8MB
+kindest/kindnetd 0.5.3 aa67fec7d7ef 5 months ago 78.5MB
+k8s.gcr.io/etcd 3.4.3-0 303ce5db0e90 5 months ago 288MB
+kubernetesui/metrics-scraper v1.0.2 3b08661dc379 5 months ago 40.1MB
+gcr.io/k8s-minikube/storage-provisioner v1.8.1 4689081edb10 2 years ago 80.8MB&lt;/code>&lt;/pre>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>To run this image as a pod, run:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-ps" data-lang="ps">&lt;span class="line">&lt;span class="cl">&lt;span class="nf">PS&lt;/span> &lt;span class="nf">C:\&lt;/span>&lt;span class="p">&amp;gt;&lt;/span> &lt;span class="nf">kubectl&lt;/span> &lt;span class="nf">run&lt;/span> &lt;span class="nf">hello-world&lt;/span> &lt;span class="nf">--image=hello-world:1&lt;/span> &lt;span class="nf">--port=8080&lt;/span> &lt;span class="nf">--image-pull-policy=never&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">pod&lt;/span>&lt;span class="nv">/hello-world&lt;/span> &lt;span class="err">created&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>The &lt;code>--image-pull-policy=never&lt;/code> is telling Kubectl to use the local image and not one from a container registry (&lt;a href="https://hub.docker.com/" target="_blank" rel="noopener">Docker&lt;/a>, &lt;a href="https://azure.microsoft.com/en-us/services/container-registry/" target="_blank" rel="noopener">ACR&lt;/a>, &lt;a href="https://aws.amazon.com/ecr/" target="_blank" rel="noopener">ECR&lt;/a>, &lt;a href="https://cloud.google.com/container-registry" target="_blank" rel="noopener">GCP&lt;/a>)&lt;/p>
+&lt;p>To expose this port for external access (from browser) from outside of the cluster, run:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-ps" data-lang="ps">&lt;span class="line">&lt;span class="cl">&lt;span class="nf">PS&lt;/span> &lt;span class="nf">C:\&lt;/span>&lt;span class="p">&amp;gt;&lt;/span> &lt;span class="nf">kubectl&lt;/span> &lt;span class="nf">expose&lt;/span> &lt;span class="nf">pod&lt;/span> &lt;span class="nf">hello-world&lt;/span> &lt;span class="nf">--type=LoadBalancer&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">service&lt;/span> &lt;span class="nf">&amp;#34;hello-world&amp;#34;&lt;/span> &lt;span class="err">exposed&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>To confirm your &lt;code>service&lt;/code> is running and to get the &lt;code>port number&lt;/code> of this &lt;code>exposed service&lt;/code>, run:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-ps" data-lang="ps">&lt;span class="line">&lt;span class="cl">&lt;span class="nf">PS&lt;/span> &lt;span class="nf">C:\&lt;/span>&lt;span class="p">&amp;gt;&lt;/span> &lt;span class="nf">kubectl&lt;/span> &lt;span class="nf">get&lt;/span> &lt;span class="nf">services&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">NAME&lt;/span> &lt;span class="nf">TYPE&lt;/span> &lt;span class="nf">CLUSTER-IP&lt;/span> &lt;span class="nf">EXTERNAL-IP&lt;/span> &lt;span class="nf">PORT&lt;/span>&lt;span class="s">(S)&lt;/span> &lt;span class="nf">AGE&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">hello-world&lt;/span> &lt;span class="nf">LoadBalancer&lt;/span> &lt;span class="nf">10.111.126.10&lt;/span> &lt;span class="p">&amp;lt;&lt;/span>&lt;span class="nf">pending&lt;/span>&lt;span class="p">&amp;gt;&lt;/span> &lt;span class="nf">8080:31589&lt;/span>&lt;span class="nv">/TCP&lt;/span> &lt;span class="nf">45h&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">kubernetes&lt;/span> &lt;span class="nf">ClusterIP&lt;/span> &lt;span class="nf">10.96.0.1&lt;/span> &lt;span class="p">&amp;lt;&lt;/span>&lt;span class="nf">none&lt;/span>&lt;span class="p">&amp;gt;&lt;/span> &lt;span class="mf">443&lt;/span>&lt;span class="nv">/TCP&lt;/span> &lt;span class="err">2d16h&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;blockquote class="book-hint info">
+You will see the **\&lt;pending>** state of your LoadBalancer if you do not have not a Load Balancer integrated with your cluster. For your local development environment, it is nothing to worry about.
+&lt;/blockquote>
+&lt;p>You will see that the &lt;strong>hello-world&lt;/strong> service is accessible via port &lt;strong>8080&lt;/strong>. However, we still don&amp;rsquo;t know behind what IPv4 address, this services is available. To get the IPv4 address of your cluster, you type:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-ps" data-lang="ps">&lt;span class="line">&lt;span class="cl">&lt;span class="nf">PS&lt;/span> &lt;span class="nf">C:\&lt;/span>&lt;span class="p">&amp;gt;&lt;/span> &lt;span class="nf">minikube&lt;/span> &lt;span class="nf">ip&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">192.168.75.126&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>Finally, to access your service, run the cURL command, using the &lt;code>minikube ip&lt;/code> address and the TCP port as listed in the &lt;code>kubectl get services&lt;/code> output:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-ps" data-lang="ps">&lt;span class="line">&lt;span class="cl">&lt;span class="nf">PS&lt;/span> &lt;span class="nf">C:\&lt;/span>&lt;span class="p">&amp;gt;&lt;/span> &lt;span class="nf">curl&lt;/span> &lt;span class="nf">&amp;#34;http:&lt;/span>&lt;span class="err">/&lt;/span>&lt;span class="nv">/192.168.75.126:31589&amp;#34;&lt;/span> &lt;span class="nf">-UseBasicParsing&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">StatusCode&lt;/span> &lt;span class="nf">:&lt;/span> &lt;span class="mf">200&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">StatusDescription&lt;/span> &lt;span class="nf">:&lt;/span> &lt;span class="nf">OK&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">Content&lt;/span> &lt;span class="nf">:&lt;/span> &lt;span class="p">{&lt;/span>&lt;span class="nf">72,&lt;/span> &lt;span class="nf">101,&lt;/span> &lt;span class="nf">108,&lt;/span> &lt;span class="nf">108...&lt;/span>&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">RawContent&lt;/span> &lt;span class="nf">:&lt;/span> &lt;span class="nf">HTTP&lt;/span>&lt;span class="nv">/1.1&lt;/span> &lt;span class="mf">200&lt;/span> &lt;span class="nf">OK&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">Connection:&lt;/span> &lt;span class="nf">keep-alive&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">Transfer-Encoding:&lt;/span> &lt;span class="nf">chunked&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">Date:&lt;/span> &lt;span class="nf">Mon,&lt;/span> &lt;span class="mf">06&lt;/span> &lt;span class="nf">Apr&lt;/span> &lt;span class="mf">2020&lt;/span> &lt;span class="nf">13:05:42&lt;/span> &lt;span class="nf">GMT&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">Hello&lt;/span> &lt;span class="nf">World!&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">Headers&lt;/span> &lt;span class="nf">:&lt;/span> &lt;span class="p">{[&lt;/span>&lt;span class="nf">Connection,&lt;/span> &lt;span class="nf">keep-alive&lt;/span>&lt;span class="p">]&lt;/span>&lt;span class="nf">,&lt;/span> &lt;span class="p">[&lt;/span>&lt;span class="nf">Transfer-Encoding,&lt;/span> &lt;span class="nf">chunked&lt;/span>&lt;span class="p">]&lt;/span>&lt;span class="nf">,&lt;/span> &lt;span class="p">[&lt;/span>&lt;span class="nf">Date,&lt;/span> &lt;span class="nf">Mon,&lt;/span> &lt;span class="mf">06&lt;/span> &lt;span class="nf">Apr&lt;/span> &lt;span class="mf">2020&lt;/span> &lt;span class="nf">13:05:42&lt;/span> &lt;span class="nf">GMT&lt;/span>&lt;span class="p">]}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">RawContentLength&lt;/span> &lt;span class="nf">:&lt;/span> &lt;span class="err">12&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>You can also use minikube to obtain your service&amp;rsquo;s url. To do this, run:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-ps" data-lang="ps">&lt;span class="line">&lt;span class="cl">&lt;span class="nf">PS&lt;/span> &lt;span class="nf">C:\&lt;/span>&lt;span class="p">&amp;gt;&lt;/span> &lt;span class="nf">minikube&lt;/span> &lt;span class="nf">service&lt;/span> &lt;span class="nf">hello-world&lt;/span> &lt;span class="nf">--url&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">http:&lt;/span>&lt;span class="err">//192.168.75.126:31589&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;h3>Useful &lt;code>kubectl&lt;/code> commands&lt;span class="hx-absolute -hx-mt-20" id="useful-kubectl-commands">&lt;/span>
+&lt;a href="#useful-kubectl-commands" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>This first command is important. Some background first&amp;hellip;a &lt;code>context&lt;/code> is a group of access parameters. Each &lt;code>context&lt;/code> contains a &lt;code>Kubernetes cluster&lt;/code>, a &lt;code>user&lt;/code>, and a &lt;code>namespace&lt;/code>. When you are working with multiple contexts off of your development machine, you may run into compatibility issues due to your client version not being compatible with the server API version. All &lt;code>kubectl&lt;/code> commands will run against the &lt;code>current context&lt;/code>. To check your client version, run:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-ps" data-lang="ps">&lt;span class="line">&lt;span class="cl">&lt;span class="nf">PS&lt;/span> &lt;span class="nf">C:\&lt;/span>&lt;span class="p">&amp;gt;&lt;/span> &lt;span class="nf">kubectl&lt;/span> &lt;span class="nf">version&lt;/span> &lt;span class="nf">--client&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">Client&lt;/span> &lt;span class="nf">Version:&lt;/span> &lt;span class="nf">version.Info&lt;/span>&lt;span class="p">{&lt;/span>&lt;span class="nf">Major:&amp;#34;1&amp;#34;,&lt;/span> &lt;span class="nf">Minor:&amp;#34;18&amp;#34;,&lt;/span> &lt;span class="nf">GitVersion:&amp;#34;v1.18.0&amp;#34;,&lt;/span> &lt;span class="nf">GitCommit:&amp;#34;9e991415386e4cf155a24b1da15becaa390438d8&amp;#34;,&lt;/span> &lt;span class="nf">GitTreeState:&amp;#34;clean&amp;#34;,&lt;/span> &lt;span class="nf">BuildDate:&amp;#34;2020-03-25T14:58:59Z&amp;#34;,&lt;/span> &lt;span class="nf">GoVersion:&amp;#34;go1.13.8&amp;#34;,&lt;/span> &lt;span class="nf">Compiler:&amp;#34;gc&amp;#34;,&lt;/span> &lt;span class="nf">Platform:&amp;#34;windows&lt;/span>&lt;span class="nv">/amd64&amp;#34;&lt;/span>&lt;span class="p">}&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>To ascertain your current context, run:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-ps" data-lang="ps">&lt;span class="line">&lt;span class="cl">&lt;span class="nf">PS&lt;/span> &lt;span class="nf">C:\&lt;/span>&lt;span class="p">&amp;gt;&lt;/span> &lt;span class="nf">kubectl&lt;/span> &lt;span class="nf">config&lt;/span> &lt;span class="nf">current-context&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">minikube&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>To list all of your configured contexts, run:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-ps" data-lang="ps">&lt;span class="line">&lt;span class="cl">&lt;span class="nf">PS&lt;/span> &lt;span class="nf">C:\&lt;/span>&lt;span class="p">&amp;gt;&lt;/span> &lt;span class="nf">kubectl&lt;/span> &lt;span class="nf">config&lt;/span> &lt;span class="nf">get-contexts&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">CURRENT&lt;/span> &lt;span class="nf">NAME&lt;/span> &lt;span class="nf">CLUSTER&lt;/span> &lt;span class="nf">AUTHINFO&lt;/span> &lt;span class="nf">NAMESPACE&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">docker-desktop&lt;/span> &lt;span class="nf">docker-desktop&lt;/span> &lt;span class="nf">docker-desktop&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">docker-for-desktop&lt;/span> &lt;span class="nf">docker-desktop&lt;/span> &lt;span class="nf">docker-desktop&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">*&lt;/span> &lt;span class="nf">minikube&lt;/span> &lt;span class="nf">minikube&lt;/span> &lt;span class="err">minikube&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>The * next to &lt;strong>minikube&lt;/strong> indicates that &lt;strong>minikube&lt;/strong> is your current context.&lt;/p>
+&lt;p>If you are configured to access a cluster hosted from a cloud provider such as &lt;code>Azure&lt;/code>, then this context will also be listed.&lt;/p>
+&lt;p>To use a specific context, run:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-ps" data-lang="ps">&lt;span class="line">&lt;span class="cl">&lt;span class="nf">PS&lt;/span> &lt;span class="nf">C:\&lt;/span>&lt;span class="p">&amp;gt;&lt;/span> &lt;span class="nf">kubectl&lt;/span> &lt;span class="nf">config&lt;/span> &lt;span class="nf">use-context&lt;/span> &lt;span class="err">docker-for-desktop&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;h2>References&lt;span class="hx-absolute -hx-mt-20" id="references">&lt;/span>
+&lt;a href="#references" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;ul>
+&lt;li>&lt;a href="https://kubernetes.io/docs/tasks/tools/install-kubectl/" target="_blank" rel="noopener">Install Kubernetes&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://kubernetes.io/docs/tasks/tools/install-minikube/" target="_blank" rel="noopener">Install Minikube&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://kubernetes.io/docs/reference/kubectl/cheatsheet/" target="_blank" rel="noopener">Kubectl Cheatsheet&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://kubernetes.io/docs/setup/learning-environment/minikube/#use-local-images-by-re-using-the-docker-daemon" target="_blank" rel="noopener">Minikube&amp;rsquo;s built-in Docker daemon&lt;/a>&lt;/li>
+&lt;/ul></description></item></channel></rss>

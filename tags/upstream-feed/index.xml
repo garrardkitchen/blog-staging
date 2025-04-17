@@ -1,0 +1,81 @@
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Garrard Kitchen – Upstream Feed</title><link>https://blog-dev.garrardkitchen.com/tags/upstream-feed/</link><description>Recent content in Upstream Feed on Garrard Kitchen</description><generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Sat, 22 Jan 2022 16:54:48 +0000</lastBuildDate><atom:link href="https://blog-dev.garrardkitchen.com/tags/upstream-feed/index.xml" rel="self" type="application/rss+xml"/><item><title>Nodejs Install E401</title><link>https://blog-dev.garrardkitchen.com/blog/nodejs-install-e401/</link><pubDate>Sat, 22 Jan 2022 16:54:48 +0000</pubDate><guid>https://blog-dev.garrardkitchen.com/blog/nodejs-install-e401/</guid><description>
+&lt;p>Today I created a simple nodeJS Azure Functions Applicaiton to start building out a PoC and when I tried to install it&amp;rsquo;s dependencies like so:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-powershell" data-lang="powershell">&lt;span class="line">&lt;span class="cl">&lt;span class="n">npm&lt;/span> &lt;span class="n">install&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>I got this little cherub back instead:&lt;/p>
+&lt;div class="hx-overflow-x-auto hx-mt-6 hx-flex hx-rounded-lg hx-border hx-py-2 ltr:hx-pr-4 rtl:hx-pl-4 contrast-more:hx-border-current contrast-more:dark:hx-border-current hx-border-red-200 hx-bg-red-100 hx-text-red-900 dark:hx-border-red-200/30 dark:hx-bg-red-900/30 dark:hx-text-red-200">
+&lt;div class="ltr:hx-pl-3 ltr:hx-pr-2 rtl:hx-pr-3 rtl:hx-pl-2">&lt;div class="hx-select-none hx-text-xl" style="font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';">🚫&lt;/div>&lt;/div>
+&lt;div class="hx-w-full hx-min-w-0 hx-leading-7">
+&lt;div class="hx-mt-6 hx-leading-7 first:hx-mt-0">&lt;p>npm ERR! code E401&lt;/p>
+&lt;p>npm ERR! Incorrect or missing password.&lt;/p>
+&lt;p>npm ERR! If you were trying to login, change your password, create an&lt;/p>
+&lt;p>npm ERR! authentication token or enable two-factor authentication then&lt;/p>
+&lt;p>npm ERR! that means you likely typed your password in incorrectly.&lt;/p>
+&lt;p>npm ERR! Please try again, or recover your password at:&lt;/p>
+&lt;p>npm ERR! &lt;a href="https://www.npmjs.com/forgot" target="_blank" rel="noopener">https://www.npmjs.com/forgot&lt;/a>&lt;/p>
+&lt;p>npm ERR!&lt;/p>
+&lt;p>npm ERR! If you were doing some other operation then your saved credentials are&lt;/p>
+&lt;p>npm ERR! probably out of date. To correct this please try logging in again with:
+npm ERR! npm login&lt;/p>
+&lt;p>npm ERR! A complete log of this run can be found in:&lt;/p>
+&lt;p>npm ERR! C:\Users\garrard.kitchen\AppData\Local\npm-cache_logs\2022-01-22T16_53_11_848Z-debug-0.log&lt;/p>
+&lt;/div>
+&lt;/div>
+&lt;/div>
+&lt;p>Ok then, I&amp;rsquo;ve &lt;em>obviously&lt;/em> set my default registry to something other than npmjs!&lt;/p>
+&lt;p>This will not have been an issue or noticeable if I had have been connected to my works VPN as I know for a fact, the upstream sources of our npm Azure DevOps npm feed is in fact &lt;code>https://registry.npmjs.org&lt;/code>.&lt;/p>
+&lt;p>Anyhow, to work through this slight annoyance, I typed:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-powershell" data-lang="powershell">&lt;span class="line">&lt;span class="cl">&lt;span class="n">nodejs&lt;/span> &lt;span class="n">install&lt;/span> &lt;span class="p">-&lt;/span>&lt;span class="n">-registry&lt;/span> &lt;span class="n">https&lt;/span>&lt;span class="err">:&lt;/span>&lt;span class="p">//&lt;/span>&lt;span class="n">registry&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="py">npmjs&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="py">org&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">...&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">npm&lt;/span> &lt;span class="n">install&lt;/span> &lt;span class="p">-&lt;/span>&lt;span class="n">-registry&lt;/span> &lt;span class="n">https&lt;/span>&lt;span class="err">:&lt;/span>&lt;span class="p">//&lt;/span>&lt;span class="n">registry&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="py">npmjs&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="py">org&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">added&lt;/span> &lt;span class="mf">78&lt;/span> &lt;span class="n">packages&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">and&lt;/span> &lt;span class="n">audited&lt;/span> &lt;span class="mf">79&lt;/span> &lt;span class="n">packages&lt;/span> &lt;span class="k">in&lt;/span> &lt;span class="n">12s&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="mf">30&lt;/span> &lt;span class="n">packages&lt;/span> &lt;span class="n">are&lt;/span> &lt;span class="n">looking&lt;/span> &lt;span class="k">for&lt;/span> &lt;span class="n">funding&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">run&lt;/span> &lt;span class="p">`&lt;/span>&lt;span class="n">npm&lt;/span> &lt;span class="n">fund&lt;/span>&lt;span class="p">`&lt;/span> &lt;span class="k">for&lt;/span> &lt;span class="n">details&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">found&lt;/span> &lt;span class="mf">0&lt;/span> &lt;span class="n">vulnerabilities&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>One &lt;code>npm run prestart&lt;/code> and one &lt;code>npm run start&lt;/code> later, I was seeing this:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;pre>&lt;code>[17:09:00] Starting compilation in watch mode...
+Azure Functions Core Tools
+Core Tools Version: 4.0.3971 Commit hash: d0775d487c93ebd49e9c1166d5c3c01f3c76eaaf (64-bit)
+Function Runtime Version: 4.0.1.16815
+[17:09:01] Found 0 errors. Watching for file changes.
+Functions:
+svrless: [GET,POST] http://localhost:7071/api/svrless
+For detailed output, run func with --verbose flag.
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+Request starting HTTP/2 POST http://127.0.0.1:54476/AzureFunctionsRpcMessages.FunctionRpc/EventStream application/grpc -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+Executing endpoint &amp;#39;gRPC - /AzureFunctionsRpcMessages.FunctionRpc/EventStream&amp;#39;
+[2022-01-22T17:09:02.473Z] Worker process started and initialized.&lt;/code>&lt;/pre>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>All good, but now I need to change my defaults &amp;hellip;&lt;/p></description></item></channel></rss>

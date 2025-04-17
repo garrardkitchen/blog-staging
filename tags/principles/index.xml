@@ -1,0 +1,655 @@
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Garrard Kitchen – Principles</title><link>https://blog-dev.garrardkitchen.com/tags/principles/</link><description>Recent content in Principles on Garrard Kitchen</description><generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Sun, 01 Mar 2020 20:09:14 +0100</lastBuildDate><atom:link href="https://blog-dev.garrardkitchen.com/tags/principles/index.xml" rel="self" type="application/rss+xml"/><item><title>Good Engineering - Principles</title><link>https://blog-dev.garrardkitchen.com/blog/principles/</link><pubDate>Sun, 01 Mar 2020 20:09:14 +0100</pubDate><guid>https://blog-dev.garrardkitchen.com/blog/principles/</guid><description>
+&lt;p>I have written this post as a method to document what I see as the basics, foundations if you will, for good engineering. Undoubtedly if you are a seasoned engineer, you will recognised all of these principles, less so, if you&amp;rsquo;re just starting out.&lt;/p>
+&lt;p>Most Engineers are fully versed in the foundations of writing quality, efficient, succinct and testable code. As a Principal Engineer, one of my responsibilities is to ensure that these (1) foundations are recognised by the engineers and (2) are adhered to by all engineers.&lt;/p>
+&lt;p>Here&amp;rsquo;s a list of concepts that for me, constitute good engineering principles:&lt;/p>
+&lt;p>&lt;em>These are in alphabetical order and not in order of importance&lt;/em>&lt;/p>
+&lt;ul>
+&lt;li>&lt;a href="#clean-and-readable-code" >Clean and readable code&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#code-reviews" >Code reviews&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#coding-standards" >Coding standards&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#composition-over-inheritance" >Composition over inheritance&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#defensive-coding" >Defensive coding&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#do-no-more" >Do no more&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#dry" >DRY&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#kiss" >KISS&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#occams-razor" >Occam&amp;rsquo;s razor&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#premature-optimization" >Premature optimization&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#refactor" >Refactor&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#separation-of-concerns" >Separation of Concerns&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#solid" >SOLID&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#testing" >Testing&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#yagni" >YAGNI&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;p>Other sections:&lt;/p>
+&lt;ul>
+&lt;li>&lt;a href="#my-pattern-discovery" >My pattern discovery&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#being-a-principal-engineer" >Being a Principal Engineer&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#discussion-point" >Discussion point&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#references" >References&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;h3>&lt;a href="" >Clean and readable code&lt;/a>&lt;span class="hx-absolute -hx-mt-20" id="clean-and-readable-code">&lt;/span>
+&lt;a href="#clean-and-readable-code" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>Clean and readable code is always better than clever code (ask any engineer who has to extend or maintain a &lt;em>clever&lt;/em> piece of code!)&lt;/p>
+&lt;p>I&amp;rsquo;ve seen a lot of code recently that should never have got to the shape it has. Complicated code requires time to understand, then time to add functionality. Complicated code also happens to more difficult to recall so each time you need to go near it, you have to relearn it and added to this, any changes made to improve it, most likely have not been applied in full so they&amp;rsquo;ll be a right old mixture of good, bad and the ugly thrown into the mix.&lt;/p>
+&lt;p>A good measure of how bad a codebases is, and I&amp;rsquo;m going to plagiarise somebody else&amp;rsquo;s analogy here, is by stepping through an interactive debug session. If you get momentarily distracted by a fly, then immediately return to the debugging and you do not know where the feck you are in the execution of the code flow, then it&amp;rsquo;s a bad codebase!&lt;/p>
+&lt;p>It&amp;rsquo;s the responsibility of a Tech Lead or architecture to stop code bases ending up this way.&lt;/p>
+&lt;h3>&lt;a href="" >Code reviews&lt;/a>&lt;span class="hx-absolute -hx-mt-20" id="code-reviews">&lt;/span>
+&lt;a href="#code-reviews" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>It should only contain helpful and constructive comments and/or implementation questions. This process is not there to caress egos (that&amp;rsquo;s for your mother to do!!). One useful by-product of &lt;strong>code reviews&lt;/strong> is conveying of your team&amp;rsquo;s exacting coding standard and attention to deal, to new starters. So, the quicker the new starter pushes a commit, the better!&lt;/p>
+&lt;h3>&lt;a href="" >Coding standards&lt;/a>&lt;span class="hx-absolute -hx-mt-20" id="coding-standards">&lt;/span>
+&lt;a href="#coding-standards" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>(provide a template of core standards then stand back and let the team thrash out the rest - wear protection!)&lt;/p>
+&lt;p>Although important, it&amp;rsquo;s not the end of the world if some of the granular details differ between teams. The important thing here, in my opinion, is that each team know where to find their cheese. Most engineers in a team have a common set of standards they adhere too. The big things like solution structure, naming conventions, testing (&lt;strong>AAA&lt;/strong>, &lt;strong>GWT&lt;/strong>), pluralization, documentation structure (including README) all need to be consistent.&lt;/p>
+&lt;h3>&lt;a href="" >Composition over inheritance&lt;/a>&lt;span class="hx-absolute -hx-mt-20" id="composition-over-inheritance">&lt;/span>
+&lt;a href="#composition-over-inheritance" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>(avoid class tree exploitation! - think &lt;strong>Strategy pattern&lt;/strong> - GoF)&lt;/p>
+&lt;p>The above-bracketed statement says it all! &lt;strong>Inheritance&lt;/strong> tends to back you into a corner especially when you consider the &lt;strong>OCP&lt;/strong>.&lt;/p>
+&lt;h3>&lt;a href="" >Defensive coding&lt;/a>&lt;span class="hx-absolute -hx-mt-20" id="defensive-coding">&lt;/span>
+&lt;a href="#defensive-coding" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>(guard against invalid class method parameters and accidental null assignment to class properties instead of an equality condition!)&lt;/p>
+&lt;p>This is one example of defensive coding:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-csharp" data-lang="csharp">&lt;span class="line">&lt;span class="cl">&lt;span class="k">class&lt;/span> &lt;span class="nc">User&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kt">string&lt;/span> &lt;span class="n">firstnaame&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="kt">string&lt;/span> &lt;span class="n">lastname&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="n">age&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">if&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="kc">null&lt;/span> &lt;span class="p">==&lt;/span> &lt;span class="n">firstname&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">throw&lt;/span> &lt;span class="k">new&lt;/span> &lt;span class="n">NullReferenceException&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;Firstname cannot be null&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">...&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>The above demonstrates an example of defensive coding. The first is that we need to test for valid constructor parameter values when instantiating a class.&lt;/p>
+&lt;p>The second, is to avoid mistakes that might not be picked up by your compiler. For instance, a common mistake doing this:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-csharp" data-lang="csharp">&lt;span class="line">&lt;span class="cl">&lt;span class="k">if&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">firstname&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="kc">null&lt;/span>&lt;span class="p">)&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>A .NET Compiler is more than happy allowing this above syntax, as, after all, it&amp;rsquo;s an &lt;strong>assignment operator&lt;/strong> and not a &lt;strong>equality operator&lt;/strong> as in above in the &lt;strong>class constructor&lt;/strong>. By switching these around, you&amp;rsquo;re making a positive pattern changing and &lt;em>should&lt;/em> avoid making this silly mistake again.&lt;/p>
+&lt;h3>&lt;a href="" >Do no more&lt;/a>&lt;span class="hx-absolute -hx-mt-20" id="do-no-more">&lt;/span>
+&lt;a href="#do-no-more" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>(and do no less - thank you &lt;em>eXtreme Programming&lt;/em>!).&lt;/p>
+&lt;p>If you code outside the scope, you&amp;rsquo;re in danger of creating code that isn&amp;rsquo;t used or needed. The worse thing about this is that others will have to maintain this code. How can this be? Well, it&amp;rsquo;s common - think &lt;strong>HTTP chaining&lt;/strong> - for code not to be culled especially if there is a disconnect between these dependencies and there&amp;rsquo;s no IDE/compiler to shout at you.&lt;/p>
+&lt;h3>&lt;a href="" >DRY&lt;/a>&lt;span class="hx-absolute -hx-mt-20" id="dry">&lt;/span>
+&lt;a href="#dry" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>(don&amp;rsquo;t repeat yourself)&lt;/p>
+&lt;p>&lt;strong>Code analysis&lt;/strong> tools help here, but you&amp;rsquo;re not always going to have access to these tools.&lt;/p>
+&lt;p>One way to help identify code that does the same thing is by &lt;strong>refactoring&lt;/strong>. If you keep your code method frame small (~20 lines), and you have a good naming standard for methods (e.g. noun+verb with accurate alighment to business capability - think DDD), have unit tests with a high &lt;strong>code coverage&lt;/strong> percentage, then this should be all you need to help you avoid writing duplicate code.&lt;/p>
+&lt;h3>&lt;a href="" >KISS&lt;/a>&lt;span class="hx-absolute -hx-mt-20" id="kiss">&lt;/span>
+&lt;a href="#kiss" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>(keep it simple, silly)&lt;/p>
+&lt;p>This to a certain extent, goes hand in hand with avoiding &lt;strong>premature optimization&lt;/strong>. We all like the big picture yes? This doesn&amp;rsquo;t mean we need to do deliver on this it right now! You just need to know the boundaries of this piece, which, if greenfield, then you won&amp;rsquo;t have any metrics to tell you the actual demand. Think Capacity planning; what this piece of work needs to do based on current expectations. For example&lt;/p>
+&lt;pre>&lt;code>Do we need multiple servers? Yes, I think
+Why do we need multiple servers? Mmmmm, because I read it somewhere
+Do you have the metrics that support your argument for multiple servers? Wait, what?
+Next!
+&lt;/code>&lt;/pre>
+&lt;p>A colleague recently shared with me the architecture of their side project. They are using &lt;strong>AWS&lt;/strong> and I have 2 &lt;strong>certifications&lt;/strong> in &lt;strong>AWS&lt;/strong> (&lt;strong>Developer&lt;/strong> and &lt;strong>Solutions Architect&lt;/strong>). I quickly went into &lt;strong>HA&lt;/strong>/&lt;strong>scaling&lt;/strong>/&lt;strong>resilience&lt;/strong>/&lt;strong>durability&lt;/strong>/&lt;strong>DR&lt;/strong> overdrive, following it up with a verbal dump on what tech they should use. This was all wrong. They did not know their service demand. Following my initial advice, will have increased their cost; unnecessarily. I did, you&amp;rsquo;ll be glad to hear, re-affirm their decision (may have made 1 or 2 helpful suggestions) shortly after [~2 hours].&lt;/p>
+&lt;p>Yeah, think big but don&amp;rsquo;t deliver big without a customer base; as this, in my experience, will result in a huge waste of time, effort and money. Plus, sometimes, you don&amp;rsquo;t really know where something is going to take you, and my advice here is to roll with it. This last piece of advice is particularly pertinent if you&amp;rsquo;re starting up.&lt;/p>
+&lt;h3>&lt;a href="" >Occam&amp;rsquo;s Razor&lt;/a>&lt;span class="hx-absolute -hx-mt-20" id="occam">&lt;/span>
+&lt;a href="#occam" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>This is a problem-solving principle.&lt;/p>
+&lt;p>The definition of this is: &amp;ldquo;Entities should not be multiplied without necessity&amp;rdquo;. It is sometimes paraphrased by a statement like &amp;ldquo;the simplest solution is most likely the right one.&lt;/p>
+&lt;p>&lt;strong>Occam&amp;rsquo;s razor&lt;/strong> says that when presented with competing hypotheses that make the same predictions, one should select the solution with the fewest assumptions. Good advice&lt;/p>
+&lt;p>Suppose there are two competing theories on why something is not working. Normally, the case that requires the least amount of assumptions is correct. So, the more assumptions you have to make means it more likely to be more unlikely.&lt;/p>
+&lt;h3>&lt;a href="" >Premature optimization&lt;/a>&lt;span class="hx-absolute -hx-mt-20" id="premature-optimization">&lt;/span>
+&lt;a href="#premature-optimization" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>Avoid premature optimization and all conversations relating to optimization until you know the facts. This will be futile until you&amp;rsquo;ve &lt;strong>metrics&lt;/strong> to better inform you.&lt;/p>
+&lt;p>I&amp;rsquo;ve hit this numerous times when planning for &lt;strong>microservices&lt;/strong> and bounded contexts, in particular, on green-field projects. What should we include and where? Should we separate claims away from users for instance? Will the demand for Claims be greater than for users? Who knows?! You don&amp;rsquo;t until you have some &lt;strong>metrics&lt;/strong> behind you. You can always merge or break them [&lt;strong>microservices&lt;/strong>] up later.&lt;/p>
+&lt;p>Another area that I believe this encompasses is splitting code up across multiple files and folders. If it&amp;rsquo;s a PoC, a sample piece of code, or something that has a short shelf life, just keep it in one file. When it&amp;rsquo;s the right time - moving out of PoC/other - then you can consider optimizing it. Up until then, it&amp;rsquo;s a huge waste of time and effort.&lt;/p>
+&lt;p>Architecture is a great example of when not to prematurely optimize. Architecture normally infers cost. Generally, the more of something, the greater the cost. This could mean for a startup the difference between survival and their demise. Adopting a &lt;strong>guiding principle&lt;/strong> of being &lt;strong>frugal&lt;/strong> from the outset, is a prudent and wise decision. What this means is that you&amp;rsquo;re always looking for the most cost-effective way of accomplishing your goal. So, if you don&amp;rsquo;t know your demand, it means you opt for a single server instead of having a &lt;strong>HA&lt;/strong> cluster of 3 master nodes and 5 worker nodes! Down from 8 servers to 1 which on a month by month basis during development and beta/early releases could mean the saving of thousands of pounds sterling.&lt;/p>
+&lt;p>Sadly, I&amp;rsquo;ve come across a few startup that have failed just because they ran out of cash early on. It&amp;rsquo;s a real shame for all involved.&lt;/p>
+&lt;h3>&lt;a href="" >Refactor&lt;/a>&lt;span class="hx-absolute -hx-mt-20" id="refactor">&lt;/span>
+&lt;a href="#refactor" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>&amp;hellip;refactor refactor&lt;/p>
+&lt;p>Don&amp;rsquo;t save this until the end of a piece of work &amp;hellip; you&amp;rsquo;re bound to miss something and possibly add to your team&amp;rsquo;s tech debt. Plus, if you push your commits to a &lt;strong>PR&lt;/strong>, you&amp;rsquo;ll get your &lt;em>ass&lt;/em> handed to you by your peers!&lt;/p>
+&lt;p>Things to consider here are &lt;strong>DRY&lt;/strong> and &lt;strong>TDD&lt;/strong>. Both will nudge you towards a proper refactoring effort.&lt;/p>
+&lt;h3>&lt;a href="" >Separation of Concerns&lt;/a>&lt;span class="hx-absolute -hx-mt-20" id="separation-of-concerns">&lt;/span>
+&lt;a href="#separation-of-concerns" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>(think &lt;strong>MVC&lt;/strong>, &lt;strong>CQRS&lt;/strong>, &lt;strong>bounded context&lt;/strong>, etc&amp;hellip;)&lt;/p>
+&lt;p>It&amp;rsquo;s all about doing the right this in the right place! I recently ran, architected and co-developed a project that involved our own hosted solution, a solution hosted on &lt;strong>Azure&lt;/strong> and a solution hosted on the &lt;strong>Twilio Cloud&lt;/strong> (&lt;strong>Twilio Serverless Functions&lt;/strong>). Originally, the requirements did not include the &lt;strong>Twilio Cloud&lt;/strong> and would have required a bucket load more effort if we&amp;rsquo;d stuck with that brief. Thankfully, I chose to take full advantage of what &lt;strong>Twilio&lt;/strong> has to offer and used a combination of &lt;strong>Twilio Flow&lt;/strong> and &lt;strong>Twilio Serverless Functions&lt;/strong>. By establishing these SoCs it meant:&lt;/p>
+&lt;ul>
+&lt;li>a less stressful implementation&lt;/li>
+&lt;li>a light touch to our own hosted solutions&lt;/li>
+&lt;li>a satisfying amount of fun working with &lt;strong>Serverless&lt;/strong> (has been my favourite and advocated approach for several years!)&lt;/li>
+&lt;li>a time saving&lt;/li>
+&lt;li>it revealed a range of options when dealing with specific edge and corner cases which, again, giving us a further time savings.&lt;/li>
+&lt;/ul>
+&lt;h3>&lt;a href="" >SOLID&lt;/a>&lt;span class="hx-absolute -hx-mt-20" id="solid">&lt;/span>
+&lt;a href="#solid" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>These are the SOLID principles:&lt;/p>
+&lt;ul>
+&lt;li>&lt;a href="#single-responsibility-principle" >Single Responsibility Principle&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#open-closed-principle" >Open Closed Principle&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#liskov-principle" >Liskov Principle&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#interface-segregation-principle" >Interface Segregation Principle&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#dependency-inversion-principle" >Dependency Inversion Principle&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;h4>&lt;a href="" >Single Responsibility Principle&lt;/a>&lt;span class="hx-absolute -hx-mt-20" id="single-responsibility-principle">&lt;/span>
+&lt;a href="#single-responsibility-principle" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h4>&lt;p>A class (no method) should have one and only one reason to change, meaning that a class (or method) should have only one job.&lt;/p>
+&lt;p>&amp;ldquo;When a class has more than responsibility, there are also more reasons to change that class&amp;rdquo;&lt;/p>
+&lt;p>Here&amp;rsquo;s an example of a class )&lt;em>purposefully awful for illustrative purposes&lt;/em>):&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-csharp" data-lang="csharp">&lt;span class="line">&lt;span class="cl">&lt;span class="k">class&lt;/span> &lt;span class="nc">User&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kt">string&lt;/span> &lt;span class="n">Username&lt;/span> &lt;span class="p">{&lt;/span>&lt;span class="k">get&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="k">set&lt;/span>&lt;span class="p">;}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kt">string&lt;/span> &lt;span class="n">Fullname&lt;/span> &lt;span class="p">{&lt;/span>&lt;span class="k">get&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="k">set&lt;/span>&lt;span class="p">;}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">private&lt;/span> &lt;span class="k">readonly&lt;/span> &lt;span class="n">ILogger&lt;/span> &lt;span class="n">_logger&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">private&lt;/span> &lt;span class="n">IDbContext&lt;/span> &lt;span class="n">_db&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="n">User&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">_logger&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="k">new&lt;/span> &lt;span class="n">Logger&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">_db&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="k">new&lt;/span> &lt;span class="n">UserContext&lt;/span>&lt;span class="p">();&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="n">Task&lt;/span>&lt;span class="p">&amp;lt;&lt;/span>&lt;span class="n">User&lt;/span>&lt;span class="p">&amp;gt;&lt;/span> &lt;span class="n">GetProfile&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kt">string&lt;/span> &lt;span class="n">username&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">...&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">_logger&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">Info&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">$&amp;#34;Found profie for {username}&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="k">this&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>You could say that the above includes both a model responsibility and a service responsibility. These should be split into two separate .NET types, as in this example:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-csharp" data-lang="csharp">&lt;span class="line">&lt;span class="cl">&lt;span class="k">class&lt;/span> &lt;span class="nc">User&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kt">string&lt;/span> &lt;span class="n">Username&lt;/span> &lt;span class="p">{&lt;/span>&lt;span class="k">get&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="k">set&lt;/span>&lt;span class="p">;}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kt">string&lt;/span> &lt;span class="n">Fullname&lt;/span> &lt;span class="p">{&lt;/span>&lt;span class="k">get&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="k">set&lt;/span>&lt;span class="p">;}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="n">User&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kt">string&lt;/span> &lt;span class="n">username&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="kt">string&lt;/span> &lt;span class="n">Fullname&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">...&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">class&lt;/span> &lt;span class="nc">UserService&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">private&lt;/span> &lt;span class="k">readonly&lt;/span> &lt;span class="n">ILogger&lt;/span> &lt;span class="n">_logger&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="n">UserService&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">ILogger&lt;/span> &lt;span class="n">_logger&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">IDbContext&lt;/span> &lt;span class="n">db&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">_logger&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="n">_logger&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">_db&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="n">db&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="n">Task&lt;/span>&lt;span class="p">&amp;lt;&lt;/span>&lt;span class="n">User&lt;/span>&lt;span class="p">&amp;gt;&lt;/span> &lt;span class="n">GetProfile&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kt">string&lt;/span> &lt;span class="n">username&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">...&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">_logger&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">Info&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">$&amp;#34;Found profie for {username}&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="n">user&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>Here are the benefits of principles:&lt;/p>
+&lt;ul>
+&lt;li>Reduces complexity in your code&lt;/li>
+&lt;li>Increases readability, extensibility, and maintenance of your code&lt;/li>
+&lt;li>Reusability and bug breading&lt;/li>
+&lt;li>Easier to test&lt;/li>
+&lt;li>Reduces coupling by removing dependency between methods&lt;/li>
+&lt;/ul>
+&lt;h4>&lt;a href="" >Open Closed Principle&lt;/a>&lt;span class="hx-absolute -hx-mt-20" id="open-closed-principle">&lt;/span>
+&lt;a href="#open-closed-principle" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h4>&lt;p>Objects or entities should be open for extension, but closed for modification. So, what does this mean? Let&amp;rsquo;s break this down to two statements:&lt;/p>
+&lt;ul>
+&lt;li>Open for extension&lt;/li>
+&lt;li>Closed for modification&lt;/li>
+&lt;/ul>
+&lt;h5>Open for extension:&lt;span class="hx-absolute -hx-mt-20" id="open-for-extension">&lt;/span>
+&lt;a href="#open-for-extension" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h5>&lt;p>This means that we need to design our classes in such a way that it&amp;rsquo;s new responsibilities or functionalities should be added easily when new requirements come.&lt;/p>
+&lt;p>One technique for implementing new functionality is by creating new derived classes. A derived class will inherit from base class. Another approach is to allow the &amp;lsquo;client&amp;rsquo; to access the original class with an abstract interface. I sometimes think of this simply as removing &lt;code>if statements&lt;/code> by extension but I&amp;rsquo;m not convinced everybody would agree with this assessment though.&lt;/p>
+&lt;p>So, in short, if there&amp;rsquo;s an amendment or any new features required, instead of touching the existing functionality, it is better to create new derived class and leave the original class implementation. Well, that&amp;rsquo;s the advice! I worry about the &lt;strong>class explosion&lt;/strong> and if you&amp;rsquo;re attempting to do this on top of not so perfect code!&lt;/p>
+&lt;h5>Closed modification:&lt;span class="hx-absolute -hx-mt-20" id="closed-modification">&lt;/span>
+&lt;a href="#closed-modification" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h5>&lt;p>This is very easy to explain&amp;hellip;only make modifications to code if there&amp;rsquo;s a bug.&lt;/p>
+&lt;p>This sample looks at delegating method logic to derived classes.&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-csharp" data-lang="csharp">&lt;span class="line">&lt;span class="cl">&lt;span class="kd">public&lt;/span> &lt;span class="k">class&lt;/span> &lt;span class="nc">Order&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kt">double&lt;/span> &lt;span class="n">GetOrderDiscount&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kt">double&lt;/span> &lt;span class="n">price&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">ProductType&lt;/span> &lt;span class="n">productType&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kt">double&lt;/span> &lt;span class="n">newPrice&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="m">0&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">if&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">productType&lt;/span> &lt;span class="p">==&lt;/span> &lt;span class="n">ProductType&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">Food&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">newPrice&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="n">price&lt;/span> &lt;span class="p">-&lt;/span> &lt;span class="m">0.1&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">else&lt;/span> &lt;span class="k">if&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">productType&lt;/span> &lt;span class="p">==&lt;/span> &lt;span class="n">ProductType&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">Hardware&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">newPrice&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="n">price&lt;/span> &lt;span class="p">-&lt;/span> &lt;span class="m">0.5&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="n">newPrice&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kd">public&lt;/span> &lt;span class="kd">enum&lt;/span> &lt;span class="n">ProductType&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">Food&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">Hardward&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>Can rewrite, still using base implementation (think &lt;strong>decorator pattern&lt;/strong>):&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-csharp" data-lang="csharp">&lt;span class="line">&lt;span class="cl">&lt;span class="kd">public&lt;/span> &lt;span class="k">class&lt;/span> &lt;span class="nc">Order&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="k">virtual&lt;/span> &lt;span class="kt">double&lt;/span> &lt;span class="n">GetOrderDiscount&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kt">double&lt;/span> &lt;span class="n">price&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="n">price&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kd">public&lt;/span> &lt;span class="k">class&lt;/span> &lt;span class="nc">FoodOrder&lt;/span> &lt;span class="p">:&lt;/span> &lt;span class="n">Order&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kd">override&lt;/span> &lt;span class="kt">double&lt;/span> &lt;span class="n">GetOrderDiscount&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kt">double&lt;/span> &lt;span class="n">price&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="k">base&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">GetOrderDiscount&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">price&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">-&lt;/span> &lt;span class="m">0.1&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kd">public&lt;/span> &lt;span class="k">class&lt;/span> &lt;span class="nc">HardwareOrder&lt;/span> &lt;span class="p">:&lt;/span> &lt;span class="n">Order&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kd">override&lt;/span> &lt;span class="kt">double&lt;/span> &lt;span class="n">GetOrderDiscount&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kt">double&lt;/span> &lt;span class="n">price&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="k">base&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">GetOrderDiscount&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">price&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">-&lt;/span> &lt;span class="m">0.5&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;h4>&lt;a href="" >Liskov Principle&lt;/a>&lt;span class="hx-absolute -hx-mt-20" id="liskov-principle">&lt;/span>
+&lt;a href="#liskov-principle" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h4>&lt;p>Definition: &amp;ldquo;&lt;em>Let q(x) be a property provable about objects of x of type T. Then q(y) should be provable for objects y of type S where S is a subtype of T.&lt;/em>&amp;rdquo; &amp;hellip; clear as mud right?&lt;/p>
+&lt;p>All this is stating is that every subclass/derived class should be substitutable for their base/parent class.&lt;/p>
+&lt;p>The example below demonstrates a violation of the &lt;strong>Liskov principle&lt;/strong>, as by replacing the parent class (SumEvenNumbersOnly-&amp;gt;Calculator), this does compromise the integrity of the &lt;strong>derived class&lt;/strong> as the &lt;strong>higher-order class&lt;/strong> is not replaced by the &lt;strong>derived class&lt;/strong>. Here, both &lt;code>cal&lt;/code> and &lt;code>eventsOnly&lt;/code> variables will be the same:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-csharp" data-lang="csharp">&lt;span class="line">&lt;span class="cl">&lt;span class="p">...&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kt">var&lt;/span> &lt;span class="n">nums&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="k">new&lt;/span> &lt;span class="kt">int&lt;/span>&lt;span class="p">[]&lt;/span> &lt;span class="p">{&lt;/span>&lt;span class="m">1&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="m">2&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="m">3&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="m">4&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="m">5&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="m">6&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="m">7&lt;/span>&lt;span class="p">};&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">Calculator&lt;/span> &lt;span class="n">cal&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="k">new&lt;/span> &lt;span class="n">Calculator&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">nums&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">Calculator&lt;/span> &lt;span class="n">evensOnly&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="k">new&lt;/span> &lt;span class="n">SumEvenNumbersOnly&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">nums&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">...&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kd">public&lt;/span> &lt;span class="k">class&lt;/span> &lt;span class="nc">Calculator&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">protected&lt;/span> &lt;span class="k">readonly&lt;/span> &lt;span class="kt">int&lt;/span>&lt;span class="p">[]&lt;/span> &lt;span class="n">_numbers&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="n">Calculator&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kt">int&lt;/span>&lt;span class="p">[]&lt;/span> &lt;span class="n">numbers&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">_numbers&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="n">numbers&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="n">Sum&lt;/span>&lt;span class="p">()&lt;/span> &lt;span class="p">=&amp;gt;&lt;/span> &lt;span class="n">_numbers&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">Sum&lt;/span>&lt;span class="p">();&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kd">public&lt;/span> &lt;span class="k">class&lt;/span> &lt;span class="nc">SumEvenNumbersOnly&lt;/span> &lt;span class="p">:&lt;/span> &lt;span class="n">Calculator&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="n">SumEvenNumbersOnly&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kt">int&lt;/span>&lt;span class="p">[]&lt;/span> &lt;span class="n">numbers&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">:&lt;/span> &lt;span class="k">base&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">numbers&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="k">new&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="n">Sum&lt;/span>&lt;span class="p">()&lt;/span> &lt;span class="p">=&amp;gt;&lt;/span> &lt;span class="n">_numbers&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">Where&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">x&lt;/span>&lt;span class="p">=&amp;gt;&lt;/span>&lt;span class="n">x&lt;/span> &lt;span class="p">%&lt;/span> &lt;span class="m">2&lt;/span> &lt;span class="p">==&lt;/span> &lt;span class="m">0&lt;/span>&lt;span class="p">).&lt;/span>&lt;span class="n">Sum&lt;/span>&lt;span class="p">();&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>Here we have changed the assumed base class to an &lt;strong>abstract class&lt;/strong>. Now, it can&amp;rsquo;t be instantiated and instead, must be inherited. This ensures the &lt;strong>derived classes&lt;/strong> must implement the method detail. So, even if we replace the type declaration with the &lt;strong>higher-order&lt;/strong> class, we should still get the intended result:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-csharp" data-lang="csharp">&lt;span class="line">&lt;span class="cl">&lt;span class="p">...&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kt">var&lt;/span> &lt;span class="n">nums&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="k">new&lt;/span> &lt;span class="kt">int&lt;/span>&lt;span class="p">[]&lt;/span> &lt;span class="p">{&lt;/span>&lt;span class="m">1&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="m">2&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="m">3&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="m">4&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="m">5&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="m">6&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="m">7&lt;/span>&lt;span class="p">};&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">Calculator&lt;/span> &lt;span class="n">cal&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="k">new&lt;/span> &lt;span class="n">SumAllNumbersOnly&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">nums&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">Calculator&lt;/span> &lt;span class="n">evensOnly&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="k">new&lt;/span> &lt;span class="n">SumEvenNumbersOnly&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">nums&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">...&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kd">public&lt;/span> &lt;span class="kd">abstract&lt;/span> &lt;span class="k">class&lt;/span> &lt;span class="nc">Calculator&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">protected&lt;/span> &lt;span class="n">IEnumerable&lt;/span>&lt;span class="p">&amp;lt;&lt;/span>&lt;span class="kt">int&lt;/span>&lt;span class="p">&amp;gt;&lt;/span> &lt;span class="n">_num&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">protected&lt;/span> &lt;span class="n">Calculator&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">IEnumerable&lt;/span>&lt;span class="p">&amp;lt;&lt;/span>&lt;span class="kt">int&lt;/span>&lt;span class="p">&amp;gt;&lt;/span> &lt;span class="n">num&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">_num&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="n">num&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kd">abstract&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="n">Sum&lt;/span>&lt;span class="p">();&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kd">public&lt;/span> &lt;span class="k">class&lt;/span> &lt;span class="nc">SumAllNumbersOnly&lt;/span> &lt;span class="p">:&lt;/span> &lt;span class="n">Calculator&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="n">SumAllNumbersOnly&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">IEnumerable&lt;/span>&lt;span class="p">&amp;lt;&lt;/span>&lt;span class="kt">int&lt;/span>&lt;span class="p">&amp;gt;&lt;/span> &lt;span class="n">num&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">:&lt;/span> &lt;span class="k">base&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">num&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kd">override&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="n">Sum&lt;/span>&lt;span class="p">()&lt;/span> &lt;span class="p">=&amp;gt;&lt;/span> &lt;span class="n">_num&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">Sum&lt;/span>&lt;span class="p">();&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kd">public&lt;/span> &lt;span class="k">class&lt;/span> &lt;span class="nc">SumEvenNumbersOnly&lt;/span> &lt;span class="p">:&lt;/span> &lt;span class="n">Calculator&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="n">SumEvenNumbersOnly&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">IEnumerable&lt;/span>&lt;span class="p">&amp;lt;&lt;/span>&lt;span class="kt">int&lt;/span>&lt;span class="p">&amp;gt;&lt;/span> &lt;span class="n">num&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">:&lt;/span> &lt;span class="k">base&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">num&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kd">override&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="n">Sum&lt;/span>&lt;span class="p">()&lt;/span> &lt;span class="p">=&amp;gt;&lt;/span> &lt;span class="n">_num&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">Where&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">x&lt;/span> &lt;span class="p">=&amp;gt;&lt;/span> &lt;span class="n">x&lt;/span> &lt;span class="p">%&lt;/span> &lt;span class="m">2&lt;/span> &lt;span class="p">==&lt;/span> &lt;span class="m">0&lt;/span>&lt;span class="p">).&lt;/span>&lt;span class="n">Sum&lt;/span>&lt;span class="p">();&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;h4>&lt;a href="" >Interface Segregation Principle&lt;/a>&lt;span class="hx-absolute -hx-mt-20" id="interface-segregation-principle">&lt;/span>
+&lt;a href="#interface-segregation-principle" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h4>&lt;p>A client should never be forced to implement an interface that it doesn&amp;rsquo;t use or clients shouldn&amp;rsquo;t be forced to depend on methods they do not use.&lt;/p>
+&lt;p>Take the following interface:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-csharp" data-lang="csharp">&lt;span class="line">&lt;span class="cl">&lt;span class="kd">public&lt;/span> &lt;span class="k">interface&lt;/span> &lt;span class="nc">IAllTheThings&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">Task&lt;/span>&lt;span class="p">&amp;lt;&lt;/span>&lt;span class="n">IAsyncEnumerable&lt;/span>&lt;span class="p">&amp;lt;&lt;/span>&lt;span class="n">Claim&lt;/span>&lt;span class="p">&amp;gt;&amp;gt;&lt;/span> &lt;span class="n">GetClaims&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kt">string&lt;/span> &lt;span class="n">username&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">Task&lt;/span>&lt;span class="p">&amp;lt;&lt;/span>&lt;span class="n">IAsyncEnumerable&lt;/span>&lt;span class="p">&amp;lt;&lt;/span>&lt;span class="n">User&lt;/span>&lt;span class="p">&amp;gt;&amp;gt;&lt;/span> &lt;span class="n">GetUsers&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kt">string&lt;/span> &lt;span class="n">team&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">Task&lt;/span>&lt;span class="p">&amp;lt;&lt;/span>&lt;span class="n">User&lt;/span>&lt;span class="p">&amp;gt;&lt;/span> &lt;span class="n">AddUsers&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">User&lt;/span> &lt;span class="n">user&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>There&amp;rsquo;s a clear distinction in responsibilities that are being suggested here by the contract name. Sufficed to say, these should be split across different interfaces:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-csharp" data-lang="csharp">&lt;span class="line">&lt;span class="cl">&lt;span class="kd">public&lt;/span> &lt;span class="k">interface&lt;/span> &lt;span class="nc">IUser&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">Task&lt;/span>&lt;span class="p">&amp;lt;&lt;/span>&lt;span class="n">IAsyncEnumerable&lt;/span>&lt;span class="p">&amp;lt;&lt;/span>&lt;span class="n">User&lt;/span>&lt;span class="p">&amp;gt;&amp;gt;&lt;/span> &lt;span class="n">GetUsers&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kt">string&lt;/span> &lt;span class="n">team&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">Task&lt;/span>&lt;span class="p">&amp;lt;&lt;/span>&lt;span class="n">User&lt;/span>&lt;span class="p">&amp;gt;&lt;/span> &lt;span class="n">AddUsers&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">User&lt;/span> &lt;span class="n">user&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kd">public&lt;/span> &lt;span class="k">interface&lt;/span> &lt;span class="nc">IClaim&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">Task&lt;/span>&lt;span class="p">&amp;lt;&lt;/span>&lt;span class="n">IAsyncEnumerable&lt;/span>&lt;span class="p">&amp;lt;&lt;/span>&lt;span class="n">Claim&lt;/span>&lt;span class="p">&amp;gt;&amp;gt;&lt;/span> &lt;span class="n">GetClaims&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kt">string&lt;/span> &lt;span class="n">username&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;h4>&lt;a href="" >Dependency Inversion Principle&lt;/a>&lt;span class="hx-absolute -hx-mt-20" id="dependency-inversion-principle">&lt;/span>
+&lt;a href="#dependency-inversion-principle" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h4>&lt;p>There are 2 rules here:&lt;/p>
+&lt;ul>
+&lt;li>High-level modules should not depend on lower-level modules. Both should depend on abstractions.&lt;/li>
+&lt;li>Abstractions should not depend upon details. Details should depend upon abstractions.&lt;/li>
+&lt;/ul>
+&lt;p>Let&amp;rsquo;s deal with the first rule first. High-level means policy, business logic and the bigger picture. Lower-level means, closer to the bare metal (think &lt;strong>I/O&lt;/strong>, &lt;strong>networking&lt;/strong>, &lt;strong>Db&lt;/strong>, &lt;strong>storage&lt;/strong>, &lt;strong>UI&lt;/strong>, etc&amp;hellip;). Lower-level tend to change more frequently too.&lt;/p>
+&lt;p>These two examples show perfectly the before and after of the move to a &amp;lsquo;depend on abstraction&amp;rsquo;:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-csharp" data-lang="csharp">&lt;span class="line">&lt;span class="cl">&lt;span class="kd">public&lt;/span> &lt;span class="k">class&lt;/span> &lt;span class="nc">BusinessRule&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">private&lt;/span> &lt;span class="n">DbContext&lt;/span> &lt;span class="n">_context&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="n">BusinessRule&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">_context&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="k">new&lt;/span> &lt;span class="n">DbContext&lt;/span>&lt;span class="p">();&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="n">Rule&lt;/span> &lt;span class="n">GetRule&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kt">string&lt;/span> &lt;span class="n">ruleName&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">_context&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">GetRuleByName&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">ruleName&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kd">public&lt;/span> &lt;span class="k">class&lt;/span> &lt;span class="nc">DbContext&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="n">DbContext&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="n">Rule&lt;/span> &lt;span class="n">GetRuleByName&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kt">string&lt;/span> &lt;span class="n">name&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="k">new&lt;/span> &lt;span class="n">Rule&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="k">new&lt;/span> &lt;span class="p">{&lt;/span>&lt;span class="n">Name&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="s">&amp;#34;Allow All The Things&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">Allow&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="kc">false&lt;/span>&lt;span class="p">})&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>After changing to an abstraction:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-csharp" data-lang="csharp">&lt;span class="line">&lt;span class="cl">&lt;span class="kd">public&lt;/span> &lt;span class="k">interface&lt;/span> &lt;span class="nc">IDbContext&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">Rule&lt;/span> &lt;span class="n">GetRuleByName&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kt">string&lt;/span> &lt;span class="n">name&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kd">public&lt;/span> &lt;span class="k">class&lt;/span> &lt;span class="nc">BusinessRule&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">private&lt;/span> &lt;span class="n">IDbContext&lt;/span> &lt;span class="n">_context&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="n">BusinessRule&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">IDbContext&lt;/span> &lt;span class="n">context&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">_context&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="n">context&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="n">Rule&lt;/span> &lt;span class="n">GetRule&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kt">string&lt;/span> &lt;span class="n">ruleName&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">_context&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">GetRuleByName&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">ruleName&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kd">public&lt;/span> &lt;span class="k">class&lt;/span> &lt;span class="nc">DbContext&lt;/span> &lt;span class="p">:&lt;/span> &lt;span class="n">IDbContext&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="n">DbContext&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="n">Rule&lt;/span> &lt;span class="n">GetRuleByName&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kt">string&lt;/span> &lt;span class="n">name&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="k">new&lt;/span> &lt;span class="n">Rule&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="k">new&lt;/span> &lt;span class="p">{&lt;/span>&lt;span class="n">Name&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="s">&amp;#34;Allow All The Things&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">Allow&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="kc">false&lt;/span>&lt;span class="p">})&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>With the above change, the DbContext can be any class as long as it inherits from the IDbContext interface and has a method with a signature of Rule GetRuleByName(string name).&lt;/p>
+&lt;p>The above is demonstrative of the 2nd rule; do not depend on the detail. As you can see, in the example above, we&amp;rsquo;re depending on an interface method contract and the actual implementational detail is being dealt with by the Lower-level class.&lt;/p>
+&lt;p>The above example includes &lt;strong>Dependency Injection&lt;/strong>. Although you can accomplish &lt;strong>IoC&lt;/strong> with &lt;strong>DI&lt;/strong>, they are not the same thing. &lt;strong>IoC&lt;/strong> does not mention anything about the direction of the dependency.&lt;/p>
+&lt;h5>Generalization restrictions&lt;span class="hx-absolute -hx-mt-20" id="generalization-restrictions">&lt;/span>
+&lt;a href="#generalization-restrictions" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h5>&lt;p>The presence of interfaces to accomplish the Dependency Inversion Pattern (DIP) has other design implications in an object-oriented program:&lt;/p>
+&lt;ul>
+&lt;li>All member variables in a class must be interfaces or abstracts&lt;/li>
+&lt;li>All concrete class packages must connect only through interface or abstract class packages&lt;/li>
+&lt;li>No class should derive from a concrete class&lt;/li>
+&lt;li>No method should override an implemented method&lt;/li>
+&lt;li>All variable instantiation requires the implementation of a creational pattern such as the factory method or the factory pattern, or the use of a dependency-injection framework.&lt;/li>
+&lt;/ul>
+&lt;h3>&lt;a href="" >Testing&lt;/a>&lt;span class="hx-absolute -hx-mt-20" id="testing">&lt;/span>
+&lt;a href="#testing" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>(&lt;strong>unit&lt;/strong>/&lt;strong>functional&lt;/strong>, including concepts like &lt;strong>TDD&lt;/strong> &amp;amp; &lt;strong>BDD&lt;/strong> and frameworks)&lt;/p>
+&lt;p>For testing to be a success, the details are key. These details will come in the form of a specification or from a verbal conversation (always to be confirm in writing later). If you&amp;rsquo;re lucky, these test cases will be included as &lt;strong>ACs&lt;/strong> (&lt;strong>Acceptance Criteria&lt;/strong>) in the &lt;strong>Scrum Story Description&lt;/strong>.&lt;/p>
+&lt;p>Taking a &lt;strong>test driven development&lt;/strong> approach to writing code often results in:&lt;/p>
+&lt;ul>
+&lt;li>a reduction in verbose code&lt;/li>
+&lt;li>less post-deployment bug fixing&lt;/li>
+&lt;li>succinct (do no more, no less than is required), structure and logic.&lt;/li>
+&lt;/ul>
+&lt;p>Testing is important. Obviously! I often refer to testing as &amp;lsquo;having your back&amp;rsquo;. It ensures you don&amp;rsquo;t break existing functionality when implementing new functionality or dealing with &lt;strong>tech debt&lt;/strong>. It also protects new engineers from breaking things as well as extant engineers who may have touched this repository many times before.&lt;/p>
+&lt;p>Tests aren&amp;rsquo;t just for new functionality either. If you change extant functionality or class responsibilities you must modify extant tests or create new tests. Ideally, your &lt;strong>CI&lt;/strong> build pipeline should run tests every time time a commit(s) is pushed to a &lt;strong>PR&lt;/strong> or &lt;strong>Draft PR&lt;/strong>. This last step is here, to again, have your back and to safeguard against erroneous code poluting your codebases and getting into production.&lt;/p>
+&lt;p>In the &lt;strong>.NET&lt;/strong> world, there are many &lt;strong>testing frameworks&lt;/strong> available; &lt;strong>xUnit&lt;/strong>, &lt;strong>NUnit&lt;/strong>, &lt;strong>MSTest&lt;/strong> to name a few. There are also many mocking frameworks available; &lt;strong>Moq&lt;/strong>, &lt;strong>NSubstitute&lt;/strong>, &lt;strong>JustMock&lt;/strong>, again, to name a few. Frameworks like these help make the testing process and overall experience less painful and cumbersome and some might even say it makes this part of development, pleasurable!&lt;/p>
+&lt;p>My &lt;strong>.NET Core&lt;/strong> testing and mocking preferences are &lt;a href="https://xunit.net/" target="_blank" rel="noopener">xUnit&lt;/a> &amp;amp; &lt;a href="https://github.com/moq/moq4" target="_blank" rel="noopener">Moq&lt;/a> and my javascript (including &lt;strong>node.js&lt;/strong>) testing framework preference is &lt;a href="https://jestjs.io/" target="_blank" rel="noopener">Jest&lt;/a>.&lt;/p>
+&lt;p>This code sample shows how both a testing and mocking frameworks compliment each other:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-csharp" data-lang="csharp">&lt;span class="line">&lt;span class="cl">&lt;span class="k">using&lt;/span> &lt;span class="nn">Moq&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">using&lt;/span> &lt;span class="nn">Xunit&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">namespace&lt;/span> &lt;span class="nn">BasicAAATestExample&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="k">interface&lt;/span> &lt;span class="nc">IUser&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kt">string&lt;/span> &lt;span class="n">GetFullname&lt;/span>&lt;span class="p">();&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kt">string&lt;/span> &lt;span class="n">Firstname&lt;/span> &lt;span class="p">{&lt;/span> &lt;span class="k">get&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="k">set&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kt">string&lt;/span> &lt;span class="n">Lastname&lt;/span> &lt;span class="p">{&lt;/span> &lt;span class="k">get&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="k">set&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="k">class&lt;/span> &lt;span class="nc">User&lt;/span> &lt;span class="p">:&lt;/span> &lt;span class="n">IUser&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kt">string&lt;/span> &lt;span class="n">Firstname&lt;/span> &lt;span class="p">{&lt;/span> &lt;span class="k">get&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="k">set&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kt">string&lt;/span> &lt;span class="n">Lastname&lt;/span> &lt;span class="p">{&lt;/span> &lt;span class="k">get&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="k">set&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kt">string&lt;/span> &lt;span class="n">GetFullname&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="s">$&amp;#34;{Firstname} {Lastname}&amp;#34;&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="k">class&lt;/span> &lt;span class="nc">Notify&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">private&lt;/span> &lt;span class="n">IUser&lt;/span> &lt;span class="n">_user&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="n">Notify&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">IUser&lt;/span> &lt;span class="n">user&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">=&amp;gt;&lt;/span> &lt;span class="n">_user&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="n">user&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kt">string&lt;/span> &lt;span class="n">GetMessage&lt;/span>&lt;span class="p">()&lt;/span> &lt;span class="p">=&amp;gt;&lt;/span> &lt;span class="s">$&amp;#34;{_user.GetFullname()} has been notified&amp;#34;&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="k">class&lt;/span> &lt;span class="nc">NotifyTests&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="na"> [Theory]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="na"> [InlineData(&amp;#34;Garrard&amp;#34;, &amp;#34;Kitchen&amp;#34;, &amp;#34;Garrard Kitchen has been notified&amp;#34;)]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="na"> [InlineData(&amp;#34;Charles&amp;#34;, &amp;#34;Kitchen&amp;#34;, &amp;#34;Charles Kitchen has been notified&amp;#34;)]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="k">void&lt;/span> &lt;span class="n">GivenGetMessageIsCalled_WhenFirstAndLastNameExist_ThenReturnsANotificationMessage&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kt">string&lt;/span> &lt;span class="n">firstname&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kt">string&lt;/span> &lt;span class="n">lastname&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="kt">string&lt;/span> &lt;span class="n">expected&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">// arrange&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kt">var&lt;/span> &lt;span class="n">mockUser&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="k">new&lt;/span> &lt;span class="n">Mock&lt;/span>&lt;span class="p">&amp;lt;&lt;/span>&lt;span class="n">IUser&lt;/span>&lt;span class="p">&amp;gt;();&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">mockUser&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">Setup&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">x&lt;/span> &lt;span class="p">=&amp;gt;&lt;/span> &lt;span class="n">x&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">GetFullname&lt;/span>&lt;span class="p">()).&lt;/span>&lt;span class="n">Returns&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">$&amp;#34;{firstname} {lastname}&amp;#34;&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kt">var&lt;/span> &lt;span class="n">sut&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="k">new&lt;/span> &lt;span class="n">Notify&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">mockUser&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">Object&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">// act&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kt">string&lt;/span> &lt;span class="n">message&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="n">sut&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">GetMessage&lt;/span>&lt;span class="p">();&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">// assert&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">Assert&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">Equal&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">expected&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">message&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">mockUser&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">Verify&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">x&lt;/span> &lt;span class="p">=&amp;gt;&lt;/span> &lt;span class="n">x&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">GetFullname&lt;/span>&lt;span class="p">(),&lt;/span> &lt;span class="n">Times&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">Once&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>The single unit test above follows the &lt;strong>AAA&lt;/strong> (&lt;strong>Arrange, Act, Assert&lt;/strong>) pattern and is a common way of writing &lt;strong>unit tests&lt;/strong> for a method under test:&lt;/p>
+&lt;ul>
+&lt;li>the &lt;code>Arrange&lt;/code> section of a unit test method initializes objects and sets the value of the data that is passed to the method under test&lt;/li>
+&lt;li>the &lt;code>Act&lt;/code> section invokes the method under test with the arranged parameters&lt;/li>
+&lt;li>the &lt;code>Assert&lt;/code> section verifies that the action of the method under test behaves as expected.&lt;/li>
+&lt;/ul>
+&lt;p>There are a few standards I adhere to when it comes to writing tests. In the sample unit test above these standards include:&lt;/p>
+&lt;ul>
+&lt;li>the method name (&lt;code>GWT&lt;/code>)&lt;/li>
+&lt;li>the comment blocks of &lt;code>arrange&lt;/code>, &lt;code>act&lt;/code> and &lt;code>assert&lt;/code>&lt;/li>
+&lt;li>the name of the mock instantiated object (&lt;code>mock&amp;lt;Class&amp;gt;&lt;/code>)&lt;/li>
+&lt;li>the class name of the SUT - system under test - (&lt;code>sut&lt;/code>).&lt;/li>
+&lt;/ul>
+&lt;h3>&lt;a href="" >YAGNI&lt;/a>&lt;span class="hx-absolute -hx-mt-20" id="yagni">&lt;/span>
+&lt;a href="#yagni" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>(you ain&amp;rsquo;t going to need it)&lt;/p>
+&lt;p>Do no more, and no less than is required. You do not want to have to maintain code that is never used or produce code that others have to maintain unwittingly. It&amp;rsquo;s very difficult to future proof your code if you do not know what&amp;rsquo;s going to happen, let alone without a specification! It&amp;rsquo;s a guess at best so don&amp;rsquo;t waste your time or others. Keeps things concise, succinct and simple.&lt;/p>
+&lt;hr>
+&lt;h3>&lt;a href="" >My pattern discovery&lt;/a>&lt;span class="hx-absolute -hx-mt-20" id="my-pattern-discovery">&lt;/span>
+&lt;a href="#my-pattern-discovery" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>I&amp;rsquo;m a huge fan of &lt;strong>patterns&lt;/strong>, especially &lt;strong>cloud architectural patterns&lt;/strong> but sometimes, they add unnecessary complicity so beware!&lt;/p>
+&lt;p>When I first started learning about patterns - some 18 years ago - I went through a few codebases I was involved with at the time to see if I&amp;rsquo;d subconsciously been repeatedly using a pattern &amp;hellip; and I had! It was the &lt;strong>lazy loading&lt;/strong> pattern&amp;hellip;which I continue to use regularly today!&lt;/p>
+&lt;h3>&lt;a href="" >Being a Principal Engineer&lt;/a>&lt;span class="hx-absolute -hx-mt-20" id="being-a-principal-engineer">&lt;/span>
+&lt;a href="#being-a-principal-engineer" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>As a Principal Engineer, I consider the above as the foundation for writing quality code. The objective of this list, in conjunction with the message I propagate via this list, during discussions, evidence from my own work and by leading from the front within my role, is one of a reminder to me and my colleagues of best practice and commitment to quality and good practice. As with all foundations, it forms the base from which more advanced concepts or approaches can be learned. An important part of this practice is heuristic - enabling a person to discover or learn something by themselves. So, how do I go about doing this?&lt;/p>
+&lt;p>These are some of the activities I execute to embed good engineering principles:&lt;/p>
+&lt;ul>
+&lt;li>1-2-1&lt;/li>
+&lt;li>Group conversations&lt;/li>
+&lt;li>Advocate online learning platforms such as Pluralsight or Udemy. For the more keen Engineer, I also recommend certification. YouTube is another favourite of mine. With YouTube, you can tag recordings, therefore building up a catalogue of materials that you can make public&lt;/li>
+&lt;li>Workshops&lt;/li>
+&lt;li>Brown bags&lt;/li>
+&lt;li>Capture &lt;em>How To Do&amp;rsquo;s&lt;/em> in wikis or similar&lt;/li>
+&lt;li>Coding advice/tips (e.g. when to use Task instead of an Async method)&lt;/li>
+&lt;li>Take the time to explain questions about implementation reasons in DVCS Pull Requests&lt;/li>
+&lt;li>Share blog posts &amp;amp; other materials across multiple channels&lt;/li>
+&lt;li>Compile a learning profile for an individual&lt;/li>
+&lt;/ul>
+&lt;p>The coding advice/tips above are interesting ones. As professionals, we always want to improve our ability to code, how we approach problems, etc&amp;hellip;, and in doing so we want our colleagues to benefit from our experience. I recently became reacquainted with coding &lt;strong>katas&lt;/strong>. As a black belt in Ju-Jitsu I am well versed in what a &lt;strong>kata&lt;/strong> is. &lt;strong>Katas&lt;/strong> can also be used to remind, stretch and improve our core coding capability. The last time I used a &lt;strong>kata&lt;/strong> in programming was 10+ years ago. This was when I was first introduced to &lt;strong>TDD&lt;/strong>. A favourite development book of mine is &lt;strong>&amp;lsquo;The Art of Unit Testing&amp;rsquo;&lt;/strong> by Roy Osherove. It is the first edition. For many years I had it as a click-thru purchase option on a previous blog site of mine. I&amp;rsquo;ve not &lt;em>really&lt;/em> participated in many &lt;strong>katas&lt;/strong> since. I have written a few though and now having been reintroduced to them and reminded of their potential, as a Principal Engineer I can see it as an invaluable tool. One thought I&amp;rsquo;ve had is to use it as a framework to assess an Engineer&amp;rsquo;s current capability and then use during &lt;strong>pair programming&lt;/strong> to help share coding techniques, approaches and standards.&lt;/p>
+&lt;p>&lt;strong>Pair programming&lt;/strong> is a wonderful technique for propagating developer skills (think how to use cloud services), approaches to coding (think TDD and problem solving), embed team coding standards and code review in realtime. &lt;strong>Pair Programming&lt;/strong> is an &lt;strong>Extreme Programming&lt;/strong> technique. It is &lt;strong>not a mentoring or coaching&lt;/strong> technique but some do use it for this. Quite often, I find I only participate in pair programming is one of two use cases. (1) if the subject I&amp;rsquo;m investigating is new (important to have shared knowledge) and (2) when I&amp;rsquo;m helping an Engineer to overcome an esoteric issue. You know what they say? &amp;hellip;a problem shared is a problem halved! However, now, I&amp;rsquo;ll be including &lt;strong>Pair Programming&lt;/strong> in conjunction with &lt;strong>katas&lt;/strong> as part of my techniques to stretch the Engineer&amp;rsquo;s muscle memory (including mine!).&lt;/p>
+&lt;p>I love hacking away at code as much as the next Engineer. Hacking code is a great way to experiment and to get out of the starting gate. However, when it comes to pair programming I do like to give it the necessary due diligence. By this I am referring to allowing for a few moments up front to deliberate and agree on what&amp;rsquo;s required. This checklist guides me and ensures up front I set off in the right frame of mind:&lt;/p>
+&lt;ul>
+&lt;li>the objective of the &lt;strong>pair programming&lt;/strong> exercise (think the desired outcome - you might even want to frame this with a Story Description; AS A, I WANT, SO THAT)&lt;/li>
+&lt;li>what libraries (3rd party) will we need (think cloud provider SDKs and vendor client APIs)&lt;/li>
+&lt;li>how are we going to test the code we write (think &lt;strong>unit tests&lt;/strong>, &lt;strong>integration&lt;/strong>, &lt;strong>functional&lt;/strong> [&lt;strong>e2e&lt;/strong>] as well as your approach e.g. &lt;strong>TDD&lt;/strong>).&lt;/li>
+&lt;/ul>
+&lt;p>After the session has finished I like to perform one final task. This is to document findings/learnings and areas that require further investigation. This is normally helped by capturing notes as we go along.&lt;/p>
+&lt;p>As a side note to &lt;strong>TDD&lt;/strong>, with modern compilers (think Roslyn in the .NET world) and even linting to a certain extent, you know if something will fail - if a reference type (.NET) does not exist yet - as your IDE &lt;em>will be screaming at you&lt;/em>, so I don&amp;rsquo;t run tests that are missing these reference types (think classes and interfaces in the .NET world).&lt;/p>
+&lt;h3>&lt;a href="" >Discussion point&lt;/a>&lt;span class="hx-absolute -hx-mt-20" id="discussion-point">&lt;/span>
+&lt;a href="#discussion-point" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>I&amp;rsquo;m sure I&amp;rsquo;m not alone here when I say, having the time available for 2 Engineers to code together for skills transfer etc is a challenging one. An agile sprint doesn&amp;rsquo;t facilitate this. This is something that I often refer to as having the &amp;lsquo;space to learn&amp;rsquo;. The pressures of a sprint often, sadly, works against this. This is doubly as difficult, if your sprint is made up of technical debt, BAU, Ad-hoc etc&amp;hellip; Timeboxing &amp;rsquo;effort&amp;rsquo; into percentages doesn&amp;rsquo;t always present an obvious education path for your Engineers either. Having a day (developer day or similar) dedicated to learning also never really quite works out the way it&amp;rsquo;s meant too, plus, &amp;lsquo;a day&amp;rsquo;?! In my experience, this, and trying to cram &lt;em>genius&lt;/em> into a time box also never quite works either. After all, you can&amp;rsquo;t schedule &lt;em>genius&lt;/em>, in the same way, you can&amp;rsquo;t guarantee that the best Engineers are in your locality, or that the best time for Engineers to work is between 9-5.&lt;/p>
+&lt;p>&lt;em>What is the answer? A mixture of all the above, at hock and at scheduled times, to ensure quality and advancement of skills.&lt;/em>&lt;/p>
+&lt;p>When I do speak out regarding the above, I inevitably also lead this conversation into Engineering not having the kit [hardware &amp;amp; software] they need. Engineers require the software and hardware they deem as necessary to be effective in their role. I once gave an analogy of, not giving Engineers the right kit is like giving a roller brush and a Pogo stick to Michelangelo to paint the Sistine Chapel ceiling. He&amp;rsquo;ll manage it &amp;hellip; eventually, but the attention to detail and accuracy will be woefully inadequate.&lt;/p>
+&lt;hr>
+&lt;p>Written mainly for me, I do hope you&amp;rsquo;ve found something useful here, and who knows, it may even help you with your engineering journey too.&lt;/p>
+&lt;hr>
+&lt;h4>&lt;a href="" >References&lt;/a>&lt;span class="hx-absolute -hx-mt-20" id="references">&lt;/span>
+&lt;a href="#references" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h4>&lt;ul>
+&lt;li>
+&lt;p>&lt;a href="https://pragprog.com/the-pragmatic-programmer/extracts/tips" target="_blank" rel="noopener">The pragmatic programmer&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;a href="https://martinfowler.com/bliki/Yagni.html" target="_blank" rel="noopener">YAGNI&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;a href="https://www.agilealliance.org/glossary/xp" target="_blank" rel="noopener">XP&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;a href="https://en.wikipedia.org/wiki/Dependency_inversion_principle" target="_blank" rel="noopener">Dependency inversion principle&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;a href="http://web.science.mq.edu.au/~mattr/courses/object_oriented_development_practices/5/notes.html" target="_blank" rel="noopener">OOP design patterns&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;a href="https://www.martinfowler.com/articles/injection.html" target="_blank" rel="noopener">Inversion of Control Containers and the Dependency Injection pattern&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;a href="https://docs.microsoft.com/en-us/visualstudio/test/unit-test-basics?view=vs-2019#write-your-tests" target="_blank" rel="noopener">Write your tests&lt;/a>&lt;/p>
+&lt;/li>
+&lt;/ul></description></item></channel></rss>

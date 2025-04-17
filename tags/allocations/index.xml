@@ -1,0 +1,91 @@
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Garrard Kitchen – Allocations</title><link>https://blog-dev.garrardkitchen.com/tags/allocations/</link><description>Recent content in Allocations on Garrard Kitchen</description><generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Fri, 04 Feb 2022 08:38:16 +0000</lastBuildDate><atom:link href="https://blog-dev.garrardkitchen.com/tags/allocations/index.xml" rel="self" type="application/rss+xml"/><item><title>.NET Stack, Heap and Boxing</title><link>https://blog-dev.garrardkitchen.com/blog/dotnet-stack-and-heap/</link><pubDate>Fri, 04 Feb 2022 08:38:16 +0000</pubDate><guid>https://blog-dev.garrardkitchen.com/blog/dotnet-stack-and-heap/</guid><description>
+&lt;p>This week I have been investigating how to reduce memory allocation in a few HTTP APIs. I won&amp;rsquo;t go into any explicit work-related examples here but I will touch on facets relating to this effort.&lt;/p>
+&lt;p>Let&amp;rsquo;s start off by looking at &lt;code>Reference Types&lt;/code> and &lt;code>Value types&lt;/code> and how they get allocated into the Heap. I will also touch on concepts such as boxing and GC pressure.&lt;/p>
+&lt;p>Let me start off with some facts:&lt;/p>
+&lt;ul>
+&lt;li>A &lt;code>Reference types&lt;/code> always get allocated on the Heap&lt;/li>
+&lt;li>A &lt;code>Value type&lt;/code> &lt;em>mostly&lt;/em> get put on the stack, but &lt;em>do&lt;/em> get placed on the Heap sometimes.&lt;/li>
+&lt;li>If &lt;code>Value type&lt;/code> is a class field (hoisted top-level class field), this gets allocated on the Heap along with it&amp;rsquo;s parent.&lt;/li>
+&lt;li>If &lt;code>Value type&lt;/code> is boxed, this too gets allocated on the Heap&lt;/li>
+&lt;li>A &lt;code>ref Struct&lt;/code> will always be added to the Stack as the compiler will not allow it (field cannot be of byref-like type) to be added as a class field, but &lt;code>Value type&lt;/code> in the Struct will be allocated if boxed&lt;/li>
+&lt;/ul>
+&lt;p>Yikes, confusing yes?&lt;/p>
+&lt;h2>Examples&lt;span class="hx-absolute -hx-mt-20" id="examples">&lt;/span>
+&lt;a href="#examples" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>I&amp;rsquo;m going to break off into some examples next to help explain &lt;em>why&lt;/em> and &lt;em>when&lt;/em> &lt;code>Value Types&lt;/code> get allocated.&lt;/p>
+&lt;p>&lt;strong>Example 1: A Class Field&lt;/strong>&lt;/p>
+&lt;p>In this class, we can see that _attempts is a Value Type:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-csharp" data-lang="csharp">&lt;span class="line">&lt;span class="cl">&lt;span class="kd">public&lt;/span> &lt;span class="k">class&lt;/span> &lt;span class="nc">NewOrder&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">private&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="n">_attempts&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="m">0&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="k">void&lt;/span> &lt;span class="n">PlaceOrder&lt;/span>&lt;span class="p">()&lt;/span> &lt;span class="p">{}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>Due to it being a class field, it is allocated on Heap with it&amp;rsquo;s parent &lt;code>NewOrder&lt;/code>. This is seen here:&lt;/p>
+&lt;p>&lt;img src="../img/2022-02-04-09-08-06.png" alt="" loading="lazy" />&lt;/p>
+&lt;p>The same will happen if you hoist a Struct to the root of the class. Take this code for instance, the Item Struct is placed on the Heap along with it&amp;rsquo;s parent (see screengrab below):&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-c#" data-lang="c#">&lt;span class="line">&lt;span class="cl">&lt;span class="kd">public&lt;/span> &lt;span class="k">class&lt;/span> &lt;span class="nc">Order&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">private&lt;/span> &lt;span class="n">Item&lt;/span> &lt;span class="n">_item&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="k">new&lt;/span> &lt;span class="n">Item&lt;/span>&lt;span class="p">();&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="n">Order&lt;/span>&lt;span class="p">()&lt;/span> &lt;span class="p">{}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kd">public&lt;/span> &lt;span class="k">struct&lt;/span> &lt;span class="nc">Item&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="n">Id&lt;/span> &lt;span class="p">{&lt;/span> &lt;span class="k">get&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="k">set&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kt">string&lt;/span> &lt;span class="n">Sku&lt;/span> &lt;span class="p">{&lt;/span> &lt;span class="k">get&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="k">set&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>&lt;img src="../img/2022-02-04-13-15-28.png" alt="" loading="lazy" />&lt;/p>
+&lt;p>&lt;strong>Example 2: Boxing&lt;/strong>&lt;/p>
+&lt;p>Class Properties &lt;code>Value Types&lt;/code> don&amp;rsquo;t get placed on the Heap. However, if they get &lt;code>boxed&lt;/code> (eg via string interpolation, method group, lambda expression), then they do.&lt;/p>
+&lt;p>This example shows the result on the ItemCount property after it gets boxed via string interpolation:&lt;/p>
+&lt;p>&lt;img src="../img/2022-02-04-09-39-50.png" alt="" loading="lazy" />&lt;/p>
+&lt;h2>Concepts&lt;span class="hx-absolute -hx-mt-20" id="concepts">&lt;/span>
+&lt;a href="#concepts" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>&lt;em>Boxing and unboxing&lt;/em>&lt;/p>
+&lt;p>&lt;strong>Boxing&lt;/strong> is process of converting a &lt;code>Value Type&lt;/code> to the type &lt;code>object&lt;/code> (aka implicit conversion). It creates a new allocation in the Heap, copies in the &lt;code>Values type&lt;/code> value and returns a reference.&lt;/p>
+&lt;p>See the last int32 instance in this screengrab:&lt;/p>
+&lt;p>&lt;img src="../img/2022-02-04-10-01-21.png" alt="" loading="lazy" />&lt;/p>
+&lt;p>&lt;strong>Unboxing&lt;/strong>, on the hand, is the reverse and is the process of converting a type &lt;code>object&lt;/code> to a &lt;code>Value Type&lt;/code> (aka explicit conversion).&lt;/p>
+&lt;p>In this example, you see that the unboxing doesn&amp;rsquo;t get allocated onto the Heap:&lt;/p>
+&lt;p>&lt;img src="../img/2022-02-04-10-05-14.png" alt="" loading="lazy" />&lt;/p>
+&lt;h2>GC Pressure&lt;span class="hx-absolute -hx-mt-20" id="gc-pressure">&lt;/span>
+&lt;a href="#gc-pressure" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>You may be asking the question, &amp;ldquo;why is any of this important?&amp;rdquo;&lt;/p>
+&lt;p>One reason it will become relevant is if you are observing GC pressure.&lt;/p>
+&lt;p>GC pressure means that the GC is feeling the strain and increasingly becoming overwhelmed deallocating memory. This &lt;em>could&lt;/em> be the result of an incorrect GC configuration. If you&amp;rsquo;re not careful, your production docker container workload(s) may not have adeqaute available private memory. If this is the case then GC will be working twice as hard to avoid an OOM exception. Lack of memory will kill your app. Lack of CPU however will simply throttle your app and will not result in your app being kill. There is one example when this isn&amp;rsquo;t exactly true. Let&amp;rsquo;s say you have a pod running in your kubernetes cluster, and your configuration includes both Liveness and a Readiness probes. If your CPU is maxed out and your HTTP Listener can&amp;rsquo;t receive and respond to HTTP requests during the time the probes properties allow (combination of periodSeconds, failureThreshold and timeoutSeconds), then neither probe will have the availability to inform AKS that it&amp;rsquo;s still alive but just busy so don&amp;rsquo;t shut me down. So, the inevitable will happen. Yes, AKS will kill your pod and restart another; providing you&amp;rsquo;ve a ReplicaSet configured.&lt;/p>
+&lt;p>Reviewing your code and identifying changes that can reduce allocation, will help. It&amp;rsquo;s not the only approach. More often than not though, especially with a focus on using less space (Big O Notation), will result in larger method frames, plus verbose code, plus determinate collection sizes, etc&amp;hellip; .&lt;/p>
+&lt;p>Also worth noting here too is that whenever GC executes, your running application will stop and will resume once GC completes.&lt;/p>
+&lt;p>To reiterate an earlier point, there are many approaches to reducing GC pressure. These are well documented and are easily found on the internet. I&amp;rsquo;ve included several below for completeness:&lt;/p>
+&lt;ul>
+&lt;li>Avoid memory leaks (big topic!)&lt;/li>
+&lt;li>Use (when appropriate) in place of a Class&lt;/li>
+&lt;li>Using a StringBuilder correctly&lt;/li>
+&lt;li>Use .NET 6 &amp;amp; c# 10. String interpolaton uses the new DefaultStringInterpolatedHandler, avoiding unnecessary boxing on &lt;code>Value Type&lt;/code> values.&lt;/li>
+&lt;li>Avoid finalizers&lt;/li>
+&lt;li>Setting the initial seize of a &lt;em>dynamic&lt;/em> collection&lt;/li>
+&lt;li>ArrayPool for short-lived arrays (large)&lt;/li>
+&lt;/ul>
+&lt;p>As a side note here due to the inclusion of the .NET 6 and string interpolation point above, I&amp;rsquo;ve now been using .NET 6 for a few months. This includes both exploratory and new projects. I was especially keen to start using .NET 6 from the benefits from process isolation (out-of-process) - fewer conflicts, DI and full control of the process that we&amp;rsquo;re all used to with paradigms outside of the serverless model. I have grown to like the minimum API. Like most, I initially felt uneasy with the lack of c# verbosity but now welcome it. I do, and I am sure I am not alone here, have been using both BenchmarkDotNET and SharpLab to compare performance and language decompilation. I didn&amp;rsquo;t bother much with .NET 5. This was due to .NET 5 never having the LTS label.&lt;/p>
+&lt;h2>References&lt;span class="hx-absolute -hx-mt-20" id="references">&lt;/span>
+&lt;a href="#references" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;ul>
+&lt;li>&lt;a href="https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/types/boxing-and-unboxing" target="_blank" rel="noopener">Boxing/unboxing&lt;/a>&lt;/li>
+&lt;/ul></description></item></channel></rss>

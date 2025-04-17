@@ -1,0 +1,83 @@
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Garrard Kitchen – Defender for Cloud</title><link>https://blog-dev.garrardkitchen.com/tags/defender-for-cloud/</link><description>Recent content in Defender for Cloud on Garrard Kitchen</description><generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Sat, 15 Jan 2022 11:57:20 +0000</lastBuildDate><atom:link href="https://blog-dev.garrardkitchen.com/tags/defender-for-cloud/index.xml" rel="self" type="application/rss+xml"/><item><title>Azure Defender for Cloud</title><link>https://blog-dev.garrardkitchen.com/blog/azure-defender-for-cloud/</link><pubDate>Sat, 15 Jan 2022 11:57:20 +0000</pubDate><guid>https://blog-dev.garrardkitchen.com/blog/azure-defender-for-cloud/</guid><description>
+&lt;h1>Defender for Cloud Containers&lt;/h1>&lt;p>Setting up &lt;strong>Defender for Cloud Containers&lt;/strong> to work with your CICD pipeline is quick and uncomplicated. I do not walk through these set up steps in this post. For that, you can follow those few steps here in this Microsoft post instead ➡ &lt;a href="https://docs.microsoft.com/en-gb/azure/defender-for-cloud/defender-for-container-registries-cicd" target="_blank" rel="noopener">Setup&lt;/a>. The goal of this post is to highlight a few areas of interest and to share my opinions on this feature. I have &lt;em>understandably&lt;/em> obfuscated sensitive information.&lt;/p>
+&lt;p>&lt;strong>TL;DR:&lt;/strong>&lt;/p>
+&lt;p>Pros:&lt;/p>
+&lt;ul>
+&lt;li>Rapid inclusion in your GH Actions CICD pipeline&lt;/li>
+&lt;li>Uncomplicated&lt;/li>
+&lt;li>Adherence to industry preferred practice&lt;/li>
+&lt;/ul>
+&lt;p>Cons:&lt;/p>
+&lt;ul>
+&lt;li>Expected ALL findings from GHA run to be visible in Defender blade&lt;/li>
+&lt;li>Doesn&amp;rsquo;t support windows containers (.NET Framework workloads) 😱 substantiated here ➡ &lt;a href="https://docs.microsoft.com/en-gb/azure/defender-for-cloud/defender-for-containers-introduction?tabs=defender-for-container-arch-aks#availability" target="_blank" rel="noopener">Availability&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;h1>Set up&lt;/h1>&lt;p>It takes very little time to configure image scanning and to secure your container images. In my current role as Head of Cloud Platform at Carfinance 247 I am spear heading the migration effort to move our entire workload real estate from on-premise to Azure. As part of this mission, we&amp;rsquo;re using GH Actions for our CICD pipelines. Azure Defender of Cloud Containers compliments GH Actions and I personally have found it a very painless exercise &lt;sup>1&lt;/sup>. It takes little more time than it does to actually read their instructions to configure, run and see the scan summary and remediation advice.&lt;/p>
+&lt;p>With regards to configuring Azure Defender for Cloud, all it takes a few mouse clicks and you&amp;rsquo;re done. During this process, you will be required to copy 2 values it makes available to you that will need to be added as GitHub secrets.&lt;/p>
+&lt;p>The final step is to insert 2 GH Actions into your GHA Workflow. You may need to seperate your build and push steps as per their instructions. Below is a snippet from one of our deploy GH Actions Workflows that shows how we&amp;rsquo;ve incorporated these GH Actions:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-yml" data-lang="yml">&lt;span class="line">&lt;span class="cl">&lt;span class="nn">...&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>- &lt;span class="nt">name&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">BUILD IMAGE&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">run&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">|&lt;/span>&lt;span class="sd">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="sd"> cd ${{ env.ROOT_DIR }}
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="sd">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="sd"> docker build -t ${{ env.ACR_NAME }}/${{ env.APP_DOCKERIMAGE }}:${{ env.TAG }} -f ${{ env.ROOT_DIR }}/${{ env.APP_DOCKERFILE }} .
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="sd"> errorCode=$?
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="sd"> if [ $errorCode -ne 0 ]; then
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="sd"> echo &amp;#34;Could not build to ACR, error occured with docker build&amp;#34;
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="sd"> exit 1
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="sd"> fi
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="sd"> &lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>- &lt;span class="nt">name&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">SCAN FOR VULNERABILITIES&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">uses&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">Azure/container-scan@v0 &lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">id&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">container-scan&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">continue-on-error&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kc">true&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">with&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">image-name&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">${{ env.ACR_NAME }}/${{ env.APP_DOCKERIMAGE }}:${{ env.TAG }}&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>- &lt;span class="nt">name&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">PUSH TO ACR&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">run&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">|&lt;/span>&lt;span class="sd">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="sd"> docker push ${{ env.ACR_NAME }}/${{ env.APP_DOCKERIMAGE }}:${{ env.TAG }}
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="sd"> errorCode=$?
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="sd"> if [ $errorCode -ne 0 ]; then
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="sd"> echo &amp;#34;Could not build to ACR, error occured with docker build&amp;#34;
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="sd"> exit 1
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="sd"> fi&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>- &lt;span class="nt">name&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">POST LOGS TO APPINSIGHTS&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">uses&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">Azure/publish-security-assessments@v0&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">with&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">scan-results-path&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">${{ steps.container-scan.outputs.scan-report-path }}&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">connection-string&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">${{ secrets.AZ_APPINSIGHTS_CONNECTION_STRING }}&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">subscription-token&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">${{ secrets.AZ_SUBSCRIPTION_TOKEN }}&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nn">...&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>&lt;em>👆 We are not using (AZ_APPINSIGHTS_CONNECTION_STRING, AZ_SUBSCRIPTION_TOKEN) secrets names&lt;/em>&lt;/p>
+&lt;h1>Results&lt;/h1>&lt;p>There are 2 places where you can view the Commons Vulnerabilities and Exposures. These locations are wihtin GH Actions and the Defender for Cloud Blade in the Azure portal.&lt;/p>
+&lt;h2>GH Action Job&lt;span class="hx-absolute -hx-mt-20" id="gh-action-job">&lt;/span>
+&lt;a href="#gh-action-job" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>&lt;img src="../img/2022-01-15-15-51-01.png" alt="" loading="lazy" />&lt;/p>
+&lt;h2>Azure blade&lt;span class="hx-absolute -hx-mt-20" id="azure-blade">&lt;/span>
+&lt;a href="#azure-blade" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>&lt;img src="../img/2022-01-15-12-06-38.png" alt="" loading="lazy" />&lt;/p>
+&lt;h1>Summary&lt;/h1>&lt;p>In summary:&lt;/p>
+&lt;ul>
+&lt;li>I found it quick to get up and running and see the CVEs and remediation advice&lt;/li>
+&lt;li>&lt;sup>1&lt;/sup> - Like with most processes, IMO, if there&amp;rsquo;s no predetermined action to react to findings - e.g. automated Runbook - then it&amp;rsquo;s a pointless exercise and your organisation &lt;em>will&lt;/em> remain exposed to such vulnerabilities&lt;/li>
+&lt;li>IMO, this has be part of a wider initiative. For example, the inclusion of code quality analysis is a must to avoid vulnerabilities, bugs and poor coding practices/implementations making it into the codebase in the first place. This is how &lt;em>we&lt;/em> roll. GitHub makes this easy!&lt;/li>
+&lt;li>I find it surprising how many CVEs, irrespective of criticality, are present in established docker images. You don&amp;rsquo;t have to look far to discover them!&lt;/li>
+&lt;/ul>
+&lt;h1>References&lt;/h1>&lt;ul>
+&lt;li>
+&lt;p>&lt;a href="https://docs.microsoft.com/en-gb/azure/defender-for-cloud/defender-for-container-registries-cicd" target="_blank" rel="noopener">Setup defender for container registries&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;a href="https://docs.microsoft.com/en-gb/azure/defender-for-cloud/defender-for-containers-introduction?tabs=defender-for-container-arch-aks" target="_blank" rel="noopener">Defender for cloud&lt;/a>&lt;/p>
+&lt;/li>
+&lt;/ul></description></item></channel></rss>

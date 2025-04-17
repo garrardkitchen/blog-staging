@@ -1,0 +1,426 @@
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Garrard Kitchen – Github Actions</title><link>https://blog-dev.garrardkitchen.com/tags/github-actions/</link><description>Recent content in Github Actions on Garrard Kitchen</description><generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Sat, 15 Jan 2022 11:57:20 +0000</lastBuildDate><atom:link href="https://blog-dev.garrardkitchen.com/tags/github-actions/index.xml" rel="self" type="application/rss+xml"/><item><title>Azure Defender for Cloud</title><link>https://blog-dev.garrardkitchen.com/blog/azure-defender-for-cloud/</link><pubDate>Sat, 15 Jan 2022 11:57:20 +0000</pubDate><guid>https://blog-dev.garrardkitchen.com/blog/azure-defender-for-cloud/</guid><description>
+&lt;h1>Defender for Cloud Containers&lt;/h1>&lt;p>Setting up &lt;strong>Defender for Cloud Containers&lt;/strong> to work with your CICD pipeline is quick and uncomplicated. I do not walk through these set up steps in this post. For that, you can follow those few steps here in this Microsoft post instead ➡ &lt;a href="https://docs.microsoft.com/en-gb/azure/defender-for-cloud/defender-for-container-registries-cicd" target="_blank" rel="noopener">Setup&lt;/a>. The goal of this post is to highlight a few areas of interest and to share my opinions on this feature. I have &lt;em>understandably&lt;/em> obfuscated sensitive information.&lt;/p>
+&lt;p>&lt;strong>TL;DR:&lt;/strong>&lt;/p>
+&lt;p>Pros:&lt;/p>
+&lt;ul>
+&lt;li>Rapid inclusion in your GH Actions CICD pipeline&lt;/li>
+&lt;li>Uncomplicated&lt;/li>
+&lt;li>Adherence to industry preferred practice&lt;/li>
+&lt;/ul>
+&lt;p>Cons:&lt;/p>
+&lt;ul>
+&lt;li>Expected ALL findings from GHA run to be visible in Defender blade&lt;/li>
+&lt;li>Doesn&amp;rsquo;t support windows containers (.NET Framework workloads) 😱 substantiated here ➡ &lt;a href="https://docs.microsoft.com/en-gb/azure/defender-for-cloud/defender-for-containers-introduction?tabs=defender-for-container-arch-aks#availability" target="_blank" rel="noopener">Availability&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;h1>Set up&lt;/h1>&lt;p>It takes very little time to configure image scanning and to secure your container images. In my current role as Head of Cloud Platform at Carfinance 247 I am spear heading the migration effort to move our entire workload real estate from on-premise to Azure. As part of this mission, we&amp;rsquo;re using GH Actions for our CICD pipelines. Azure Defender of Cloud Containers compliments GH Actions and I personally have found it a very painless exercise &lt;sup>1&lt;/sup>. It takes little more time than it does to actually read their instructions to configure, run and see the scan summary and remediation advice.&lt;/p>
+&lt;p>With regards to configuring Azure Defender for Cloud, all it takes a few mouse clicks and you&amp;rsquo;re done. During this process, you will be required to copy 2 values it makes available to you that will need to be added as GitHub secrets.&lt;/p>
+&lt;p>The final step is to insert 2 GH Actions into your GHA Workflow. You may need to seperate your build and push steps as per their instructions. Below is a snippet from one of our deploy GH Actions Workflows that shows how we&amp;rsquo;ve incorporated these GH Actions:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-yml" data-lang="yml">&lt;span class="line">&lt;span class="cl">&lt;span class="nn">...&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>- &lt;span class="nt">name&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">BUILD IMAGE&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">run&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">|&lt;/span>&lt;span class="sd">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="sd"> cd ${{ env.ROOT_DIR }}
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="sd">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="sd"> docker build -t ${{ env.ACR_NAME }}/${{ env.APP_DOCKERIMAGE }}:${{ env.TAG }} -f ${{ env.ROOT_DIR }}/${{ env.APP_DOCKERFILE }} .
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="sd"> errorCode=$?
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="sd"> if [ $errorCode -ne 0 ]; then
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="sd"> echo &amp;#34;Could not build to ACR, error occured with docker build&amp;#34;
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="sd"> exit 1
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="sd"> fi
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="sd"> &lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>- &lt;span class="nt">name&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">SCAN FOR VULNERABILITIES&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">uses&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">Azure/container-scan@v0 &lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">id&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">container-scan&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">continue-on-error&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kc">true&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">with&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">image-name&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">${{ env.ACR_NAME }}/${{ env.APP_DOCKERIMAGE }}:${{ env.TAG }}&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>- &lt;span class="nt">name&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">PUSH TO ACR&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">run&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">|&lt;/span>&lt;span class="sd">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="sd"> docker push ${{ env.ACR_NAME }}/${{ env.APP_DOCKERIMAGE }}:${{ env.TAG }}
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="sd"> errorCode=$?
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="sd"> if [ $errorCode -ne 0 ]; then
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="sd"> echo &amp;#34;Could not build to ACR, error occured with docker build&amp;#34;
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="sd"> exit 1
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="sd"> fi&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>- &lt;span class="nt">name&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">POST LOGS TO APPINSIGHTS&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">uses&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">Azure/publish-security-assessments@v0&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">with&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">scan-results-path&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">${{ steps.container-scan.outputs.scan-report-path }}&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">connection-string&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">${{ secrets.AZ_APPINSIGHTS_CONNECTION_STRING }}&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">subscription-token&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">${{ secrets.AZ_SUBSCRIPTION_TOKEN }}&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nn">...&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>&lt;em>👆 We are not using (AZ_APPINSIGHTS_CONNECTION_STRING, AZ_SUBSCRIPTION_TOKEN) secrets names&lt;/em>&lt;/p>
+&lt;h1>Results&lt;/h1>&lt;p>There are 2 places where you can view the Commons Vulnerabilities and Exposures. These locations are wihtin GH Actions and the Defender for Cloud Blade in the Azure portal.&lt;/p>
+&lt;h2>GH Action Job&lt;span class="hx-absolute -hx-mt-20" id="gh-action-job">&lt;/span>
+&lt;a href="#gh-action-job" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>&lt;img src="../img/2022-01-15-15-51-01.png" alt="" loading="lazy" />&lt;/p>
+&lt;h2>Azure blade&lt;span class="hx-absolute -hx-mt-20" id="azure-blade">&lt;/span>
+&lt;a href="#azure-blade" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>&lt;img src="../img/2022-01-15-12-06-38.png" alt="" loading="lazy" />&lt;/p>
+&lt;h1>Summary&lt;/h1>&lt;p>In summary:&lt;/p>
+&lt;ul>
+&lt;li>I found it quick to get up and running and see the CVEs and remediation advice&lt;/li>
+&lt;li>&lt;sup>1&lt;/sup> - Like with most processes, IMO, if there&amp;rsquo;s no predetermined action to react to findings - e.g. automated Runbook - then it&amp;rsquo;s a pointless exercise and your organisation &lt;em>will&lt;/em> remain exposed to such vulnerabilities&lt;/li>
+&lt;li>IMO, this has be part of a wider initiative. For example, the inclusion of code quality analysis is a must to avoid vulnerabilities, bugs and poor coding practices/implementations making it into the codebase in the first place. This is how &lt;em>we&lt;/em> roll. GitHub makes this easy!&lt;/li>
+&lt;li>I find it surprising how many CVEs, irrespective of criticality, are present in established docker images. You don&amp;rsquo;t have to look far to discover them!&lt;/li>
+&lt;/ul>
+&lt;h1>References&lt;/h1>&lt;ul>
+&lt;li>
+&lt;p>&lt;a href="https://docs.microsoft.com/en-gb/azure/defender-for-cloud/defender-for-container-registries-cicd" target="_blank" rel="noopener">Setup defender for container registries&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;a href="https://docs.microsoft.com/en-gb/azure/defender-for-cloud/defender-for-containers-introduction?tabs=defender-for-container-arch-aks" target="_blank" rel="noopener">Defender for cloud&lt;/a>&lt;/p>
+&lt;/li>
+&lt;/ul></description></item><item><title>Npm E401 and CERT_NOT_YET_VALID</title><link>https://blog-dev.garrardkitchen.com/blog/npm-issues-e401-cert_not_yet_valid/</link><pubDate>Tue, 11 Jan 2022 11:47:54 +0000</pubDate><guid>https://blog-dev.garrardkitchen.com/blog/npm-issues-e401-cert_not_yet_valid/</guid><description>
+&lt;p>Today a PR Merge resulted in a GHA failure. Sadly, this is not the only CICD pipeline to fail this year! This particular pipeline builds a NodeJS Image, pushes the image to ACR and deploys the service to a production Docker Swarm (on merge to main).&lt;/p>
+&lt;p>This was the error:&lt;/p>
+&lt;div class="hx-overflow-x-auto hx-mt-6 hx-flex hx-rounded-lg hx-border hx-py-2 ltr:hx-pr-4 rtl:hx-pl-4 contrast-more:hx-border-current contrast-more:dark:hx-border-current hx-border-red-200 hx-bg-red-100 hx-text-red-900 dark:hx-border-red-200/30 dark:hx-bg-red-900/30 dark:hx-text-red-200">
+&lt;div class="ltr:hx-pl-3 ltr:hx-pr-2 rtl:hx-pr-3 rtl:hx-pl-2">&lt;div class="hx-select-none hx-text-xl" style="font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';">🚫&lt;/div>&lt;/div>
+&lt;div class="hx-w-full hx-min-w-0 hx-leading-7">
+&lt;div class="hx-mt-6 hx-leading-7 first:hx-mt-0">&lt;hr>
+&lt;p>[3/7] RUN npm install:&lt;/p>
+&lt;p>#7 1.469 npm ERR! code E401&lt;/p>
+&lt;p>#7 1.470 npm ERR! Unable to authenticate, need: Bearer authorization_uri=https://login.windows.net/736f9f**-0&lt;strong>9-49&lt;/strong>-86**-b******31f407, Basic realm=&amp;ldquo;&lt;a href="https://pkgsprodsu3weu.app.pkgs.visualstudio.com/%22" target="_blank" rel="noopener">https://pkgsprodsu3weu.app.pkgs.visualstudio.com/"&lt;/a>, TFS-Federated&lt;/p>
+&lt;p>#7 1.475&lt;/p>
+&lt;p>#7 1.475 npm ERR! A complete log of this run can be found in:&lt;/p>
+&lt;p>#7 1.475 npm ERR! /root/.npm/_logs/2021-12-27T09_38_24_060Z-debug.log&lt;/p>
+&lt;/div>
+&lt;/div>
+&lt;/div>
+&lt;p>Mmmm, E401? 🤔&lt;/p>
+&lt;p>I&amp;rsquo;ve not seen this error before but as it was auth related, assumed the PAT token had expired &lt;sup>1&lt;/sup>. Google&amp;hellip;&lt;/p>
+&lt;p>I did not have the actual .npmrc file that was in a GH Secret so I used my own local .npmrc file to confirm I can pull from our organisation&amp;rsquo;s npm feed.&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-powershell" data-lang="powershell">&lt;span class="line">&lt;span class="cl">&lt;span class="nb">cd &lt;/span>&lt;span class="p">&amp;lt;&lt;/span>&lt;span class="nb">project-root&lt;/span>&lt;span class="p">&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">rm node-modules&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">npm&lt;/span> &lt;span class="n">cache&lt;/span> &lt;span class="n">clean&lt;/span> &lt;span class="p">-&lt;/span>&lt;span class="n">-force&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">npm&lt;/span> &lt;span class="n">install&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>It worked. So, I had my first fallback option - regenerate PAT, register centrally for a reminder of when the PAT is to expire and update GH secret. However, I was not yet done. I had not yet reproduced verbatim the pipeline, egro a &lt;code>docker build&lt;/code>.&lt;/p>
+&lt;p>So, I ran this:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-powershell" data-lang="powershell">&lt;span class="line">&lt;span class="cl">&lt;span class="n">docker&lt;/span> &lt;span class="n">build&lt;/span> &lt;span class="n">-t&lt;/span> &lt;span class="p">&amp;lt;&lt;/span>&lt;span class="n">image&lt;/span>&lt;span class="err">:&lt;/span>&lt;span class="n">tag&lt;/span>&lt;span class="p">&amp;gt;&lt;/span> &lt;span class="p">.&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>Oh no! The error has returned!&lt;/p>
+&lt;p>This is the Dockerfile:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-dockerfile" data-lang="dockerfile">&lt;span class="line">&lt;span class="cl">&lt;span class="k">FROM&lt;/span>&lt;span class="s"> node:14.4.0&lt;/span>&lt;span class="err">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">&lt;/span>&lt;span class="k">WORKDIR&lt;/span>&lt;span class="s"> /&lt;/span>&lt;span class="err">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">&lt;/span>&lt;span class="k">COPY&lt;/span> . .&lt;span class="err">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">&lt;/span>&lt;span class="k">RUN&lt;/span> npm install&lt;span class="err">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">&lt;/span>&lt;span class="k">RUN&lt;/span> &lt;span class="nb">echo&lt;/span> &lt;span class="s1">&amp;#39;module.exports = &amp;#39;&lt;/span> &lt;span class="p">|&lt;/span> cat - node_modules/@&amp;lt;redacted&amp;gt;/&amp;lt;redacted&amp;gt;/dist/libs/&amp;lt;redacted&amp;gt;-lib/index.js &amp;gt; temp &lt;span class="o">&amp;amp;&amp;amp;&lt;/span> mv temp helpers/index.js&lt;span class="err">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">&lt;/span>&lt;span class="k">RUN&lt;/span> &lt;span class="nb">cd&lt;/span> helpers &lt;span class="o">&amp;amp;&amp;amp;&lt;/span> ls -la&lt;span class="err">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">&lt;/span>&lt;span class="k">RUN&lt;/span> head -10 helpers/index.js&lt;span class="err">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">&lt;/span>&lt;span class="k">ENV&lt;/span> &lt;span class="nv">PORT&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="m">80&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">EXPOSE&lt;/span>&lt;span class="s"> 80&lt;/span>&lt;span class="err">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">&lt;/span>&lt;span class="k">CMD&lt;/span> &lt;span class="p">[&lt;/span>&lt;span class="s2">&amp;#34;npm&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s2">&amp;#34;run&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s2">&amp;#34;&amp;lt;redacted&amp;gt;&amp;#34;&lt;/span>&lt;span class="p">]&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>Apart from it not being the LTS, there was nothing obviously wrong with it plus it had been building ok leading up to this.&lt;/p>
+&lt;p>This a the credentials part of the .npmrc:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;pre>&lt;code>registry=https://pkgs.dev.azure.com/&amp;lt;org-name&amp;gt;/_packaging/&amp;lt;feed-name&amp;gt;/npm/registry
+always-auth=true
+//pkgs.dev.azure.com/&amp;lt;org-name&amp;gt;/_packaging/&amp;lt;feed-name&amp;gt;/npm/registry/:username=&amp;lt;any-value-not-empty&amp;gt;
+//pkgs.dev.azure.com/&amp;lt;org-name&amp;gt;/_packaging/&amp;lt;feed-name&amp;gt;/npm/registry/:_password=&amp;lt;Base64-encoded-PAT&amp;gt;
+//pkgs.dev.azure.com/&amp;lt;org-name&amp;gt;/_packaging/&amp;lt;feed-name&amp;gt;/npm/registry/:email=&amp;lt;email-is-not-used&amp;gt;
+//pkgs.dev.azure.com/&amp;lt;org-name&amp;gt;/_packaging/&amp;lt;feed-name&amp;gt;/npm/registry/:always-auth=true&lt;/code>&lt;/pre>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>According to this Microsoft documentation post ➡ &lt;a href="https://docs.microsoft.com/en-us/azure/devops/artifacts/npm/scopes?view=azure-devops#credentials-setup" target="_blank" rel="noopener">npm scopes&lt;/a>, the token structure was incomplete. I corrected the structure:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;pre>&lt;code>registry=https://pkgs.dev.azure.com/&amp;lt;org-name&amp;gt;/_packaging/&amp;lt;feed-name&amp;gt;/npm/registry
+always-auth=true
+//pkgs.dev.azure.com/&amp;lt;org-name&amp;gt;/_packaging/&amp;lt;feed-name&amp;gt;/npm/registry/:username=&amp;lt;any-value-not-empty&amp;gt;
+//pkgs.dev.azure.com/&amp;lt;org-name&amp;gt;/_packaging/&amp;lt;feed-name&amp;gt;/npm/registry/:_password=&amp;lt;Base64-encoded-PAT&amp;gt;
+//pkgs.dev.azure.com/&amp;lt;org-name&amp;gt;/_packaging/&amp;lt;feed-name&amp;gt;/npm/registry/:email=&amp;lt;email-is-not-used&amp;gt;
+//pkgs.dev.azure.com/&amp;lt;org-name&amp;gt;/_packaging/&amp;lt;feed-name&amp;gt;/npm/registry/:always-auth=true
+//pkgs.dev.azure.com/&amp;lt;org-name&amp;gt;/_packaging/&amp;lt;feed-name&amp;gt;/npm/:username=&amp;lt;any-value-not-empty&amp;gt;
+//pkgs.dev.azure.com/&amp;lt;org-name&amp;gt;/_packaging/&amp;lt;feed-name&amp;gt;/npm/:_password=&amp;lt;Base64-encoded-PAT&amp;gt;
+//pkgs.dev.azure.com/&amp;lt;org-name&amp;gt;/_packaging/&amp;lt;feed-name&amp;gt;/npm/:email=&amp;lt;email-is-not-used&amp;gt;
+//pkgs.dev.azure.com/&amp;lt;org-name&amp;gt;/_packaging/&amp;lt;feed-name&amp;gt;/npm/:always-auth=true&lt;/code>&lt;/pre>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>I re-ran the &lt;code>docker build -t &amp;lt;image:tag&amp;gt; .&lt;/code> This time I got a different error but the original &lt;code>E401&lt;/code> error had gone away!&lt;/p>
+&lt;p>The new error:&lt;/p>
+&lt;div class="hx-overflow-x-auto hx-mt-6 hx-flex hx-rounded-lg hx-border hx-py-2 ltr:hx-pr-4 rtl:hx-pl-4 contrast-more:hx-border-current contrast-more:dark:hx-border-current hx-border-red-200 hx-bg-red-100 hx-text-red-900 dark:hx-border-red-200/30 dark:hx-bg-red-900/30 dark:hx-text-red-200">
+&lt;div class="ltr:hx-pl-3 ltr:hx-pr-2 rtl:hx-pr-3 rtl:hx-pl-2">&lt;div class="hx-select-none hx-text-xl" style="font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';">🚫&lt;/div>&lt;/div>
+&lt;div class="hx-w-full hx-min-w-0 hx-leading-7">
+&lt;div class="hx-mt-6 hx-leading-7 first:hx-mt-0">&lt;p>#7 43.61 npm ERR! code CERT_NOT_YET_VALID&lt;/p>
+&lt;p>#7 43.61 npm ERR! errno CERT_NOT_YET_VALID&lt;/p>
+&lt;p>#7 43.61 npm ERR! request to &lt;a href="https://xuavsblobprodsu6weus12.blob.core.windows.net/b-7a3f75bdbbf3432bbe2621e93c98932a/86CDB768B8C395B14974" target="_blank" rel="noopener">https://xuavsblobprodsu6weus12.blob.core.windows.net/b-7a3f75bdbbf3432bbe2621e93c98932a/86CDB768B8C395B14974&lt;/a>&lt;em>&lt;strong>&lt;strong>&lt;strong>&lt;strong>1963D831555B55E3458&lt;/strong>&lt;/strong>&lt;/strong>&lt;/strong>&lt;/em>************.blob?sv=2019-07-07&amp;amp;sr=b&amp;amp;si=1&amp;amp;sig=LUCuO42mrmOAx5N&lt;em>&lt;strong>&lt;strong>&lt;strong>&lt;strong>&lt;strong>&lt;strong>zds9RWS0v2qL%2FwbB86c%3D&amp;amp;spr=https&amp;amp;se=2022-01-12T11%3A42%3A24Z&amp;amp;rscl=x-e2eid-59793e65-&lt;/strong>&lt;/strong>&lt;/strong>&lt;/strong>&lt;/strong>-a727df6e-***********-session-59793e65-&lt;/strong>&lt;/em>*******-a727df6e-8c628cc8&amp;amp;rscd=attachment%3B%20filename%3D%22string-width-4.2.3.tgz%22 failed, reason: certificate is not yet valid&lt;/p>
+&lt;/div>
+&lt;/div>
+&lt;/div>
+&lt;p>Mmmm, &lt;code>CERT_NOT_YET_VALID&lt;/code>. I&amp;rsquo;d not seen this error before. Google&amp;hellip;&lt;/p>
+&lt;p>After a short period of online research 👀 I found a suggestion about being explicit in setting the default npm registry. This meant I had to insert &lt;code>RUN npm config set registry http://registry.npmjs.org&lt;/code> before the &lt;code>RUN npm install&lt;/code> command. The resulting Dockerfile then looked like this:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-dockerfile" data-lang="dockerfile">&lt;span class="line">&lt;span class="cl">&lt;span class="k">FROM&lt;/span>&lt;span class="s"> node:14.4.0&lt;/span>&lt;span class="err">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">&lt;/span>&lt;span class="k">WORKDIR&lt;/span>&lt;span class="s"> /&lt;/span>&lt;span class="err">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">&lt;/span>&lt;span class="k">COPY&lt;/span> . .&lt;span class="err">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">&lt;/span>&lt;span class="k">RUN&lt;/span> npm config &lt;span class="nb">set&lt;/span> registry http://registry.npmjs.org&lt;span class="err">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">&lt;/span>&lt;span class="k">RUN&lt;/span> npm install &lt;span class="err">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">&lt;/span>&lt;span class="k">RUN&lt;/span> &lt;span class="nb">echo&lt;/span> &lt;span class="s1">&amp;#39;module.exports = &amp;#39;&lt;/span> &lt;span class="p">|&lt;/span> cat - node_modules/@&amp;lt;redacted&amp;gt;/&amp;lt;redacted&amp;gt;/dist/libs/&amp;lt;redacted&amp;gt;-lib/index.js &amp;gt; temp &lt;span class="o">&amp;amp;&amp;amp;&lt;/span> mv temp helpers/index.js&lt;span class="err">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">&lt;/span>&lt;span class="k">RUN&lt;/span> &lt;span class="nb">cd&lt;/span> helpers &lt;span class="o">&amp;amp;&amp;amp;&lt;/span> ls -la&lt;span class="err">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">&lt;/span>&lt;span class="k">RUN&lt;/span> head -10 helpers/index.js&lt;span class="err">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">&lt;/span>&lt;span class="k">ENV&lt;/span> &lt;span class="nv">PORT&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="m">80&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">EXPOSE&lt;/span>&lt;span class="s"> 80&lt;/span>&lt;span class="err">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">&lt;/span>&lt;span class="k">CMD&lt;/span> &lt;span class="p">[&lt;/span>&lt;span class="s2">&amp;#34;npm&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s2">&amp;#34;run&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s2">&amp;#34;prod&amp;#34;&lt;/span>&lt;span class="p">]&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>I re-ran the &lt;code>docker build -t &amp;lt;image:tag&amp;gt; .&lt;/code> and success! 🥳&lt;/p>
+&lt;p>I updated the appropriate GH Secret with the modified .npmrc file and asked the author of the PR that had reported this issue originally to make the 1 line change to the Dockerfile. He made the change, prompted for another PR review and merged to main on approval. The GHA ran successfully! The usual monitoring post deploy and feature/fix was confirmed and I set about updating internal documentation providing instructions on what to do to remediate for others and notifying all via slack that of this.&lt;/p>
+&lt;h1>References&lt;/h1>&lt;ul>
+&lt;li>&lt;a href="https://docs.microsoft.com/en-us/azure/devops/artifacts/npm/scopes?view=azure-devops" target="_blank" rel="noopener">Npm scopes&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;hr>
+&lt;p>&lt;sup>1&lt;/sup> - secrets that expire need to be registered centrally on a system that can notify you in advance, giving you ample time to remediate. For our Azure AAD SP (Service Principals) client secrets, we run an Automation Runbook each day that traverses the Azure Resource Graph and alerts me via email of those SP that will be expiring within 30 days.&lt;/p></description></item><item><title>Github Actions Workflow Env Vars</title><link>https://blog-dev.garrardkitchen.com/blog/github-actions-workflow-env-vars/</link><pubDate>Sat, 08 Jan 2022 15:13:52 +0000</pubDate><guid>https://blog-dev.garrardkitchen.com/blog/github-actions-workflow-env-vars/</guid><description>
+&lt;p>In my current role as Head of Cloud Platform, I am leading the technical effort of migrating our entire on-premise real-estate to Azure. Part of this mission, is to upgrade the runtimes of our applications, regardless of their current placement; IIS Web apps, Windows Services and Docker Swarm containers. I say &amp;ldquo;part of this mission&amp;rdquo; as another aspect of this migration is to create a new foundation for our platform - AKS. I hope to cover more on this in later posts.&lt;/p>
+&lt;h1>Github workflows&lt;/h1>&lt;p>We are using Self-Hosted Runners to build and deploy our applications to AKS. We have a Hub&amp;amp;Spoke network architecture and our AKS clusters are private. We have other backing services that are deliberately behind Azure Private Endpoints. Our architecture enables us to deploy securely from our company network to our spoke VNETs that exist across our Azure Subscriptions.&lt;/p>
+&lt;p>We&amp;rsquo;re targeting 2 guest operating systems with our containerization orchestration solution - AKS. These are Linux (.NET Core workloads) and Windows (.NET Framework workloads). We are having to upgrade our .NET Framework runtimes to 4.8 as this is the minimum requirement to running containers in Kubernetes in Azure.&lt;/p>
+&lt;p>There are subtle GitHub Actions Workflows expression differences when working with Powershell and bash. Here in this post I concentrate on how you create and set env vars.&lt;/p>
+&lt;p>Is the snippet below, which is from our &lt;code>deploy&lt;/code> GHA workflow, I use a workflow_dispatch to deploy either a feature branch or our main branch. Feature branches are deployed to our Development Cluster and non-feature branches to our Production Cluster.&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-yml" data-lang="yml">&lt;span class="line">&lt;span class="cl">- &lt;span class="nt">name&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">SETUP MAIN BRANCH&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">if&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">${{ github.ref == &amp;#39;refs/heads/main&amp;#39; || github.ref == &amp;#39;refs/heads/master&amp;#39; }}&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">run&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">| &lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="l">echo &amp;#34;ENV=prod&amp;#34; &amp;gt;&amp;gt; $GITHUB_ENV &lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="l">echo &amp;#34;TAG=1.0.${{github.run_number}}&amp;#34; &amp;gt;&amp;gt; $GITHUB_ENV &lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="l">echo &amp;#34;PWD=$(pwd)&amp;#34; &amp;gt;&amp;gt; $GITHUB_ENV &lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>- &lt;span class="nt">name&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">SETUP FEATURE BRANCH&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">if&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">${{ github.ref != &amp;#39;refs/heads/main&amp;#39; &amp;amp;&amp;amp; github.ref != &amp;#39;refs/heads/master&amp;#39; }}&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">run&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">|&lt;/span>&lt;span class="sd">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="sd"> echo &amp;#34;ENV=dev&amp;#34; &amp;gt;&amp;gt; $GITHUB_ENV
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="sd"> echo &amp;#34;TAG=${{ github.ref_name }}&amp;#34; &amp;gt;&amp;gt; $GITHUB_ENV
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="sd"> echo &amp;#34;PWD=$(pwd)&amp;#34; &amp;gt;&amp;gt; $GITHUB_ENV &lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>In the example above, we generate env vars that are used later in this workflow. The above is running on one of our Linux Self-Hosted Runners so using bash script.&lt;/p>
+&lt;p>The above example will not update env vars when run on a Windows Self-Hosted Runner (PowerShell).&lt;/p>
+&lt;p>The equivalent when targeting windows is:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-yml" data-lang="yml">&lt;span class="line">&lt;span class="cl">- &lt;span class="nt">name&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">SETUP MAIN BRANCH&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">if&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">${{ github.ref == &amp;#39;refs/heads/main&amp;#39; || github.ref == &amp;#39;refs/heads/master&amp;#39; }}&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">run&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">| &lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="l">echo &amp;#34;ENV=prod&amp;#34; &amp;gt;&amp;gt; $env:GITHUB_ENV &lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="l">echo &amp;#34;TAG=1.0.${{github.run_number}}&amp;#34; &amp;gt;&amp;gt; $env:GITHUB_ENV &lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="l">echo &amp;#34;PWD=$(Get-Location)&amp;#34; &amp;gt;&amp;gt; $env:GITHUB_ENV &lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>- &lt;span class="nt">name&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">SETUP FEATURE BRANCH&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">if&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">${{ github.ref != &amp;#39;refs/heads/main&amp;#39; &amp;amp;&amp;amp; github.ref != &amp;#39;refs/heads/master&amp;#39; }}&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">run&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">|&lt;/span>&lt;span class="sd">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="sd"> echo &amp;#34;ENV=dev&amp;#34; &amp;gt;&amp;gt; $env:GITHUB_ENV
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="sd"> echo &amp;#34;TAG=${{ github.ref_name }}&amp;#34; &amp;gt;&amp;gt; $env:GITHUB_ENV
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="sd"> echo &amp;#34;PWD=$(Get-Location)&amp;#34; &amp;gt;&amp;gt; $env:GITHUB_ENV &lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>Notationally, the only difference here is &lt;code>&amp;gt;&amp;gt; $GITHUB_ENV&lt;/code> and &lt;code>&amp;gt;&amp;gt; $env:GITHUB_ENV&lt;/code>. Powershell requires the pre-suffix of &lt;code>env:&lt;/code> (as in &lt;code>Get-ChildItem env:&lt;/code>). The consumer syntax of this env var remains the same between shells - &lt;code>${{ env.TAG }}&lt;/code> - so it&amp;rsquo;s only the creation of this env var that needs to change between shells.&lt;/p>
+&lt;p>For context, I&amp;rsquo;ve pasted below an example of where the &lt;code>TAG&lt;/code> env var is being consumed:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-yml" data-lang="yml">&lt;span class="line">&lt;span class="cl">- &lt;span class="nt">name&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">BUILD AND PUSH&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">run&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">|&lt;/span>&lt;span class="sd">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="sd"> try {
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="sd"> cd ${{ env.ROOT_DIR }}
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="sd"> docker build -t ${{ env.ACR_NAME }}/${{ env.APP_DOCKERIMAGE }}:${{ env.TAG }} -f ${{ env.ROOT_DIR }}/${{ env.APP_DOCKERFILE }} .
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="sd"> docker push ${{ env.ACR_NAME }}/${{ env.APP_DOCKERIMAGE }}:${{ env.TAG }}
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="sd"> } catch {
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="sd"> Write-Output &amp;#34;Could not push to ACR, error occured with docker build&amp;#34;
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="sd"> Exit 1
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="sd"> } &lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;h1>CICD&lt;/h1>&lt;p>Here&amp;rsquo;s a note on being sympathetic to our development teams&amp;rsquo; nuances&amp;hellip;&lt;/p>
+&lt;div class="hx-overflow-x-auto hx-mt-6 hx-flex hx-rounded-lg hx-border hx-py-2 ltr:hx-pr-4 rtl:hx-pl-4 contrast-more:hx-border-current contrast-more:dark:hx-border-current hx-border-blue-200 hx-bg-blue-100 hx-text-blue-900 dark:hx-border-blue-200/30 dark:hx-bg-blue-900/30 dark:hx-text-blue-200">
+&lt;div class="ltr:hx-pl-3 ltr:hx-pr-2 rtl:hx-pr-3 rtl:hx-pl-2">&lt;div class="hx-select-none hx-text-xl" style="font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';">ℹ️&lt;/div>&lt;/div>
+&lt;div class="hx-w-full hx-min-w-0 hx-leading-7">
+&lt;div class="hx-mt-6 hx-leading-7 first:hx-mt-0">We are using the approach of regenerating feature images and deploying from one workflow_dispatcher instead of triggering a deployment from a merge to a dedicated development branch. Our (the virtual team I&amp;rsquo;m managing that is the Platform Team - senior staff) combined experience lead us to determine that a dedicated development branch will get out of sync with our main branch. This is especially problematic if your branching strategy predicates promoting to production via a merge to main from a dedicated development branch. To compound this point, we often have multiple developers concurrently working on the same repo so this in itself presents inherent complexities so arriving at a CICD pipelines wasn&amp;rsquo;t clear cut as teams have subtle nuances around how they build &amp;amp; deploy features/fixes.&lt;/div>
+&lt;/div>
+&lt;/div></description></item><item><title>Permission Denied While Trying to Connect to the Docker Daemon Socket</title><link>https://blog-dev.garrardkitchen.com/blog/permission-denied-while-trying-to-connect-to-the-docker-daemon-socket/</link><pubDate>Fri, 07 Jan 2022 08:20:20 +0000</pubDate><guid>https://blog-dev.garrardkitchen.com/blog/permission-denied-while-trying-to-connect-to-the-docker-daemon-socket/</guid><description>
+&lt;p>Out of the blue today, my first day back after Christmas break, I got this when running a GH Actions Workflow on one of our Self-Hosted Linux Runners 😱:&lt;/p>
+&lt;div class="hx-overflow-x-auto hx-mt-6 hx-flex hx-rounded-lg hx-border hx-py-2 ltr:hx-pr-4 rtl:hx-pl-4 contrast-more:hx-border-current contrast-more:dark:hx-border-current hx-border-red-200 hx-bg-red-100 hx-text-red-900 dark:hx-border-red-200/30 dark:hx-bg-red-900/30 dark:hx-text-red-200">
+&lt;div class="ltr:hx-pl-3 ltr:hx-pr-2 rtl:hx-pr-3 rtl:hx-pl-2">&lt;div class="hx-select-none hx-text-xl" style="font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';">🚫&lt;/div>&lt;/div>
+&lt;div class="hx-w-full hx-min-w-0 hx-leading-7">
+&lt;div class="hx-mt-6 hx-leading-7 first:hx-mt-0">Got permission denied while trying to connect to the Docker daemon socket at unix:///var/run/docker.sock: Get &amp;ldquo;&lt;a href="http://%2Fvar%2Frun%2Fdocker.sock/v1.24/containers/json%22" target="_blank" rel="noopener">http://%2Fvar%2Frun%2Fdocker.sock/v1.24/containers/json"&lt;/a>: dial unix /var/run/docker.sock: connect: permission denied&lt;/div>
+&lt;/div>
+&lt;/div>
+&lt;div class="hx-overflow-x-auto hx-mt-6 hx-flex hx-rounded-lg hx-border hx-py-2 ltr:hx-pr-4 rtl:hx-pl-4 contrast-more:hx-border-current contrast-more:dark:hx-border-current hx-border-blue-200 hx-bg-blue-100 hx-text-blue-900 dark:hx-border-blue-200/30 dark:hx-bg-blue-900/30 dark:hx-text-blue-200">
+&lt;div class="ltr:hx-pl-3 ltr:hx-pr-2 rtl:hx-pr-3 rtl:hx-pl-2">&lt;div class="hx-select-none hx-text-xl" style="font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';">ℹ️&lt;/div>&lt;/div>
+&lt;div class="hx-w-full hx-min-w-0 hx-leading-7">
+&lt;div class="hx-mt-6 hx-leading-7 first:hx-mt-0">We have several GitHub Self-Hosted Runners running on Linux and Windows O/S that produce, amongst other artefacts, Linux and Windows images. These images are pushed to ACR. We&amp;rsquo;re in the process of migrating our on-premise real-estate - IIS Web apps, Windows Services, Docker swarm containers - to AKS as well as migrating our SQL Server AG to Azure. We&amp;rsquo;re using Self-Hosted Runners as we have spare compute capacity and some of our applications have a dependency on a legacy NuGet server which requires our CI pipelines to run in our network. We are in the process of also migrating these legacy packages to our Azure DevOps NuGet Feed as part of our modernization initiative. This modernization initiative encompasses upgrading our runtimes to .NET Framework 4.8 and .NET 6.0.&lt;/div>
+&lt;/div>
+&lt;/div>
+&lt;p>It had been running fine prior to my break so what gives? I started to investigate&amp;hellip;&lt;/p>
+&lt;p>I logged in to the Linux VM where this particular Self-Hosted Runner is hosted with the same credentials as used when I installed the Self-Hosted Runner originally. I used the following command to confirm the same outcome:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-powershell" data-lang="powershell">&lt;span class="line">&lt;span class="cl">&lt;span class="n">docker&lt;/span> &lt;span class="n">ps&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>Yup, same thing.&lt;/p>
+&lt;p>The next configuration I wanted to check was whether this user is a member of the &lt;code>docker&lt;/code> group so I used this command:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-powershell" data-lang="powershell">&lt;span class="line">&lt;span class="cl">&lt;span class="n">sudo&lt;/span> &lt;span class="n">groups&lt;/span> &lt;span class="p">&amp;lt;&lt;/span>&lt;span class="n">user&lt;/span>&lt;span class="p">&amp;gt;&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>Mmmmm, that&amp;rsquo;s odd. This user wasn&amp;rsquo;t a member and therefore begs the question, how did this ever work in the first place?!!&lt;/p>
+&lt;p>I added this user using this command:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-powershell" data-lang="powershell">&lt;span class="line">&lt;span class="cl">&lt;span class="n">sudo&lt;/span> &lt;span class="n">usermod&lt;/span> &lt;span class="n">-a&lt;/span> &lt;span class="n">-G&lt;/span> &lt;span class="n">docker&lt;/span> &lt;span class="p">&amp;lt;&lt;/span>&lt;span class="n">user&lt;/span>&lt;span class="p">&amp;gt;&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>I ran &lt;code>docker ps&lt;/code> again but still no dice. 🤔.&lt;/p>
+&lt;p>I then checked the status of the docker service using this command:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-powershell" data-lang="powershell">&lt;span class="line">&lt;span class="cl">&lt;span class="n">sudo&lt;/span> &lt;span class="n">systemctl&lt;/span> &lt;span class="n">status&lt;/span> &lt;span class="n">docker&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>It reported:&lt;/p>
+&lt;div class="hx-overflow-x-auto hx-mt-6 hx-flex hx-rounded-lg hx-border hx-py-2 ltr:hx-pr-4 rtl:hx-pl-4 contrast-more:hx-border-current contrast-more:dark:hx-border-current hx-border-blue-200 hx-bg-blue-100 hx-text-blue-900 dark:hx-border-blue-200/30 dark:hx-bg-blue-900/30 dark:hx-text-blue-200">
+&lt;div class="ltr:hx-pl-3 ltr:hx-pr-2 rtl:hx-pr-3 rtl:hx-pl-2">&lt;div class="hx-select-none hx-text-xl" style="font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';">ℹ️&lt;/div>&lt;/div>
+&lt;div class="hx-w-full hx-min-w-0 hx-leading-7">
+&lt;div class="hx-mt-6 hx-leading-7 first:hx-mt-0">Active: active (running) since Thu 2021-09-16 14:13:04 UTC; 3 months 20 days ago&lt;/div>
+&lt;/div>
+&lt;/div>
+&lt;p>Ok, what next? 🤔&lt;/p>
+&lt;p>I decided to restart the self-hosted service so I entered these commands:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-powershell" data-lang="powershell">&lt;span class="line">&lt;span class="cl">&lt;span class="nb">cd actions-runner&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">sudo&lt;/span> &lt;span class="p">./&lt;/span>&lt;span class="n">svc&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="py">sh&lt;/span> &lt;span class="n">start&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>This is when I saw these failures:&lt;/p>
+&lt;div class="hx-overflow-x-auto hx-mt-6 hx-flex hx-rounded-lg hx-border hx-py-2 ltr:hx-pr-4 rtl:hx-pl-4 contrast-more:hx-border-current contrast-more:dark:hx-border-current hx-border-red-200 hx-bg-red-100 hx-text-red-900 dark:hx-border-red-200/30 dark:hx-bg-red-900/30 dark:hx-text-red-200">
+&lt;div class="ltr:hx-pl-3 ltr:hx-pr-2 rtl:hx-pr-3 rtl:hx-pl-2">&lt;div class="hx-select-none hx-text-xl" style="font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';">🚫&lt;/div>&lt;/div>
+&lt;div class="hx-w-full hx-min-w-0 hx-leading-7">
+&lt;div class="hx-mt-6 hx-leading-7 first:hx-mt-0">&lt;p>Dec 19 22:01:15 &lt;em>redacted&lt;/em> runsvc.sh[291703]: 2021-12-19 22:01:15Z: Runner connect error: The HTTP request timed out after 00:01:00.. Retrying unt…econnected.&lt;/p>
+&lt;p>Dec 19 22:02:35 &lt;em>redacted&lt;/em> runsvc.sh[291703]: 2021-12-19 22:02:35Z: Runner reconnected.&lt;/p>
+&lt;p>Jan 06 14:42:21 &lt;em>redacted&lt;/em> runsvc.sh[291703]: 2022-01-06 14:42:21Z: Running job: deploy&lt;/p>
+&lt;p>Jan 06 14:42:41 &lt;em>redacted&lt;/em> runsvc.sh[291703]: 2022-01-06 14:42:41Z: Job deploy completed with result: Failed&lt;/p>
+&lt;p>Jan 06 14:46:19 &lt;em>redacted&lt;/em> runsvc.sh[291703]: 2022-01-06 14:46:19Z: Running job: deploy&lt;/p>
+&lt;p>&amp;hellip;&lt;/p>
+&lt;/div>
+&lt;/div>
+&lt;/div>
+&lt;p>I restarted the Self-Hosted Runner using these commands:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-powershell" data-lang="powershell">&lt;span class="line">&lt;span class="cl">&lt;span class="n">sudo&lt;/span> &lt;span class="p">./&lt;/span>&lt;span class="n">svc&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="py">sh&lt;/span> &lt;span class="n">stop&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">sudo&lt;/span> &lt;span class="p">./&lt;/span>&lt;span class="n">svc&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="py">sh&lt;/span> &lt;span class="n">start&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>Then I logged out and back in again to confirm docker access &lt;code>docker ps&lt;/code> and finished off by re-running the failed GH Action Workflow. 🥳 Equilibrium is once again restored. As per protocol, I shared issue and resolution with our IT Team in case this crops up again when I&amp;rsquo;m not online to help.&lt;/p></description></item></channel></rss>

@@ -1,0 +1,455 @@
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Garrard Kitchen – Digital Certificate</title><link>https://blog-dev.garrardkitchen.com/tags/digital-certificate/</link><description>Recent content in Digital Certificate on Garrard Kitchen</description><generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Mon, 08 Jun 2020 12:57:32 +0100</lastBuildDate><atom:link href="https://blog-dev.garrardkitchen.com/tags/digital-certificate/index.xml" rel="self" type="application/rss+xml"/><item><title>Digital Certificates</title><link>https://blog-dev.garrardkitchen.com/blog/digital-certificates/</link><pubDate>Mon, 08 Jun 2020 12:57:32 +0100</pubDate><guid>https://blog-dev.garrardkitchen.com/blog/digital-certificates/</guid><description>
+&lt;p>I&amp;rsquo;ve been wanting to put some notes down on digital certificates, signing and JWT for some time now. I find there are plenty of confusing terms involved in this area, plus a few nuances that have added to my personal confusion. I feel it now important to document these before I forget and move on [to another project].&lt;/p>
+&lt;p>So, what&amp;rsquo;s triggered this post? Well, one of many tasks I&amp;rsquo;m involved in [juggling] evolves SSO (single sign on). Albeit, mainly focused on the architecture on this task, I have compiled a few PoCs where I&amp;rsquo;m using digital certificates for authentication. In particular, SSOing into Twilio Flex and using an &lt;code>identity&lt;/code> field returned from their I.AM service, to seamlessly log into our internal CRM, securely using a digital certificate.&lt;/p>
+&lt;h1>Terms&lt;/h1>&lt;p>Ok, let&amp;rsquo;s start with a few terms. I&amp;rsquo;ll slowly integrate these terms in the following examples.&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>Keys&lt;/p>
+&lt;p>A key is something that is used to encrypt a piece of data (think JWT payload). It can be phrase (series of characters) or a public/private key held in a digital certificate.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>Hash&lt;/p>
+&lt;p>A hash is a piece of data, that cannot be reengineered to reveal it&amp;rsquo;s original content, also referred to as a digest or one-way hash.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>SHA (Secure Hashing Algorithm)&lt;/p>
+&lt;p>It is for cryptographic security. It is used to produce an irreversible and unique hash.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>Encryption&lt;/p>
+&lt;p>The process of converting something to gobbledygook and only be able to read it when you have the key used when it was encrypted.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>Digital signature&lt;/p>
+&lt;p>The encrypted hash, that proves the data has not been tampered with in-flighted AND verifies the identity of the entity presenting it.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>Signing&lt;/p>
+&lt;p>The process of creating the digital signature.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>Base64&lt;/p>
+&lt;p>The more efficient was of encoding and sending data over a network.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>Cipher algorithm&lt;/p>
+&lt;p>A cipher algorithm is a mathematical formula designed specifically to obscure the value and content of data. Most valuable cipher algorithms use a key as part of the formula. This key is used to encrypt the data, and either that key or a complementary key is needed to decrypt the data back to a useful form.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>RSA (Rivest–Shamir–Adleman)&lt;/p>
+&lt;p>RSA is one of the first public-key cryptosystems and is widely used for secure data transmission. In such a cryptosystem, the encryption key is public and distinct from the decryption key which is kept secret (private).&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>Symmetric Encryption&lt;/p>
+&lt;p>Symmetric encryption is a type of encryption where only one key (a secret key) is used to both encrypt and decrypt electronic information.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>Asymmetric Encryption&lt;/p>
+&lt;p>Asymmetric Encryption is a form of Encryption where keys come in pairs. What one key encrypts, only the other can decrypt.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>X.509&lt;/p>
+&lt;p>Is a standard format for public key certificates. Each X.509 certificate includes a public key, identifying information, and a digital signature.&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;p>Of course, if this [digital signature] is new to you, the above won&amp;rsquo;t (yet) make much sense.&lt;/p>
+&lt;p>I&amp;rsquo;m going to walk you through an example, well 2 actually. One that used a phrase as a key(aka keyphrase), and the other that used a public/private key found in a digital certificate (albeit, self-signed). I am going to use a tool call &lt;code>openssl&lt;/code>, not may have heard of it?&lt;/p>
+&lt;h1>Symmetric encyrption&lt;/h1>&lt;p>&lt;strong>&lt;em>Encryption using a keyphrase&lt;/em>&lt;/strong>&lt;/p>
+&lt;p>In this first example, I&amp;rsquo;m going to encrypt a message with a &lt;code>keyphrase&lt;/code>.&lt;/p>
+&lt;p>Before I begin, I&amp;rsquo;m going to write the content of &lt;code>my secret message&lt;/code> to a file called &lt;code>msg.txt&lt;/code>.&lt;/p>
+&lt;p>Next, I&amp;rsquo;m going to encrypt this file it using a keyphrase of &lt;code>abc123&lt;/code> and output the encrypted file to &lt;code>msg.txt.enc&lt;/code>:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;pre>&lt;code>$ openssl enc -e -aes256 -k abc123 -in ./msg.txt -out ./msg.txt.enc&lt;/code>&lt;/pre>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>&lt;em>above you&amp;rsquo;ll see &lt;strong>-aes256&lt;/strong>. This is the cipher algorithm we&amp;rsquo;re using&lt;/em>&lt;/p>
+&lt;p>The encrypted file looks something like this:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;pre>&lt;code>Salted__BmF�jԿŀa��1��\X
+���{&amp;#39;V�dFq�&amp;amp;���L�8:������T&lt;/code>&lt;/pre>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>Pure gobbledygook!&lt;/p>
+&lt;p>Now, I&amp;rsquo;m going to decrypt this encrypted file &lt;code>msg.txt.enc&lt;/code> and output the encrypted file to &lt;code>msg.txt.dec&lt;/code>. It is imperative that I used the same &lt;code>keyphrase&lt;/code>:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;pre>&lt;code>$ openssl enc -d -aes256 -k abc123 -in ./msg.txt.enc -out ./msg.txt.dec&lt;/code>&lt;/pre>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>The decrypted file &lt;code>msg.txt.dec&lt;/code> looks like:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;pre>&lt;code>my secret message&lt;/code>&lt;/pre>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>If I had omitted the &lt;code>keyphrase&lt;/code>, I will have been prompt for it which will have looked like this:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;pre>&lt;code>$ openssl enc -d -e -aes256 -in ./msg.txt.enc -out ./msg.txt.dec
+enter aes-256-cbc decryption password:&lt;/code>&lt;/pre>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>Or, if I had used the incorrect `keyphrase, I will have seen something like this:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;pre>&lt;code>bad decrypt
+140120216352064:error:06065064:digital envelope routines:EVP_DecryptFinal_ex:bad decrypt:../crypto/evp/evp_enc.c:583:&lt;/code>&lt;/pre>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>A good simple illustration of how to encrypt and decrypt a message using &lt;code>openssl enc&lt;/code> command.&lt;/p>
+&lt;h1>Asymmetric encryption&lt;/h1>&lt;p>&lt;strong>&lt;em>Encryption using a public/private key&lt;/em>&lt;/strong>&lt;/p>
+&lt;p>In this section I&amp;rsquo;m going to:&lt;/p>
+&lt;ul>
+&lt;li>Generate a RSA private key&lt;/li>
+&lt;li>Extract the public key from the private key&lt;/li>
+&lt;li>Generate a hash of the data I want to send, as well as signing it (using private key)&lt;/li>
+&lt;li>Encrypt the data I want to send&lt;/li>
+&lt;li>Decrypt the data I have received&lt;/li>
+&lt;li>Verify the signature of the data received - &lt;em>ensure it data wasn&amp;rsquo;t tampered with in-flight&lt;/em>&lt;/li>
+&lt;/ul>
+&lt;p>Let&amp;rsquo;s first generate the message I want to securely transmit:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">$ &lt;span class="nb">echo&lt;/span> &lt;span class="s1">&amp;#39;my secret message&amp;#39;&lt;/span> &amp;gt; msg&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;h2>Create a RSA private key&lt;span class="hx-absolute -hx-mt-20" id="create-a-rsa-private-key">&lt;/span>
+&lt;a href="#create-a-rsa-private-key" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>Here I&amp;rsquo;m using the &lt;code>genrsa&lt;/code> command. This command generates an RA private key:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">$ openssl genrsa -out private.pem &lt;span class="m">4096&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">$ openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -days &lt;span class="m">365&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;h2>Extract public key&lt;span class="hx-absolute -hx-mt-20" id="extract-public-key">&lt;/span>
+&lt;a href="#extract-public-key" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">$ openssl rsa -in private.pem -pubout -out public.pem&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;h2>Generate a digital signature&lt;span class="hx-absolute -hx-mt-20" id="generate-a-digital-signature">&lt;/span>
+&lt;a href="#generate-a-digital-signature" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;h3>using &lt;code>dgst&lt;/code>&lt;span class="hx-absolute -hx-mt-20" id="using-dgst">&lt;/span>
+&lt;a href="#using-dgst" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>Here, I&amp;rsquo;m generating a hash (digest) of the message as well as signing it with the private key&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">$ openssl dgst -sha256 -sign private.pem -out msg.signature msg&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;h3>using &lt;code>rsautl&lt;/code>&lt;span class="hx-absolute -hx-mt-20" id="using-rsautl">&lt;/span>
+&lt;a href="#using-rsautl" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>&lt;code>rsautl&lt;/code>, unlike &lt;code>dgst&lt;/code>, does &lt;strong>not create a hash&lt;/strong> or ASN1 encoding.&lt;/p>
+&lt;div class="hx-overflow-x-auto hx-mt-6 hx-flex hx-rounded-lg hx-border hx-py-2 ltr:hx-pr-4 rtl:hx-pl-4 contrast-more:hx-border-current contrast-more:dark:hx-border-current hx-border-red-200 hx-bg-red-100 hx-text-red-900 dark:hx-border-red-200/30 dark:hx-bg-red-900/30 dark:hx-text-red-200">
+&lt;div class="ltr:hx-pl-3 ltr:hx-pr-2 rtl:hx-pr-3 rtl:hx-pl-2">&lt;div class="hx-select-none hx-text-xl" style="font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';">🚫&lt;/div>&lt;/div>
+&lt;div class="hx-w-full hx-min-w-0 hx-leading-7">
+&lt;div class="hx-mt-6 hx-leading-7 first:hx-mt-0">As &lt;code>rsautl&lt;/code> uses the RSA algorithm directly, it can only be used to sign, or verify, small pieces of data:&lt;/div>
+&lt;/div>
+&lt;/div>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">$ openssl rsautl -sign -in msg -inkey private.pem -out msg.sig&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;h2>Encrypt the message&lt;span class="hx-absolute -hx-mt-20" id="encrypt-the-message">&lt;/span>
+&lt;a href="#encrypt-the-message" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>The &lt;code>rsautl&lt;/code> command can be used to sign, verify, encrypt and decrypt data using the RSA algorithm.&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">$ openssl rsautl -encrypt -inkey public.pem -pubin -in msg -out msg.enc&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>&lt;em>By including the &lt;code>-pubin&lt;/code> switch, you&amp;rsquo;re telling the command that the input key file (&lt;code>-inkey&lt;/code>) is an RSA public key. Withou this, it assumed you&amp;rsquo;re using a private key&lt;/em>&lt;/p>
+&lt;h2>Decrypt the message&lt;span class="hx-absolute -hx-mt-20" id="decrypt-the-message">&lt;/span>
+&lt;a href="#decrypt-the-message" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">$ openssl rsautl -decrypt -inkey private.pem -in msg.enc -out msg.dec&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;h2>Verify signature&lt;span class="hx-absolute -hx-mt-20" id="verify-signature">&lt;/span>
+&lt;a href="#verify-signature" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;h3>using &lt;code>dgst&lt;/code>&lt;span class="hx-absolute -hx-mt-20" id="using-dgst-1">&lt;/span>
+&lt;a href="#using-dgst-1" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>This uses the public key to decrypt the Hash of the original msg:&lt;/p>
+&lt;p>pseudo logic:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;pre>&lt;code>hash_1 = Hash ( msg )
+hash_2 = Dec ( Key -&amp;gt; Hash )
+IsVarified = hash_1 == hash_2&lt;/code>&lt;/pre>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">$ openssl dgst -sha256 -verify public.pem -signature msg.signature msg
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Verified OK&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;h3>using &lt;code>rsautl&lt;/code>&lt;span class="hx-absolute -hx-mt-20" id="using-rsautl-1">&lt;/span>
+&lt;a href="#using-rsautl-1" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>This verifies the original message using the signature and outputs it:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">$ openssl rsautl -verify -inkey private.pem -in msg.sig
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">my secret message&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;h1>Digital Certificates&lt;/h1>&lt;p>&lt;strong>&lt;em>To verify the identity of the entity presenting it&lt;/em>&lt;/strong>&lt;/p>
+&lt;p>So far, we&amp;rsquo;ve covered hashes, key pairs, digital signatures and encryption and decryption. This section is where I cover, briefly, digital certificates. I&amp;rsquo;m using a digital certificate to replace the key pair as covered above and to give the capability of using additional information to verify that the identity of the entity presenting this message.&lt;/p>
+&lt;p>Let&amp;rsquo;s start by creating a self-signed certificate. Type:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># create self-signed certificate &lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">openssl req -x509 -sha256 -nodes -days &lt;span class="m">365&lt;/span> -newkey rsa:4096 -keyout myserver.pem -out myserver.crt -subj &lt;span class="s2">&amp;#34;/C=UK/OU=IT/CN=myserver.com&amp;#34;&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>We can inspect the content of the certificate by typing:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">openssl x509 -in myserver.crt -text -noout&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>For bravity, I&amp;rsquo;m using the same commands as used above to; extract public key, generate digital signature, encrypt/decrypt then verify the signature. I&amp;rsquo;ve included all the statements in one block:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># extract public key from self-signed certificate&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">openssl rsa -in myserver.pem -pubout -out server-public.pem
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># generate hash and sign (digital signature)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">$ openssl dgst -sha256 -sign myserver.pem -out msg.server-signature msg
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># encrypt my message&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">openssl rsautl -encrypt -inkey server-public.pem -pubin -in msg -out msg.enc2
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># decrypt my encrypted message&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">openssl rsautl -decrypt -inkey myserver.pem -in msg.enc2 -out msg.dec2
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># vertify signature&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">openssl dgst -sha256 -verify server-public.pem -signature msg.server-signature msg&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>This results in:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;pre>&lt;code>Verified OK&lt;/code>&lt;/pre>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;h1>JWT&lt;/h1>&lt;p>So, how does the digital signature relate to the Signature verification against a JWT Token?&lt;/p>
+&lt;p>In this section I will be using the jwt.io website. From this site I can choose which cipher algorithm. I will be using a RSA (widely used for secure data transmission and public-key cryptography) cipher as I&amp;rsquo;m simulating the sending and receiving of a JWT Token over HTTP.&lt;/p>
+&lt;p>A JWT signature will use RSA SHA (irreversible hash) of the header and payload. This algorithm is set in the header so we have all the information we need to decrypt the encrypted data. However, we&amp;rsquo;re not able to verify these points yet: (a) has the message been tampered with inflight and (b) the identity of the entity presenting this message.&lt;/p>
+&lt;p>In actual fact, you will see this if you copied the a JWT token without keys into jwt.io (selecting RSA256 algorithm). It will show &lt;code>Invalid Signature&lt;/code>. So, to verify these points, you need to provide the public and private key. It will use the private key to obtain the original Hash (hash of the original data) then decrypt this. If once decrypted, this equates to the RSASHA246 HMAC, then the signature is verified.&lt;/p>
+&lt;p>All I&amp;rsquo;ve done is added a tenant property to the claims (payload). I&amp;rsquo;ve doing this prove that I&amp;rsquo;ve changed the claim and will become apparent shortly why I&amp;rsquo;ve done this:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-json" data-lang="json">&lt;span class="line">&lt;span class="cl">&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;#34;sub&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="s2">&amp;#34;1234567890&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;#34;name&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="s2">&amp;#34;John Doe&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;#34;admin&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="kc">true&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;#34;iat&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="mi">1516239022&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;#34;tenant&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="s2">&amp;#34;foobaa&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>Next, I copy in the public and private key into the verify signature area. This all looks like this:&lt;/p>
+&lt;p>&lt;img src="../img/2020-06-16-08-37-23.png" alt="" loading="lazy" />&lt;/p>
+&lt;p>I copy the encoded token (will paste it back in, in a moment) then refresh the page. The page is recent and defaults loaded (observe the changed payload):&lt;/p>
+&lt;p>&lt;img src="../img/2020-06-16-08-42-02.png" alt="" loading="lazy" />&lt;/p>
+&lt;p>I now copy in my encoded token:&lt;/p>
+&lt;p>&lt;img src="../img/2020-06-16-08-43-00.png" alt="" loading="lazy" />&lt;/p>
+&lt;p>You will see the &lt;code>Invalid Signature&lt;/code> near the bottom, but, the correct payload is back! This is because the certificates key pair in this default screen are different to my digital certificate&amp;rsquo;s key pair.&lt;/p>
+&lt;p>So, if I removed the entire encoded signature from the encoded token, we&amp;rsquo;ll still see the decrypted payload:&lt;/p>
+&lt;p>&lt;img src="../img/2020-06-16-09-00-15.png" alt="" loading="lazy" />&lt;/p>
+&lt;p>So, how&amp;rsquo;s it validating the signature? &amp;hellip;&lt;/p>
+&lt;h2>JWT Token format&lt;span class="hx-absolute -hx-mt-20" id="jwt-token-format">&lt;/span>
+&lt;a href="#jwt-token-format" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>Let&amp;rsquo;s remind ourselves of the structure of a JWT Token is:&lt;/p>
+&lt;p>{&lt;strong>header&lt;/strong>}.{&lt;strong>payload&lt;/strong>}.{&lt;strong>signature&lt;/strong>}&lt;/p>
+&lt;p>The &lt;strong>signature&lt;/strong>, with using the RS246 cipher, is a RSA SHA of the &lt;strong>header&lt;/strong> (just cipher algorithm &amp;amp; type, which is JWT) AND &lt;strong>payload&lt;/strong>. This simply means it is using a public-key (from our digital certificate) to encrypt a one-way hash of our original message (header + payload).&lt;/p>
+&lt;h2>How is the signature verified?&lt;span class="hx-absolute -hx-mt-20" id="how-is-the-signature-verified">&lt;/span>
+&lt;a href="#how-is-the-signature-verified" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;div class="columns-container flex flex-wrap">
+&lt;div class="column-item" style="flex-grow: 1;">
+&lt;!-- begin columns block -->
+&lt;h3>Token&lt;span class="hx-absolute -hx-mt-20" id="token">&lt;/span>
+&lt;a href="#token" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>&lt;em>From encoded token&lt;/em>&lt;/p>
+&lt;p>Algorithm (HASH_1):&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;pre>&lt;code>ENCRYPT (
+KEY -&amp;gt; (
+HASH ( base64 (header) &amp;#43; &amp;#34;.&amp;#34; &amp;#43; base64 (payload) )
+)
+)&lt;/code>&lt;/pre>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>The &lt;code>Signature&lt;/code> is RSA SHA of ( base64(header) + &amp;ldquo;.&amp;rdquo; + base64(payload)).&lt;/p>
+&lt;p>Here, in the jwt.io site, it is recalculated after each valid payload change.&lt;/p>
+&lt;/div>
+&lt;div class="column-item" style="flex-grow: 1;">
+&lt;!-- magic sparator, between columns -->
+&lt;h3>Key pair&lt;span class="hx-absolute -hx-mt-20" id="key-pair">&lt;/span>
+&lt;a href="#key-pair" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>&lt;em>Comparison using key pair&lt;/em>&lt;/p>
+&lt;p>Algorithm (HASH_2):&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;pre>&lt;code>DECRYPT (
+KEY -&amp;gt; (
+HASH ( base64 (header) &amp;#43; &amp;#34;.&amp;#34; &amp;#43; base64 (payload) )
+)
+)&lt;/code>&lt;/pre>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>It base64 encodes the header + payload using the key pair, then encrypts it. If this matches the signature in the the encoded token then the signature is verified:&lt;/p>
+&lt;p>VERIFIED = HASH_1 == HASH_2&lt;/p>
+&lt;/div>
+&lt;/div>
+&lt;p>As soon as I paste in my public and private keys, it correctly verifies the digital signature:&lt;/p>
+&lt;p>&lt;img src="../img/2020-06-16-09-02-20.png" alt="" loading="lazy" />&lt;/p>
+&lt;h1>References&lt;/h1>&lt;ul>
+&lt;li>&lt;a href="https://www.openssl.org/docs/man1.0.2/man1/genrsa.html" target="_blank" rel="noopener">openssl genrsa&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://www.openssl.org/docs/man1.0.2/man1/rsautl.html" target="_blank" rel="noopener">openssl rsautl&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://jumpnowtek.com/security/Code-signing-with-openssl.html" target="_blank" rel="noopener">openssl examples&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://stackoverflow.com/questions/9951559/difference-between-openssl-rsautl-and-dgst#:~:text=The%20simple%20answer%20is%20that,only%20a%20signature%20as%20output." target="_blank" rel="noopener">the difference rsautl -sign AND dgst -sign&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://www.openssl.org/docs/man1.0.2/man1/" target="_blank" rel="noopener">openssl&lt;/a>&lt;/li>
+&lt;/ul></description></item></channel></rss>

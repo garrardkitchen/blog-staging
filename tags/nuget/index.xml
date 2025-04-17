@@ -1,0 +1,352 @@
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Garrard Kitchen – Nuget</title><link>https://blog-dev.garrardkitchen.com/tags/nuget/</link><description>Recent content in Nuget on Garrard Kitchen</description><generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Sun, 25 Feb 2024 09:41:08 +0000</lastBuildDate><atom:link href="https://blog-dev.garrardkitchen.com/tags/nuget/index.xml" rel="self" type="application/rss+xml"/><item><title>.NET Aspire and Redis</title><link>https://blog-dev.garrardkitchen.com/blog/dotnet-aspire-and-redis/</link><pubDate>Sun, 25 Feb 2024 09:41:08 +0000</pubDate><guid>https://blog-dev.garrardkitchen.com/blog/dotnet-aspire-and-redis/</guid><description>
+&lt;h1>First look into .NET Aspire&lt;/h1>&lt;p>TL;DR: &lt;a href="#addendum" >See here&lt;/a> for why AZD is not yet supported.&lt;/p>
+&lt;p>I decided to give .NET Aspire a try. I&amp;rsquo;m yet to watch an online tutorial but I did watch its announcement a few months ago. At the time I did think YAGNI. For me, it didn&amp;rsquo;t make much sense. Either that, or it just wasn&amp;rsquo;t being explained well enough. Enthusiasm alone isn&amp;rsquo;t enough to promote a new tool. Since then, I’ve seen many tweets. So, over the last month or so, I’ve gradually grasped its raison d’être.&lt;/p>
+&lt;p>Last night, with some time to kill, I asked Copilot to send me some YT links so I could learn more. But Copilot refused to share any YT links. It only gave me some MS Learn links. One of them took me to the &lt;strong>&lt;a href="https://github.com/dotnet/aspire-samples" target="_blank" rel="noopener">Samples GH repo&lt;/a>&lt;/strong>.&lt;/p>
+&lt;p>The first time I opened a sample project, the Visual Studio Community 2022 (Preview) version of VS I was using, asked me to install an Aspire component. It turned out to be the Aspire workload. It was a simple click-and-forget operation. I wish everything in life was that easy.&lt;/p>
+&lt;p>To avoid this ahead of time you can:&lt;/p>
+&lt;div class="hx-overflow-x-auto hx-mt-6 hx-flex hx-rounded-lg hx-border hx-py-2 ltr:hx-pr-4 rtl:hx-pl-4 contrast-more:hx-border-current contrast-more:dark:hx-border-current hx-border-blue-200 hx-bg-blue-100 hx-text-blue-900 dark:hx-border-blue-200/30 dark:hx-bg-blue-900/30 dark:hx-text-blue-200">
+&lt;div class="ltr:hx-pl-3 ltr:hx-pr-2 rtl:hx-pr-3 rtl:hx-pl-2">&lt;div class="hx-select-none hx-text-xl" style="font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';">ℹ️&lt;/div>&lt;/div>
+&lt;div class="hx-w-full hx-min-w-0 hx-leading-7">
+&lt;div class="hx-mt-6 hx-leading-7 first:hx-mt-0">&lt;p>&lt;strong>.NET Aspire workload&lt;/strong>&lt;/p>
+&lt;p>Install the .NET Aspire workload&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-powershell" data-lang="powershell">&lt;span class="line">&lt;span class="cl">&lt;span class="n">dotnet&lt;/span> &lt;span class="n">workload&lt;/span> &lt;span class="n">install&lt;/span> &lt;span class="n">aspire&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>or update all workloads&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-powershell" data-lang="powershell">&lt;span class="line">&lt;span class="cl">&lt;span class="n">dotnet&lt;/span> &lt;span class="n">workload&lt;/span> &lt;span class="n">update&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>then to confirm version and install status&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-powershell" data-lang="powershell">&lt;span class="line">&lt;span class="cl">&lt;span class="n">dotnet&lt;/span> &lt;span class="n">workload&lt;/span> &lt;span class="n">list&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;/div>
+&lt;/div>
+&lt;/div>
+&lt;h1>The &lt;code>Wow&lt;/code>&lt;/h1>&lt;p>The sample I tried to run in Visual Studio did not work, so I switched to another one. Then I saw the dashboard on my personal developer laptop for the first time. I was impressed (a bit). I explored the metrics, logs, and traces. I was more impressed.&lt;/p>
+&lt;p>I was even more impressed when I saw an example solution that had both a Windows Forms and a WPF app. I wanted to test how easy it was to set up and find a situation that would require me to code.&lt;/p>
+&lt;div class="hx-overflow-x-auto hx-mt-6 hx-flex hx-rounded-lg hx-border hx-py-2 ltr:hx-pr-4 rtl:hx-pl-4 contrast-more:hx-border-current contrast-more:dark:hx-border-current hx-border-yellow-100 hx-bg-yellow-50 hx-text-yellow-900 dark:hx-border-yellow-200/30 dark:hx-bg-yellow-700/30 dark:hx-text-yellow-200">
+&lt;div class="ltr:hx-pl-3 ltr:hx-pr-2 rtl:hx-pr-3 rtl:hx-pl-2">&lt;div class="hx-select-none hx-text-xl" style="font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';">⚠️&lt;/div>&lt;/div>
+&lt;div class="hx-w-full hx-min-w-0 hx-leading-7">
+&lt;div class="hx-mt-6 hx-leading-7 first:hx-mt-0">&lt;p>&lt;strong>My sample repo&lt;/strong>&lt;/p>
+&lt;p>You can find my sample .NET Aspire applicaton here:
+&lt;a href="https://github.com/garrardkitchen/dotnet-aspire-and-redis-sample" target="_blank" rel="noopener">https://github.com/garrardkitchen/dotnet-aspire-and-redis-sample&lt;/a>&lt;/p>
+&lt;/div>
+&lt;/div>
+&lt;/div>
+&lt;p>To create your first .NET Aspire application is straight forward. From the menu you choose &lt;code>Create a new project&lt;/code>. I filtered on the .NET Apsire project type just to see what&amp;rsquo;s available:&lt;/p>
+&lt;figure>
+&lt;img src="../img/2024-02-25-10-49-32.png" alt="">
+&lt;figcaption>.NET Aspire project templates&lt;/figcaption>
+&lt;/figure>
+&lt;p>I selected the .NET Aspire Starter Application and named it &lt;code>sample1&lt;/code>. I was prompted to start up Docker for Desktop due to the Redis dependency. The next action I performed was to debug the app to see if anything barked at me. It didn&amp;rsquo;t and I was presented with the dashboard:&lt;/p>
+&lt;figure>
+&lt;img src="../img/2024-02-25-10-54-40.png" alt="">
+&lt;figcaption>.NET Aspire dashboard&lt;/figcaption>
+&lt;/figure>
+&lt;p>I clicked on the Endpoint link next to the &lt;code>frontendweb&lt;/code> project and this Blazor app loaded:&lt;/p>
+&lt;figure>
+&lt;img src="../img/2024-02-25-10-55-19.png" alt="">
+&lt;figcaption>My first Aspire hosted sample app&lt;/figcaption>
+&lt;/figure>
+&lt;p>I clicked on the Counter menu option, then the &lt;code>click me&lt;/code> button which incremented the on page counter. I clicked away and when I returned the counter had zeroed. Great, I thought, this is where I can start hacking away to see how easy it is to persist this to the redis cache. The remainder of this post covers what I did.&lt;/p>
+&lt;h1>Persisting a Counter to Redis cache&lt;/h1>&lt;p>Ref: &lt;a href="https://learn.microsoft.com/en-us/dotnet/aspire/fundamentals/setup-tooling?tabs=visual-studio" target="_blank" rel="noopener">https://learn.microsoft.com/en-us/dotnet/aspire/fundamentals/setup-tooling?tabs=visual-studio&lt;/a>&lt;/p>
+&lt;h2>Redis Dependency&lt;span class="hx-absolute -hx-mt-20" id="redis-dependency">&lt;/span>
+&lt;a href="#redis-dependency" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>First off, I needed a new pre-release NuGet package for this to work:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;pre>&lt;code>dotnet add package Aspire.StackExchange.Redis.DistributedCaching --prerelease&lt;/code>&lt;/pre>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>Next I added this so the necessary types get added to the service collection, by adding the following to Program.cs in sample1.Web :&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-csharp" data-lang="csharp">&lt;span class="line">&lt;span class="cl">&lt;span class="n">builder&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">AddRedisDistributedCache&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;cache&amp;#34;&lt;/span>&lt;span class="p">);&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;h2>RedisClient&lt;span class="hx-absolute -hx-mt-20" id="redisclient">&lt;/span>
+&lt;a href="#redisclient" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>I then created a Redis Client that I could use to call from the counter razor page to obtain and update the counter value. This is that code:&lt;/p>
+&lt;p>👉 &lt;em>I&amp;rsquo;ve not chosen to use the incr type&lt;/em>&lt;/p>
+&lt;p>👉 &lt;em>Redis stores these string as a hash types&lt;/em>&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-csharp" data-lang="csharp">&lt;span class="line">&lt;span class="cl">&lt;span class="k">using&lt;/span> &lt;span class="nn">Microsoft.Extensions.Caching.Distributed&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">namespace&lt;/span> &lt;span class="nn">sample1.Web&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kd">public&lt;/span> &lt;span class="k">class&lt;/span> &lt;span class="nc">RedisClient&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">IDistributedCache&lt;/span> &lt;span class="n">cache&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kd">async&lt;/span> &lt;span class="n">Task&lt;/span>&lt;span class="p">&amp;lt;&lt;/span>&lt;span class="kt">int&lt;/span>&lt;span class="p">&amp;gt;&lt;/span> &lt;span class="n">GetCounterAsync&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kt">string&lt;/span> &lt;span class="n">key&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kt">var&lt;/span> &lt;span class="k">value&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="k">await&lt;/span> &lt;span class="n">cache&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">GetStringAsync&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">key&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="k">value&lt;/span> &lt;span class="p">==&lt;/span> &lt;span class="kc">null&lt;/span> &lt;span class="p">?&lt;/span> &lt;span class="m">0&lt;/span> &lt;span class="p">:&lt;/span> &lt;span class="kt">int&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">Parse&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="k">value&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kd">async&lt;/span> &lt;span class="n">Task&lt;/span> &lt;span class="n">SetCounterAsync&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kt">string&lt;/span> &lt;span class="n">key&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="k">value&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">await&lt;/span> &lt;span class="n">cache&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">SetStringAsync&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">key&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="k">value&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">ToString&lt;/span>&lt;span class="p">());&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;h2>Dependency Injection&lt;span class="hx-absolute -hx-mt-20" id="dependency-injection">&lt;/span>
+&lt;a href="#dependency-injection" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>I then added this Redis Client to the service collection, again, in the this sample1.Web&amp;rsquo;s Program.cs file:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-csharp" data-lang="csharp">&lt;span class="line">&lt;span class="cl">&lt;span class="n">builder&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">Services&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">AddScoped&lt;/span>&lt;span class="p">&amp;lt;&lt;/span>&lt;span class="n">RedisClient&lt;/span>&lt;span class="p">&amp;gt;();&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;h2>Razor page&lt;span class="hx-absolute -hx-mt-20" id="razor-page">&lt;/span>
+&lt;a href="#razor-page" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>The last piece to this jigsaw is the counter razor page. There&amp;rsquo;s a few different pieces to do here so to help I&amp;rsquo;ve decomposed these to steps.&lt;/p>
+&lt;p>Step 1: Inject this new RedisClient into the page:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;pre>&lt;code>@inject RedisClient RedisClient&lt;/code>&lt;/pre>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>Step 2: Overwrite the page&amp;rsquo;s &lt;code>OnInitializedAsync&lt;/code> implementation in order for us to be able to get our counter from our redis cache:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-csharp" data-lang="csharp">&lt;span class="line">&lt;span class="cl">&lt;span class="kd">protected&lt;/span> &lt;span class="kd">override&lt;/span> &lt;span class="kd">async&lt;/span> &lt;span class="n">Task&lt;/span> &lt;span class="n">OnInitializedAsync&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">currentCount&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="k">await&lt;/span> &lt;span class="n">RedisClient&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">GetCounterAsync&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;counter&amp;#34;&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>Step 3: We now need to update this counter when the button is pressed:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-csharp" data-lang="csharp">&lt;span class="line">&lt;span class="cl">&lt;span class="kd">private&lt;/span> &lt;span class="kd">async&lt;/span> &lt;span class="n">Task&lt;/span> &lt;span class="n">IncrementCount&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">currentCount&lt;/span>&lt;span class="p">++;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">await&lt;/span> &lt;span class="n">RedisClient&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">SetCounterAsync&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;counter&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">currentCount&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>This is what the resulting page looks like this:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-html" data-lang="html">&lt;span class="line">&lt;span class="cl">@page &amp;#34;/counter&amp;#34;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">@rendermode InteractiveServer
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">@inject RedisClient RedisClient
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">&amp;lt;&lt;/span>&lt;span class="nt">PageTitle&lt;/span>&lt;span class="p">&amp;gt;&lt;/span>Counter&lt;span class="p">&amp;lt;/&lt;/span>&lt;span class="nt">PageTitle&lt;/span>&lt;span class="p">&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">&amp;lt;&lt;/span>&lt;span class="nt">h1&lt;/span>&lt;span class="p">&amp;gt;&lt;/span>Counter&lt;span class="p">&amp;lt;/&lt;/span>&lt;span class="nt">h1&lt;/span>&lt;span class="p">&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">&amp;lt;&lt;/span>&lt;span class="nt">p&lt;/span> &lt;span class="na">role&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s">&amp;#34;status&amp;#34;&lt;/span>&lt;span class="p">&amp;gt;&lt;/span>Current count: @currentCount&lt;span class="p">&amp;lt;/&lt;/span>&lt;span class="nt">p&lt;/span>&lt;span class="p">&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">&amp;lt;&lt;/span>&lt;span class="nt">button&lt;/span> &lt;span class="na">class&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s">&amp;#34;btn btn-primary&amp;#34;&lt;/span> &lt;span class="err">@&lt;/span>&lt;span class="na">onclick&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s">&amp;#34;IncrementCount&amp;#34;&lt;/span>&lt;span class="p">&amp;gt;&lt;/span>Click me&lt;span class="p">&amp;lt;/&lt;/span>&lt;span class="nt">button&lt;/span>&lt;span class="p">&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">@code {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> private int currentCount = 0;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> protected override async Task OnInitializedAsync()
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> currentCount = await RedisClient.GetCounterAsync(&amp;#34;counter&amp;#34;);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> }
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> private async Task IncrementCount()
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> currentCount++;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> await RedisClient.SetCounterAsync(&amp;#34;counter&amp;#34;, currentCount);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> }
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">}&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>I felt that what I had done was logical and flowed well. I do have experience [limited] with Blazor pages so I did go into this feeling confident and that this was not going to be too much of a stretch.&lt;/p>
+&lt;p>Just like that, I was all set to run the app! I&amp;rsquo;m delighted to announce it worked flawlessly and as intended, like most of the code I write 👀.&lt;/p>
+&lt;h2>Confirmation of counter persistence&lt;span class="hx-absolute -hx-mt-20" id="confirmation-of-counter-persistence">&lt;/span>
+&lt;a href="#confirmation-of-counter-persistence" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>I couldn&amp;rsquo;t leave it there. I had to make sure the counter was being written to the cache. Nothing fancy, all I did was I exec&amp;rsquo;ed into the running container, and then ran a few cli commands.&lt;/p>
+&lt;p>To get the current value of the counter, use:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-powershell" data-lang="powershell">&lt;span class="line">&lt;span class="cl">&lt;span class="nb">redis-cli&lt;/span> &lt;span class="n">hget&lt;/span> &lt;span class="n">counter&lt;/span> &lt;span class="s2">&amp;#34;data&amp;#34;&lt;/span> &lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>I also update the counter then refresh the page to see it reflect this change:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-powershell" data-lang="powershell">&lt;span class="line">&lt;span class="cl">&lt;span class="nb">redis-cli&lt;/span> &lt;span class="n">hset&lt;/span> &lt;span class="n">counter&lt;/span> &lt;span class="s2">&amp;#34;data&amp;#34;&lt;/span> &lt;span class="mf">25&lt;/span> &lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>I also looked at the distributed tracing to get confirmation of this. Here&amp;rsquo;s an example of this:&lt;/p>
+&lt;figure>
+&lt;img src="../img/2024-02-25-11-55-37.png" alt="">
+&lt;figcaption>Distributed trace example&lt;/figcaption>
+&lt;/figure>
+&lt;p>And that was that. I was able to take a sample Aspire app and perist a counter value to Redis cache with very little effort. All in all, this was a positive DevEx.&lt;/p>
+&lt;h1>Conclusion&lt;/h1>&lt;p>.NET Aspire appears to offer that &lt;em>simplicity glue&lt;/em> that is very much missing and I must admit, it does looks great from an inner loop perspective. I&amp;rsquo;m yet to evaluate its CD approach and how it handles the provisioning of the supporting infrastructure. I see from &lt;a href="https://learn.microsoft.com/en-us/dotnet/aspire/deployment/azure/aca-deployment-azd-in-depth" target="_blank" rel="noopener">Deploy a .NET Aspire app using AZD&lt;/a> that both bicep and Terraform are supported in that scernario. This will be my next step. I am also reassured that the tech that I&amp;rsquo;m using on various projects, as a direct result of my research, such as bicep, TF, AZD and ACA, is being utilized here as well. I do hope the &lt;code>wow&lt;/code> and positive DevEx continues.&lt;/p>
+&lt;h1>Addendum&lt;/h1>&lt;p>&lt;em>I added this section a few days after posting the original article&lt;/em>&lt;/p>
+&lt;p>Well, I couldn&amp;rsquo;t wait to use AZD to deploy my sample app. Sadly, this didn&amp;rsquo;t go too well.&lt;/p>
+&lt;p>I got this error [condensed] at the deploy application stage:&lt;/p>
+&lt;div class="hx-overflow-x-auto hx-mt-6 hx-flex hx-rounded-lg hx-border hx-py-2 ltr:hx-pr-4 rtl:hx-pl-4 contrast-more:hx-border-current contrast-more:dark:hx-border-current hx-border-red-200 hx-bg-red-100 hx-text-red-900 dark:hx-border-red-200/30 dark:hx-bg-red-900/30 dark:hx-text-red-200">
+&lt;div class="ltr:hx-pl-3 ltr:hx-pr-2 rtl:hx-pr-3 rtl:hx-pl-2">&lt;div class="hx-select-none hx-text-xl" style="font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';">🚫&lt;/div>&lt;/div>
+&lt;div class="hx-w-full hx-min-w-0 hx-leading-7">
+&lt;div class="hx-mt-6 hx-leading-7 first:hx-mt-0">error CONTAINER1013: Failed to push to the output registry: The request was canceled due to the configured HttpClient.Timeout of 100 seconds elapsing&lt;/div>
+&lt;/div>
+&lt;/div>
+&lt;p>I managed to deploy most of the infra plus 2 ACAs (&lt;code>apiserver&lt;/code> and &lt;code>cache&lt;/code>) with the &lt;code>azd up&lt;/code> command but failed to deploy &lt;code>webfrontend&lt;/code>. On retry, it fails this time with &lt;code>apiservice&lt;/code> which it had previously deployed successfully. I retried with &lt;code>azd deploy webfrontend&lt;/code> but I saw a repeat of the the above.&lt;/p>
+&lt;p>I found this GH issue that confirms this behaviour ➡️ &lt;a href="https://github.com/Azure/azure-dev/issues/3225" target="_blank" rel="noopener">https://github.com/Azure/azure-dev/issues/3225&lt;/a> and that it&amp;rsquo;s yet to be addressed.&lt;/p>
+&lt;p>So, sadly you can&amp;rsquo;t use AZD with .NET Aspire, yet. It&amp;rsquo;s a real shame this hasn&amp;rsquo;t been made public.&lt;/p>
+&lt;h1>References&lt;/h1>&lt;ul>
+&lt;li>&lt;a href="https://github.com/dotnet/aspire-samples" target="_blank" rel="noopener">https://github.com/dotnet/aspire-samples&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://learn.microsoft.com/en-us/dotnet/aspire/fundamentals/setup-tooling?tabs=visual-studio" target="_blank" rel="noopener">https://learn.microsoft.com/en-us/dotnet/aspire/fundamentals/setup-tooling?tabs=visual-studio&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://learn.microsoft.com/en-us/azure/developer/azure-developer-cli/" target="_blank" rel="noopener">https://learn.microsoft.com/en-us/azure/developer/azure-developer-cli/&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://learn.microsoft.com/en-us/dotnet/aspire/deployment/azure/aca-deployment-azd-in-depth" target="_blank" rel="noopener">https://learn.microsoft.com/en-us/dotnet/aspire/deployment/azure/aca-deployment-azd-in-depth&lt;/a>&lt;/li>
+&lt;/ul></description></item><item><title>How to Conditionally Include a Nuget Package</title><link>https://blog-dev.garrardkitchen.com/blog/how-to-conditionally-include-a-nuget-package/</link><pubDate>Wed, 21 Sep 2022 20:58:53 +0100</pubDate><guid>https://blog-dev.garrardkitchen.com/blog/how-to-conditionally-include-a-nuget-package/</guid><description>
+&lt;h1>The context&lt;/h1>&lt;p>I have implemented a solution that as it&amp;rsquo;s primary objective iterates through a sequence of HTTP Requests and page interactions. With sequencing through these steps regularly it gives the support team the maximum amount of time to react to an outage. This outage can be isolated to this particular service, or can originate from any of it&amp;rsquo;s downstream dependencies.&lt;/p>
+&lt;p>To help with the automation of these steps, I&amp;rsquo;m using Selenium and in particular, it&amp;rsquo;s headless browser capability in conjunction with ChromeDriver. With this combination, I can navigate within a Chrome browser, provide alphanumerical inputs and execute mouse clicks, all by using imperative code.&lt;/p>
+&lt;p>I am using serverless technologies to orchestrate it&amp;rsquo;s delivery, and for this solution&amp;rsquo;s resiliency. The particulars include an Azure FucntionsApp (Linux Container) that hosts the C# .NET 6.0 FunctionsApp, and the ChromeDriver which happens to be an external program (ergo, not managed code). I use the DevOps approach to build the FunctionsApp and associated unit tests, run the unit tests, produce code coverage stats (with min threshold), push the Docker image to ACR, deploy to a slot, assess error rates by calling &lt;strong>az monitor log-analytics query &amp;hellip;&lt;/strong> then performing a swap with the production slot post a manual verification step. These steps are incorporated into separate pipelines within &lt;strong>Azure DevOps&lt;/strong>. There are multiple pipelines, one for infrastructure and one for the application. For the IaC I use the &lt;strong>bicep&lt;/strong> DSL. I&amp;rsquo;m using common pipeline patterns such as variable and jobs templates. I&amp;rsquo;m also interacting with the az pipelines (azure-devops cli extension) to create/update variable-groups and variables.&lt;/p>
+&lt;h1>The issue&lt;/h1>&lt;p>During the execution of this FunctionsApp, I have observed warnings reporting a ChromeDriver mismatch with the Chrome browser, in the logs. This needed to be addressed.&lt;/p>
+&lt;p>My Dockerfile installs the latest stable version of Chrome - which happens to be version (major - semantic versioning) 105. However, my local development environment is constrained to using Chrome 104. To avoid any potential incompatibility issues, as well as to quieten these &lt;em>annoying&lt;/em> warnings, I somehow need to implement a solution that requires zero maintenance.&lt;/p>
+&lt;h1>The solution&lt;/h1>&lt;p>Thanks to Mrs Google, and DDoSing this search engine with of terms such as &lt;em>nuget, conditions, linux&lt;/em>, I eventually cobbled together a way to conditionally include package references. IDK there is a &lt;strong>choose&lt;/strong> element within a csproj xml schema. I do now!&lt;/p>
+&lt;p>I felt that the real challenge here was to &lt;strong>include&lt;/strong> a package based on the intended operating system of the runtime. In &lt;strong>dotnet&lt;/strong> vernacular, this is know as a &lt;strong>Runtime Identifier&lt;/strong>. Examples of such are, &lt;em>linux-64, win-64, win-32&lt;/em>. You provide this &lt;strong>Runtime Identifier&lt;/strong> by using the -r (runtime) switch. A full example can be found later in this post.&lt;/p>
+&lt;p>Additionally, I felt it was important that the DX would not suffer consequently. So, I needed someway to set a default. This default will come into play when a developer runs this FunctionsApp via:&lt;/p>
+&lt;ul>
+&lt;li>the &lt;code>dotnet run&lt;/code> cli command or&lt;/li>
+&lt;li>from within an IDE (Rider, VS) or&lt;/li>
+&lt;li>code editor such as VSCode.&lt;/li>
+&lt;/ul>
+&lt;p>In this example xml snippet, you can see how I&amp;rsquo;ve implemented a default and how I used the &lt;strong>Condition&lt;/strong> attribute to include packages based on the &lt;strong>Runtime Identifier&lt;/strong>:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-xml" data-lang="xml">&lt;span class="line">&lt;span class="cl">&lt;span class="nt">&amp;lt;Choose&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;lt;When&lt;/span> &lt;span class="na">Condition=&lt;/span>&lt;span class="s">&amp;#34;$(RuntimeIdentifier) != &amp;#39;&amp;#39;&amp;#34;&lt;/span>&lt;span class="nt">&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;lt;ItemGroup&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;lt;PackageReference&lt;/span> &lt;span class="na">Condition=&lt;/span>&lt;span class="s">&amp;#34;$(RuntimeIdentifier.StartsWith(&amp;#39;win&amp;#39;))&amp;#34;&lt;/span> &lt;span class="na">Include=&lt;/span>&lt;span class="s">&amp;#34;Selenium.WebDriver.ChromeDriver&amp;#34;&lt;/span> &lt;span class="na">Version=&lt;/span>&lt;span class="s">&amp;#34;104.0.5112.7900&amp;#34;&lt;/span> &lt;span class="nt">/&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;lt;PackageReference&lt;/span> &lt;span class="na">Condition=&lt;/span>&lt;span class="s">&amp;#34;$(RuntimeIdentifier.StartsWith(&amp;#39;linux&amp;#39;))&amp;#34;&lt;/span> &lt;span class="na">Include=&lt;/span>&lt;span class="s">&amp;#34;Selenium.WebDriver.ChromeDriver&amp;#34;&lt;/span> &lt;span class="na">Version=&lt;/span>&lt;span class="s">&amp;#34;105.0.5195.1900&amp;#34;&lt;/span> &lt;span class="nt">/&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;lt;/ItemGroup&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;lt;/When&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;lt;Otherwise&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;lt;ItemGroup&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;lt;PackageReference&lt;/span> &lt;span class="na">Include=&lt;/span>&lt;span class="s">&amp;#34;Selenium.WebDriver.ChromeDriver&amp;#34;&lt;/span> &lt;span class="na">Version=&lt;/span>&lt;span class="s">&amp;#34;104.0.5112.7900&amp;#34;&lt;/span> &lt;span class="nt">/&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;lt;/ItemGroup&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;lt;/Otherwise&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nt">&amp;lt;/Choose&amp;gt;&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>I specify the &lt;strong>runtime identifier&lt;/strong> of &lt;em>linux-64&lt;/em> in the Dockerfile when I &lt;em>publish&lt;/em> the .NET Core FunctionsApp. This can be seen in the command snippet below. This will ensure that the version (major) 105 is included:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-powershell" data-lang="powershell">&lt;span class="line">&lt;span class="cl">&lt;span class="n">dotnet&lt;/span> &lt;span class="n">publish&lt;/span> &lt;span class="n">-p:PublishChromeDriver&lt;/span>&lt;span class="p">=&lt;/span>&lt;span class="n">true&lt;/span> &lt;span class="p">.\&lt;/span>&lt;span class="nb">my-functionsapp&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="py">csproj&lt;/span> &lt;span class="n">-c&lt;/span> &lt;span class="n">release&lt;/span> &lt;span class="p">-&lt;/span>&lt;span class="n">-self-contained&lt;/span> &lt;span class="n">-r&lt;/span> &lt;span class="nb">linux-x64&lt;/span> &lt;span class="p">-&lt;/span>&lt;span class="n">-output&lt;/span> &lt;span class="p">./&lt;/span>&lt;span class="n">publish&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>And if you set the verbosity of the output by adding this switch &lt;code>-v d&lt;/code> (d&lt;em>etailed&lt;/em>) you will have visual confirmation that the appropriate version has been included:&lt;/p>
+&lt;p>&lt;img src="../img/2022-09-21-13-01-36.png" alt="" loading="lazy" />&lt;/p>
+&lt;p>And there you have it, an example of how to include a different version of a nuget package.&lt;/p></description></item><item><title>Runtimes</title><link>https://blog-dev.garrardkitchen.com/blog/runtimes/</link><pubDate>Sat, 08 Jan 2022 11:09:12 +0000</pubDate><guid>https://blog-dev.garrardkitchen.com/blog/runtimes/</guid><description>
+&lt;p>In my current role as Head of Cloud Platform, I am leading the technical effort of migrating our entire on-premise real-estate to Azure. Part of this mission, is to upgrade the runtimes of our applications, regardless of their current placement; IIS Web apps, Windows Services and Docker Swarm containers. I say &amp;ldquo;part of this mission&amp;rdquo; as another aspect of this migration is to create a new foundation for our platform - AKS. I hope to cover more on this in later posts.&lt;/p>
+&lt;p>With being deliberately ambiguous on actual numbers here, we have a &lt;em>fair&lt;/em> amount of workloads that are running on runtimes that have surpassed their end-of-life support status 😱. I am sure we&amp;rsquo;re not the only organization that finds itself in this predicament. One of the first things our CTO wanted when he came onboard was for us to sort out our runtimes.&lt;/p>
+&lt;p>What this means is that we have .NET Framework and .NET Core workloads that need to be migrated to a runtime that is not out of support (now or anytime soon). At the same time, the target runtime has to have hit the mature (at least on it&amp;rsquo;s 1st minor release) status. .NET 6.0 is now GA but it&amp;rsquo;s paint is still a little wet. Understandably there is some concern, borderline trepidation towards targeting this new version. There are impactful benefits (improved performance, greater stability, improved GC, cost benefits resulting from being more perfomant, less vulnerabilities, improved security, etc&amp;hellip;) and our current runtime target for our .NET Core workloads is 3.1. However, end-of-life support for this particular version is the end of this year - &lt;a href="https://docs.microsoft.com/en-us/lifecycle/products/microsoft-net-and-net-core" target="_blank" rel="noopener">03.Dec.2022&lt;/a>. So, at some point, this upgrade needs to happen. With planning and prioritization, this can happen when appropriate.&lt;/p>
+&lt;p>One strategy of delivering confidence with a runtime is to update a few apps, consecutively; providing you&amp;rsquo;ve availability to accommodate such an approach. Timeboxed: (1) A simple (CRUD-esque HTTP API that sits on top of a Db) workload then (2) one that involves an &lt;code>data-in-motion&lt;/code> aspect (message queue, consumer paradigm, non-http api).&lt;/p>
+&lt;p>Another approach to reducing concern, mitigating risk, etc&amp;hellip; is to meet with the SME (Subject matter expert) - a Microsoft representative - and listen to what they have to say. I have orchestrated such a meeting - we are being helped/guided by Microsoft FastTrak. The advice received was to upgrade. We were also reminded of the migration paths to take when moving to a target version. Here are some demonstrative links that will help you through this process:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>Migration guidance found here ➡ &lt;a href="https://docs.microsoft.com/en-us/aspnet/core/migration/31-to-60?view=aspnetcore-6.0&amp;amp;tabs=visual-studio" target="_blank" rel="noopener">migrate from asp.net core 3.1 to 6.0&lt;/a>.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>An example of breaking changes between versions can be found here ➡ &lt;a href="https://docs.microsoft.com/en-us/dotnet/core/compatibility/3.1" target="_blank" rel="noopener">breaking changes in .NET Core 3.1&lt;/a>&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;p>Most of our workloads are simple HTTP API CRUDs that sit aloft databases. In short, we&amp;rsquo;re not doing anything too complicated and so this makes most of our pain points the result of external NuGet package dependencies.&lt;/p>
+&lt;p>IMO, it is important to establish, if at all possible, a feedback loop back to Microsoft. If you are fortunate to have an established relationship with Microsoft and have access to certain areas/teams - eg FastTrak, or even a Support plan, if/when issues do arise (eg increased exception frequency, uncharacteristic high latency, poor performance, frequent CG, memory leaks, socket exhaustion, etc&amp;hellip;), you can feed these back and receive remediation advice until a fix (if not a result of poor implementation) becomes available. We had been plagued with issues (socket exhaustion, CG, memory leaks) with those workloads on ASP.NET Core 2.* but now see less issues with those ASP.NET Core workloads that are now on 3.1.&lt;/p>
+&lt;p>To complement the above I would also recommend agreeing on, and capturing, metrics that are demonstrative of your gains from the runtime upgrade. This is where metrics come into their own. Generally, metrics tend to have a greater retention period than logs, and therefore can paint an informed picture over a wider span of time than logging can. Generally speaking, lack of memory is going to be more catastrophic than thottling through lack of CPU. When your RSS or working set bytes are depleted, more often than not your application will terminate due to OOM (out of memory) exception - state and workflow blown away unless you&amp;rsquo;ve employed patterns to mitigate against these edge/corner cases - most don&amp;rsquo;t. In particular, I am referring to container_memory_rss and container_memory_working_set_bytes due to working with kubernetes.&lt;/p>
+&lt;p>The above is not a definitive list of must do&amp;rsquo;s and in part, is overly simplistic. IMO, it is important to stay current with runtimes to benefit from the improvements they deliver on. For me though, their stability and the vulnerabilities they address is the most important. It is scary how many organizations run on runtimes that are out of support. Applications will still run but ask yourself this, how much is this truly costing your company, how much is it costing our environment and finally, how much could your company suffer because they are exposed to vulnerabilities?&lt;/p>
+&lt;p>Sounds overly dramatic doesn&amp;rsquo;t?! I stop there as I don&amp;rsquo;t wish to perpetuate the negativity of going down this particular hole. But before I do; more food for thought. I would like to throw into the mix application dependencies and in particular those package dependencies some of us rely on - NuGet &amp;amp; npm. Good DevOps practices mitigate again licensing or vulnerability scanning but IMO the same level of focus ought to be concentrated into this area as well. This was painfully brought to light recently regarding OSS and the log4j vulnerability - CVE-2021-44228 (common vulnerabilities and exposure). And finally, docker image scanning. There are plenty of solutions out there - Snyk for example - that can help with this. Good docker practices go a long way also toward protecting us against vulnerabilities that arise from images and not forgetting code scanning products generally that identify smelly code, bugs and other vulnerabilities. I have introduced solutions that deal with all of this.&lt;/p></description></item></channel></rss>

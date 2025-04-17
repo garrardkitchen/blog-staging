@@ -1,0 +1,87 @@
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Garrard Kitchen – Terraform</title><link>https://blog-dev.garrardkitchen.com/tags/terraform/</link><description>Recent content in Terraform on Garrard Kitchen</description><generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Sun, 04 Feb 2024 19:39:24 +0000</lastBuildDate><atom:link href="https://blog-dev.garrardkitchen.com/tags/terraform/index.xml" rel="self" type="application/rss+xml"/><item><title>Compare Resources From Terraform Plan</title><link>https://blog-dev.garrardkitchen.com/blog/compare-resources-from-terraform-plan/</link><pubDate>Sun, 04 Feb 2024 19:39:24 +0000</pubDate><guid>https://blog-dev.garrardkitchen.com/blog/compare-resources-from-terraform-plan/</guid><description>
+&lt;p>Here&amp;rsquo;s a &lt;a href="https://github.com/garrardkitchen/terraform-examples/blob/compare/2024-feb-compare-plan-with-resources/README.md" target="_blank" rel="noopener">link&lt;/a> to a repo I created today, that will be used to host examples of all challenges I encounter that relate to Terraform.&lt;/p>
+&lt;p>In this particular sample, I need to list out all those resources that will be created using Terraform where we do not have a state file. The product of this will be added to sheets, by Resource Group, in an Excel spreadsheet. Each sheet is an Azure Resource Group. The rationale for this is that at some point an apply was executed, and due to the state not being managed, we do not know if the current config matches with what has been deployed.&lt;/p>
+&lt;p>The Excel spreadsheet gives us something organised and visual to use to compare. This will also be used to confirm the correct naming convensions have been used.&lt;/p>
+&lt;p>This is an example of the resulting Excel spreadsheet:&lt;/p>
+&lt;p>&lt;img src="../img/2024-02-05-06-58-01.png" alt="" loading="lazy" />&lt;/p>
+&lt;p>To see the the few LOC used to generate this, please &lt;a href="https://github.com/garrardkitchen/terraform-examples/blob/compare/2024-feb-compare-plan-with-resources/README.md" target="_blank" rel="noopener">click here&lt;/a>.&lt;/p></description></item><item><title>Terraform Get Values</title><link>https://blog-dev.garrardkitchen.com/blog/terraform-get-values/</link><pubDate>Thu, 23 Jul 2020 13:42:59 +0100</pubDate><guid>https://blog-dev.garrardkitchen.com/blog/terraform-get-values/</guid><description>
+&lt;p>With not wanting to have hard coded values pushed to a project&amp;rsquo;s code repository, and an antiquated way to derive Azure Service Principal credentials, I set about exploring ways on accomplishing this with this in mind using Terraform.&lt;/p>
+&lt;h3>Attempt 1&lt;span class="hx-absolute -hx-mt-20" id="attempt-1">&lt;/span>
+&lt;a href="#attempt-1" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>Here ins my first attempt, I load all permutations into map variables. I use an environment variable as an indexer to the appropriate map value:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-tf" data-lang="tf">&lt;span class="line">&lt;span class="cl">&lt;span class="kr">provider&lt;/span> &lt;span class="s2">&amp;#34;azurerm&amp;#34;&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">version&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s2">&amp;#34;=2.17&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">...&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">subscription_id&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nb">var&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">azure_subscription_id&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="nb">var&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">environment&lt;/span>&lt;span class="p">]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">client_id&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nb">var&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">azure_client_id&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="nb">var&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">environment&lt;/span>&lt;span class="p">]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">...&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kr">variable&lt;/span> &lt;span class="s2">&amp;#34;azure_subscription_id&amp;#34;&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="na">type&lt;/span> &lt;span class="o">=&lt;/span>&lt;span class="nb"> map&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="na">default&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="s2">&amp;#34;dev&amp;#34;&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s2">&amp;#34;********-****-****-****-************&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="s2">&amp;#34;prod&amp;#34;&lt;/span>&lt;span class="o">=&lt;/span> &lt;span class="s2">&amp;#34;********-****-****-****-************&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kr">variable&lt;/span> &lt;span class="s2">&amp;#34;azure_client_id&amp;#34;&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="na">type&lt;/span> &lt;span class="o">=&lt;/span>&lt;span class="nb"> map&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="na">default&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="s2">&amp;#34;dev&amp;#34;&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s2">&amp;#34;********-****-****-****-************&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="s2">&amp;#34;prod&amp;#34;&lt;/span>&lt;span class="o">=&lt;/span> &lt;span class="s2">&amp;#34;********-****-****-****-************&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">...&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;h3>Attempt 2&lt;span class="hx-absolute -hx-mt-20" id="attempt-2">&lt;/span>
+&lt;a href="#attempt-2" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>This second and more efficient approach, I used &lt;code>jsondecode&lt;/code> function to load the entire credentials JSON to access the subscriptionId property:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-tf" data-lang="tf">&lt;span class="line">&lt;span class="cl">&lt;span class="kr">provider&lt;/span> &lt;span class="s2">&amp;#34;azurerm&amp;#34;&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">version&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s2">&amp;#34;=2.17&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">...&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">subscription_id&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nb">var&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">environment&lt;/span> &lt;span class="o">==&lt;/span> &lt;span class="s2">&amp;#34;dev&amp;#34;&lt;/span> &lt;span class="o">?&lt;/span>&lt;span class="nb"> jsondecode&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nb">var&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">azure_sp_dev&lt;/span>&lt;span class="p">).&lt;/span>&lt;span class="nx">subscriptionId&lt;/span> &lt;span class="o">:&lt;/span>&lt;span class="nb"> jsondecode&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nb">var&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">azure_sp_prod&lt;/span>&lt;span class="p">).&lt;/span>&lt;span class="nx">subscriptionId&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">client_id&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nb">var&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">environment&lt;/span> &lt;span class="o">==&lt;/span> &lt;span class="s2">&amp;#34;dev&amp;#34;&lt;/span> &lt;span class="o">?&lt;/span>&lt;span class="nb"> jsondecode&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nb">var&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">azure_sp_dev&lt;/span>&lt;span class="p">).&lt;/span>&lt;span class="nx">clientId&lt;/span> &lt;span class="o">:&lt;/span>&lt;span class="nb"> jsondecode&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nb">var&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">azure_sp_prod&lt;/span>&lt;span class="p">).&lt;/span>&lt;span class="nx">clientId&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">...&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kr">variable&lt;/span> &lt;span class="s2">&amp;#34;azure_sp_dev&amp;#34;&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="na">type&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nx">string&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="na">default&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="o">&amp;lt;&amp;lt;EOT&lt;/span>&lt;span class="s">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s"> {
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s"> &amp;#34;clientId&amp;#34;: &amp;#34;********-****-****-****-************&amp;#34;,
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s"> &amp;#34;clientSecret&amp;#34;: &amp;#34;********-****-****-****-************&amp;#34;,
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s"> &amp;#34;subscriptionId&amp;#34;: &amp;#34;********-****-****-****-************&amp;#34;,
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s"> &amp;#34;tenantId&amp;#34;: &amp;#34;********-****-****-****-************&amp;#34;,
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s"> &amp;#34;activeDirectoryEndpointUrl&amp;#34;: &amp;#34;https://login.microsoftonline.com&amp;#34;,
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s"> &amp;#34;resourceManagerEndpointUrl&amp;#34;: &amp;#34;https://management.azure.com/&amp;#34;,
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s"> &amp;#34;activeDirectoryGraphResourceId&amp;#34;: &amp;#34;https://graph.windows.net/&amp;#34;,
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s"> &amp;#34;sqlManagementEndpointUrl&amp;#34;: &amp;#34;https://management.core.windows.net:8443/&amp;#34;,
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s"> &amp;#34;galleryEndpointUrl&amp;#34;: &amp;#34;https://gallery.azure.com/&amp;#34;,
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s"> &amp;#34;managementEndpointUrl&amp;#34;: &amp;#34;https://management.core.windows.net/&amp;#34;
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s"> }
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s"> &lt;/span>&lt;span class="o">EOT&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kr">variable&lt;/span> &lt;span class="s2">&amp;#34;azure_sp_prod&amp;#34;&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="na">type&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nx">string&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">...&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>Obviously, none of the above deals with not pushing these credentials into the code repository.&lt;/p>
+&lt;p>So, in my opinion, there are 2 options available here. The first option is to use a GitHub Secret and to inject this secret into a script file. It could even be passed as a parameter to Terraform (e.g. &lt;code>terrafor apply -var credentials={...}&lt;/code> ). Or, the second option is to obtain this key using the GitHub &lt;code>Azure/get-keyvault-secrets@v1.0&lt;/code> Action. This method will then allow you to obtain the Service Principal credentials from an Azure KeyVault. This latter approach means that we never need to expose these secrets outside of Azure, which we would have to do if we cut &amp;amp; paste them into a GitHub Secret.&lt;/p></description></item></channel></rss>

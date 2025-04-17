@@ -1,0 +1,45 @@
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Garrard Kitchen – Html</title><link>https://blog-dev.garrardkitchen.com/tags/html/</link><description>Recent content in Html on Garrard Kitchen</description><generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Mon, 26 Feb 2024 20:12:39 +0000</lastBuildDate><atom:link href="https://blog-dev.garrardkitchen.com/tags/html/index.xml" rel="self" type="application/rss+xml"/><item><title>Shortcode - An image with a caption</title><link>https://blog-dev.garrardkitchen.com/blog/shortcodes-img-with-caption/</link><pubDate>Mon, 26 Feb 2024 20:12:39 +0000</pubDate><guid>https://blog-dev.garrardkitchen.com/blog/shortcodes-img-with-caption/</guid><description>
+&lt;p>I had an article I wanted to post but knew with the number of images I planned on including, it will look unsightly. The first idea I had to make it less so, was to indent the image to break up the page a little. The next idea I had was to include a caption under each image.&lt;/p>
+&lt;p>Knowing that HTML has an element called figure, I decided to use this. I didn&amp;rsquo;t want anything complicated so I planned to keep the code to a minimum.&lt;/p>
+&lt;p>When creating shortcodes, you add a file to the &lt;code>📁 layouts\shortcodes\&lt;/code> folder.&lt;/p>
+&lt;p>The name of this file is important. This name is what you used to invoke that shortcode. I decided to call my figure.&lt;/p>
+&lt;p>I created this file and called it &lt;code>figure.html&lt;/code>.&lt;/p>
+&lt;p>I added my HTML. I&amp;rsquo;m using hugo expressions within the HTML to obtain the attribute values from the eventual declaration:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-xml" data-lang="xml">&lt;span class="line">&lt;span class="cl">&lt;span class="nt">&amp;lt;figure&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;lt;img&lt;/span> &lt;span class="na">src=&lt;/span>&lt;span class="s">&amp;#34;{{ .Get &amp;#34;&lt;/span>&lt;span class="err">src&amp;#34;&lt;/span> &lt;span class="err">}}&amp;#34;&lt;/span> &lt;span class="na">alt=&lt;/span>&lt;span class="s">&amp;#34;{{ .Get &amp;#34;&lt;/span>&lt;span class="err">alt&amp;#34;&lt;/span> &lt;span class="err">}}&amp;#34;&lt;/span>&lt;span class="nt">&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;lt;figcaption&amp;gt;&lt;/span>{{ .Get &amp;#34;caption&amp;#34; }}&lt;span class="nt">&amp;lt;/figcaption&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nt">&amp;lt;/figure&amp;gt;&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>To add a declaration to my markdown post, I would add something similar to this:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;pre>&lt;code>{{&amp;lt; figure
+src=&amp;#34;../img/2024-02-25-10-54-40.png&amp;#34;
+alt=&amp;#34;&amp;#34;
+caption=&amp;#34;.NET Aspire dashboard&amp;#34; &amp;gt;}}&lt;/code>&lt;/pre>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>This particular example will produce this output:&lt;/p>
+&lt;figure>
+&lt;img src="../img/2024-02-25-10-54-40.png" alt="">
+&lt;figcaption>.NET Aspire dashboard&lt;/figcaption>
+&lt;/figure>
+&lt;p>You should see both an indentation and caption.&lt;/p>
+&lt;p>There you have it, a short and simple example of applying an indent and a caption to an image to break the page up.&lt;/p>
+&lt;p>You can see this shortcode being used here in this particular post ➡️ &lt;a href="../dotnet-aspire-and-redis" >.NET Aspire and Redis&lt;/a>.&lt;/p>
+&lt;p>I&amp;rsquo;m not sure I&amp;rsquo;m happy with it&amp;rsquo;s name. On reflection, I will likely change this to &lt;code>caption&lt;/code>.&lt;/p></description></item></channel></rss>

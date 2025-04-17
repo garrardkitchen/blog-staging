@@ -1,0 +1,29 @@
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Garrard Kitchen – Vs</title><link>https://blog-dev.garrardkitchen.com/tags/vs/</link><description>Recent content in Vs on Garrard Kitchen</description><generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Wed, 28 Sep 2022 20:22:13 +0100</lastBuildDate><atom:link href="https://blog-dev.garrardkitchen.com/tags/vs/index.xml" rel="self" type="application/rss+xml"/><item><title>Error NETSDK1045</title><link>https://blog-dev.garrardkitchen.com/blog/error-netsdk1045/</link><pubDate>Wed, 28 Sep 2022 20:22:13 +0100</pubDate><guid>https://blog-dev.garrardkitchen.com/blog/error-netsdk1045/</guid><description>
+&lt;h1>&lt;em>Error NETSDK1045 The current .NET SDK does not support targeting .NET 6.0&lt;/em>&lt;/h1>&lt;h2>Error&lt;span class="hx-absolute -hx-mt-20" id="error">&lt;/span>
+&lt;a href="#error" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>A colleague had Visual Studio shout this (see 👇) at him when he loaded up a FunctionsApp project. He received this error twice as the second project was the unit tests for the FunctionsApp.&lt;/p>
+&lt;div class="hx-overflow-x-auto hx-mt-6 hx-flex hx-flex-col hx-rounded-lg hx-border hx-py-4 hx-px-4 contrast-more:hx-border-current contrast-more:dark:hx-border-current hx-border-red-200 hx-bg-red-100 hx-text-red-900 dark:hx-border-red-200/30 dark:hx-bg-red-900/30 dark:hx-text-red-200">
+&lt;p class="hx-flex hx-items-center hx-font-medium">&lt;svg height=16px class="hx-inline-block hx-align-middle hx-mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">&lt;path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>&lt;/svg>Caution&lt;/p>
+&lt;div class="hx-w-full hx-min-w-0 hx-leading-7">
+&lt;div class="hx-mt-6 hx-leading-7 first:hx-mt-0">&lt;p>Error NETSDK1045 The current .NET SDK does not support targeting .NET 6.0. Either target .NET 5.0 or lower, or use a version of the .NET SDK that supports .NET 6.0. TestNasLinuxFuncAppWebTests &lt;br>
+C:\Program Files\dotnet\sdk\5.0.409\Sdks\Microsoft.NET.Sdk\targets\Microsoft.NET.TargetFrameworkInference.targets 141&lt;/p>&lt;/div>
+&lt;/div>
+&lt;/div>
+&lt;p>I interpretted this as the newer targets were not supported by the existing SDK. Yeah, genius right 😁.&lt;/p>
+&lt;p>However, even after installing .NET 6.0 and the Azure Functions Core Tools using it didn&amp;rsquo;t fix the issue:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;pre>&lt;code>winget install -e --id Microsoft.DotNet.SDK.6
+winget install -e --id Microsoft.AzureFunctionsCoreTools&lt;/code>&lt;/pre>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>So, like most at this stage, I consulted with a trusted colleauge (Google) and found this in the MS Documentation - &lt;a href="https://learn.microsoft.com/en-us/dotnet/core/tools/sdk-errors/netsdk1045" target="_blank" rel="noopener">https://learn.microsoft.com/en-us/dotnet/core/tools/sdk-errors/netsdk1045&lt;/a>. He did reboot his vm, yet the error remained.&lt;/p>
+&lt;p>I did also find a SO suggesting upgrading to VS2022 would fix this issue.&lt;/p>
+&lt;p>I couldn&amp;rsquo;t find the reciprocal recommendation in MS documentation but he did upgrade to vs2022 regardless. This did the trick. 🥳&lt;/p>
+&lt;h2>Conclusion&lt;span class="hx-absolute -hx-mt-20" id="conclusion">&lt;/span>
+&lt;a href="#conclusion" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>If you get &lt;strong>Error NETSDK1045&lt;/strong> in Visual Studio then upgrade to the latest verison of VisualStudio.&lt;/p></description></item></channel></rss>

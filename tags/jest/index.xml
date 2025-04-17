@@ -1,0 +1,178 @@
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Garrard Kitchen – Jest</title><link>https://blog-dev.garrardkitchen.com/tags/jest/</link><description>Recent content in Jest on Garrard Kitchen</description><generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Thu, 28 May 2020 07:32:45 +0000</lastBuildDate><atom:link href="https://blog-dev.garrardkitchen.com/tags/jest/index.xml" rel="self" type="application/rss+xml"/><item><title>Unit testing and mocking fs.ReadFileSync</title><link>https://blog-dev.garrardkitchen.com/blog/jest-fs-readfilesync/</link><pubDate>Thu, 28 May 2020 07:32:45 +0000</pubDate><guid>https://blog-dev.garrardkitchen.com/blog/jest-fs-readfilesync/</guid><description>
+&lt;p>I&amp;rsquo;d just ran &lt;code>npm run test&lt;/code> in a newly created package I&amp;rsquo;d added to a monorepo (&lt;a href="https://lerna.js.org/" target="_blank" rel="noopener">lerna&lt;/a>) I&amp;rsquo;d created for a project I was working on that integrates with Twilio Sync, RabbitMQ, Twilio TaskRouter and MSSQL, and I go this:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-ps" data-lang="ps">&lt;span class="line">&lt;span class="cl">&lt;span class="nf">*******************************consumers\packages\eda&lt;/span> &lt;span class="p">[&lt;/span>&lt;span class="nf">CRMBROK-233&lt;/span> &lt;span class="mf">+0&lt;/span> &lt;span class="nf">~2&lt;/span> &lt;span class="mf">-0&lt;/span> &lt;span class="nf">!&lt;/span>&lt;span class="p">]&amp;gt;&lt;/span> &lt;span class="nf">npm&lt;/span> &lt;span class="nf">run&lt;/span> &lt;span class="nf">test&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">&amp;gt;&lt;/span> &lt;span class="nf">@cf247&lt;/span>&lt;span class="nv">/eda@1.0.2&lt;/span> &lt;span class="nf">test&lt;/span> &lt;span class="nf">*******************************consumers\packages\eda&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">&amp;gt;&lt;/span> &lt;span class="nf">jest&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">FAIL&lt;/span> &lt;span class="nf">__tests__&lt;/span>&lt;span class="nv">/eda.test.js&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">●&lt;/span> &lt;span class="nf">Test&lt;/span> &lt;span class="nf">suite&lt;/span> &lt;span class="nf">failed&lt;/span> &lt;span class="nf">to&lt;/span> &lt;span class="nf">run&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">ENOENT:&lt;/span> &lt;span class="nf">no&lt;/span> &lt;span class="nf">such&lt;/span> &lt;span class="nf">file&lt;/span> &lt;span class="nf">or&lt;/span> &lt;span class="nf">directory,&lt;/span> &lt;span class="nf">open&lt;/span> &lt;span class="nf">&amp;#39;.env&amp;#39;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="mf">2&lt;/span> &lt;span class="nf">|&lt;/span> &lt;span class="nf">const&lt;/span> &lt;span class="nf">fs&lt;/span> &lt;span class="nf">=&lt;/span> &lt;span class="nf">require&lt;/span>&lt;span class="s">(&amp;#39;fs&amp;#39;)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="mf">3&lt;/span> &lt;span class="nf">|&lt;/span> &lt;span class="nf">const&lt;/span> &lt;span class="nf">dotenv&lt;/span> &lt;span class="nf">=&lt;/span> &lt;span class="nf">require&lt;/span>&lt;span class="s">(&amp;#39;dotenv&amp;#39;)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">&amp;gt;&lt;/span> &lt;span class="mf">4&lt;/span> &lt;span class="nf">|&lt;/span> &lt;span class="nf">const&lt;/span> &lt;span class="nf">envConfig&lt;/span> &lt;span class="nf">=&lt;/span> &lt;span class="nf">dotenv.parse&lt;/span>&lt;span class="s">(fs.readFileSync(`.env`))&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">|&lt;/span> &lt;span class="nf">^&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="mf">5&lt;/span> &lt;span class="nf">|&lt;/span> &lt;span class="nf">for&lt;/span> &lt;span class="s">(const k in envConfig)&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="mf">6&lt;/span> &lt;span class="nf">|&lt;/span> &lt;span class="nf">process.env&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="nf">k&lt;/span>&lt;span class="p">]&lt;/span> &lt;span class="nf">=&lt;/span> &lt;span class="nf">envConfig&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="nf">k&lt;/span>&lt;span class="p">]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="mf">7&lt;/span> &lt;span class="nf">|&lt;/span> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">at&lt;/span> &lt;span class="nf">Object.&lt;/span>&lt;span class="p">&amp;lt;&lt;/span>&lt;span class="nf">anonymous&lt;/span>&lt;span class="p">&amp;gt;&lt;/span> &lt;span class="s">(lib/setenv.js:4:35)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">at&lt;/span> &lt;span class="nf">Object.&lt;/span>&lt;span class="p">&amp;lt;&lt;/span>&lt;span class="nf">anonymous&lt;/span>&lt;span class="p">&amp;gt;&lt;/span> &lt;span class="s">(lib/eda.js:1:1)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">Test&lt;/span> &lt;span class="nf">Suites:&lt;/span> &lt;span class="mf">1&lt;/span> &lt;span class="nf">failed,&lt;/span> &lt;span class="mf">1&lt;/span> &lt;span class="nf">total&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">Tests:&lt;/span> &lt;span class="mf">0&lt;/span> &lt;span class="nf">total&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">Snapshots:&lt;/span> &lt;span class="mf">0&lt;/span> &lt;span class="nf">total&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">Time:&lt;/span> &lt;span class="mf">1.772&lt;/span> &lt;span class="nf">s&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">Ran&lt;/span> &lt;span class="nf">all&lt;/span> &lt;span class="nf">test&lt;/span> &lt;span class="nf">suites.&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">npm&lt;/span> &lt;span class="nf">ERR!&lt;/span> &lt;span class="nf">code&lt;/span> &lt;span class="nf">ELIFECYCLE&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">npm&lt;/span> &lt;span class="nf">ERR!&lt;/span> &lt;span class="nf">errno&lt;/span> &lt;span class="mf">1&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">npm&lt;/span> &lt;span class="nf">ERR!&lt;/span> &lt;span class="nf">@cf247&lt;/span>&lt;span class="nv">/eda@1.0.2&lt;/span> &lt;span class="nf">test:&lt;/span> &lt;span class="nf">`jest`&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">npm&lt;/span> &lt;span class="nf">ERR!&lt;/span> &lt;span class="nf">Exit&lt;/span> &lt;span class="nf">status&lt;/span> &lt;span class="mf">1&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">npm&lt;/span> &lt;span class="nf">ERR!&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">npm&lt;/span> &lt;span class="nf">ERR!&lt;/span> &lt;span class="nf">Failed&lt;/span> &lt;span class="nf">at&lt;/span> &lt;span class="nf">the&lt;/span> &lt;span class="nf">@cf247&lt;/span>&lt;span class="nv">/eda@1.0.2&lt;/span> &lt;span class="nf">test&lt;/span> &lt;span class="nf">script.&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">npm&lt;/span> &lt;span class="nf">ERR!&lt;/span> &lt;span class="nf">This&lt;/span> &lt;span class="nf">is&lt;/span> &lt;span class="nf">probably&lt;/span> &lt;span class="nf">not&lt;/span> &lt;span class="nf">a&lt;/span> &lt;span class="nf">problem&lt;/span> &lt;span class="nf">with&lt;/span> &lt;span class="nf">npm.&lt;/span> &lt;span class="nf">There&lt;/span> &lt;span class="nf">is&lt;/span> &lt;span class="nf">likely&lt;/span> &lt;span class="nf">additional&lt;/span> &lt;span class="nf">logging&lt;/span> &lt;span class="nf">output&lt;/span> &lt;span class="nf">above.&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">npm&lt;/span> &lt;span class="nf">WARN&lt;/span> &lt;span class="nf">Local&lt;/span> &lt;span class="nf">package.json&lt;/span> &lt;span class="nf">exists,&lt;/span> &lt;span class="nf">but&lt;/span> &lt;span class="nf">node_modules&lt;/span> &lt;span class="nf">missing,&lt;/span> &lt;span class="nf">did&lt;/span> &lt;span class="nf">you&lt;/span> &lt;span class="nf">mean&lt;/span> &lt;span class="nf">to&lt;/span> &lt;span class="nf">install?&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">npm&lt;/span> &lt;span class="nf">ERR!&lt;/span> &lt;span class="nf">A&lt;/span> &lt;span class="nf">complete&lt;/span> &lt;span class="nf">log&lt;/span> &lt;span class="nf">of&lt;/span> &lt;span class="nf">this&lt;/span> &lt;span class="nf">run&lt;/span> &lt;span class="nf">can&lt;/span> &lt;span class="nf">be&lt;/span> &lt;span class="nf">found&lt;/span> &lt;span class="nf">in:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">npm&lt;/span> &lt;span class="nf">ERR!&lt;/span> &lt;span class="nf">*******************************\npm-cache\_logs\2020-05-28T08_04_32_271Z-debug.log&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">*******************************consumers\packages\eda&lt;/span> &lt;span class="p">[&lt;/span>&lt;span class="nf">CRMBROK-233&lt;/span> &lt;span class="mf">+0&lt;/span> &lt;span class="nf">~3&lt;/span> &lt;span class="mf">-0&lt;/span> &lt;span class="nf">!&lt;/span>&lt;span class="p">]&amp;gt;&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>Not great but hey, first run and all!&lt;/p>
+&lt;p>The error message tells me everything I need to know:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-ps" data-lang="ps">&lt;span class="line">&lt;span class="cl">&lt;span class="nf">ENOENT:&lt;/span> &lt;span class="nf">no&lt;/span> &lt;span class="nf">such&lt;/span> &lt;span class="nf">file&lt;/span> &lt;span class="nf">or&lt;/span> &lt;span class="nf">directory,&lt;/span> &lt;span class="nf">open&lt;/span> &lt;span class="nf">&amp;#39;.env&amp;#39;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="mf">2&lt;/span> &lt;span class="nf">|&lt;/span> &lt;span class="nf">const&lt;/span> &lt;span class="nf">fs&lt;/span> &lt;span class="nf">=&lt;/span> &lt;span class="nf">require&lt;/span>&lt;span class="s">(&amp;#39;fs&amp;#39;)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="mf">3&lt;/span> &lt;span class="nf">|&lt;/span> &lt;span class="nf">const&lt;/span> &lt;span class="nf">dotenv&lt;/span> &lt;span class="nf">=&lt;/span> &lt;span class="nf">require&lt;/span>&lt;span class="s">(&amp;#39;dotenv&amp;#39;)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">&amp;gt;&lt;/span> &lt;span class="mf">4&lt;/span> &lt;span class="nf">|&lt;/span> &lt;span class="nf">const&lt;/span> &lt;span class="nf">envConfig&lt;/span> &lt;span class="nf">=&lt;/span> &lt;span class="nf">dotenv.parse&lt;/span>&lt;span class="s">(fs.readFileSync(`.env`))&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>Which is that it can&amp;rsquo;t find an &lt;code>.env&lt;/code> file. And it wouldn&amp;rsquo;t. Later refactoring would remove this file dependency but for now, all I want to do is to get my test working.&lt;/p>
+&lt;p>This &lt;em>was&lt;/em> the unit test code:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-js" data-lang="js">&lt;span class="line">&lt;span class="cl">&lt;span class="s1">&amp;#39;use strict&amp;#39;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kr">const&lt;/span> &lt;span class="nx">eda&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nx">require&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s1">&amp;#39;..&amp;#39;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nx">describe&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s1">&amp;#39;@cf247/eda&amp;#39;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="p">()&lt;/span> &lt;span class="p">=&amp;gt;&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">it&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s1">&amp;#39;no tests&amp;#39;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="p">()&lt;/span> &lt;span class="p">=&amp;gt;&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">})&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">})&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>This is the code from the module it was &lt;em>importing&lt;/em> via the &lt;code>require('..')&lt;/code> statement:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-js" data-lang="js">&lt;span class="line">&lt;span class="cl">&lt;span class="nx">require&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s1">&amp;#39;./setenv&amp;#39;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kr">const&lt;/span> &lt;span class="nx">amqp&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nx">require&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s1">&amp;#39;amqplib/callback_api&amp;#39;&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nx">module&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">exports&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="nx">io&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nx">emitter&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">=&amp;gt;&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">...&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>The top line is importing code from this file:&lt;/p>
+&lt;p>&lt;em>I&amp;rsquo;ve highlighted the problematic line of code&lt;/em>&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="hl">&lt;span class="lnt">3
+&lt;/span>&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-js" data-lang="js">&lt;span class="line">&lt;span class="cl">&lt;span class="kr">const&lt;/span> &lt;span class="nx">fs&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nx">require&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s1">&amp;#39;fs&amp;#39;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kr">const&lt;/span> &lt;span class="nx">dotenv&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nx">require&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s1">&amp;#39;dotenv&amp;#39;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line hl">&lt;span class="cl">&lt;span class="kr">const&lt;/span> &lt;span class="nx">envConfig&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nx">dotenv&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">parse&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nx">fs&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">readFileSync&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="sb">`.env`&lt;/span>&lt;span class="p">))&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">for&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="kr">const&lt;/span> &lt;span class="nx">k&lt;/span> &lt;span class="k">in&lt;/span> &lt;span class="nx">envConfig&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">process&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">env&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="nx">k&lt;/span>&lt;span class="p">]&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nx">envConfig&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="nx">k&lt;/span>&lt;span class="p">]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>The quickest (IMO) way to deal with this and move forward is to Mock the &lt;code>fs&lt;/code> class. I did this by included a jest module mock into my unit test file:&lt;/p>
+&lt;p>&lt;em>I&amp;rsquo;ve highlighted the mock related code&lt;/em>&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="hl">&lt;span class="lnt"> 3
+&lt;/span>&lt;/span>&lt;span class="hl">&lt;span class="lnt"> 4
+&lt;/span>&lt;/span>&lt;span class="hl">&lt;span class="lnt"> 5
+&lt;/span>&lt;/span>&lt;span class="hl">&lt;span class="lnt"> 6
+&lt;/span>&lt;/span>&lt;span class="hl">&lt;span class="lnt"> 7
+&lt;/span>&lt;/span>&lt;span class="hl">&lt;span class="lnt"> 8
+&lt;/span>&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-js" data-lang="js">&lt;span class="line">&lt;span class="cl">&lt;span class="s1">&amp;#39;use strict&amp;#39;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kr">const&lt;/span> &lt;span class="nx">fs&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nx">require&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s1">&amp;#39;fs&amp;#39;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line hl">&lt;span class="cl">&lt;span class="kr">const&lt;/span> &lt;span class="nx">eda&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nx">require&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s1">&amp;#39;..&amp;#39;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line hl">&lt;span class="cl">&lt;span class="nx">jest&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">mock&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s1">&amp;#39;fs&amp;#39;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="p">()&lt;/span> &lt;span class="p">=&amp;gt;&lt;/span> &lt;span class="p">({&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line hl">&lt;span class="cl"> &lt;span class="nx">readFileSync&lt;/span>&lt;span class="o">:&lt;/span> &lt;span class="nx">jest&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">fn&lt;/span>&lt;span class="p">((&lt;/span>&lt;span class="nx">file_name&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">=&amp;gt;&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line hl">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="p">[]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line hl">&lt;span class="cl"> &lt;span class="p">})&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line hl">&lt;span class="cl">&lt;span class="p">}))&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nx">describe&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s1">&amp;#39;@cf247/eda&amp;#39;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="p">()&lt;/span> &lt;span class="p">=&amp;gt;&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">it&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s1">&amp;#39;no tests&amp;#39;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="p">()&lt;/span> &lt;span class="p">=&amp;gt;&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">})&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">});&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>What this does is, when the &lt;code>readFileSync&lt;/code> class function is called, it always returns an empty array &lt;code>[]&lt;/code>. As the unit code does not have a dependency on environment variables, this mocked response will work fine.&lt;/p></description></item></channel></rss>

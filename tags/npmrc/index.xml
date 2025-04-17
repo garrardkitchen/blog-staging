@@ -1,0 +1,148 @@
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Garrard Kitchen – Npmrc</title><link>https://blog-dev.garrardkitchen.com/tags/npmrc/</link><description>Recent content in Npmrc on Garrard Kitchen</description><generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Tue, 11 Jan 2022 11:47:54 +0000</lastBuildDate><atom:link href="https://blog-dev.garrardkitchen.com/tags/npmrc/index.xml" rel="self" type="application/rss+xml"/><item><title>Npm E401 and CERT_NOT_YET_VALID</title><link>https://blog-dev.garrardkitchen.com/blog/npm-issues-e401-cert_not_yet_valid/</link><pubDate>Tue, 11 Jan 2022 11:47:54 +0000</pubDate><guid>https://blog-dev.garrardkitchen.com/blog/npm-issues-e401-cert_not_yet_valid/</guid><description>
+&lt;p>Today a PR Merge resulted in a GHA failure. Sadly, this is not the only CICD pipeline to fail this year! This particular pipeline builds a NodeJS Image, pushes the image to ACR and deploys the service to a production Docker Swarm (on merge to main).&lt;/p>
+&lt;p>This was the error:&lt;/p>
+&lt;div class="hx-overflow-x-auto hx-mt-6 hx-flex hx-rounded-lg hx-border hx-py-2 ltr:hx-pr-4 rtl:hx-pl-4 contrast-more:hx-border-current contrast-more:dark:hx-border-current hx-border-red-200 hx-bg-red-100 hx-text-red-900 dark:hx-border-red-200/30 dark:hx-bg-red-900/30 dark:hx-text-red-200">
+&lt;div class="ltr:hx-pl-3 ltr:hx-pr-2 rtl:hx-pr-3 rtl:hx-pl-2">&lt;div class="hx-select-none hx-text-xl" style="font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';">🚫&lt;/div>&lt;/div>
+&lt;div class="hx-w-full hx-min-w-0 hx-leading-7">
+&lt;div class="hx-mt-6 hx-leading-7 first:hx-mt-0">&lt;hr>
+&lt;p>[3/7] RUN npm install:&lt;/p>
+&lt;p>#7 1.469 npm ERR! code E401&lt;/p>
+&lt;p>#7 1.470 npm ERR! Unable to authenticate, need: Bearer authorization_uri=https://login.windows.net/736f9f**-0&lt;strong>9-49&lt;/strong>-86**-b******31f407, Basic realm=&amp;ldquo;&lt;a href="https://pkgsprodsu3weu.app.pkgs.visualstudio.com/%22" target="_blank" rel="noopener">https://pkgsprodsu3weu.app.pkgs.visualstudio.com/"&lt;/a>, TFS-Federated&lt;/p>
+&lt;p>#7 1.475&lt;/p>
+&lt;p>#7 1.475 npm ERR! A complete log of this run can be found in:&lt;/p>
+&lt;p>#7 1.475 npm ERR! /root/.npm/_logs/2021-12-27T09_38_24_060Z-debug.log&lt;/p>
+&lt;/div>
+&lt;/div>
+&lt;/div>
+&lt;p>Mmmm, E401? 🤔&lt;/p>
+&lt;p>I&amp;rsquo;ve not seen this error before but as it was auth related, assumed the PAT token had expired &lt;sup>1&lt;/sup>. Google&amp;hellip;&lt;/p>
+&lt;p>I did not have the actual .npmrc file that was in a GH Secret so I used my own local .npmrc file to confirm I can pull from our organisation&amp;rsquo;s npm feed.&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-powershell" data-lang="powershell">&lt;span class="line">&lt;span class="cl">&lt;span class="nb">cd &lt;/span>&lt;span class="p">&amp;lt;&lt;/span>&lt;span class="nb">project-root&lt;/span>&lt;span class="p">&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">rm node-modules&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">npm&lt;/span> &lt;span class="n">cache&lt;/span> &lt;span class="n">clean&lt;/span> &lt;span class="p">-&lt;/span>&lt;span class="n">-force&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">npm&lt;/span> &lt;span class="n">install&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>It worked. So, I had my first fallback option - regenerate PAT, register centrally for a reminder of when the PAT is to expire and update GH secret. However, I was not yet done. I had not yet reproduced verbatim the pipeline, egro a &lt;code>docker build&lt;/code>.&lt;/p>
+&lt;p>So, I ran this:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-powershell" data-lang="powershell">&lt;span class="line">&lt;span class="cl">&lt;span class="n">docker&lt;/span> &lt;span class="n">build&lt;/span> &lt;span class="n">-t&lt;/span> &lt;span class="p">&amp;lt;&lt;/span>&lt;span class="n">image&lt;/span>&lt;span class="err">:&lt;/span>&lt;span class="n">tag&lt;/span>&lt;span class="p">&amp;gt;&lt;/span> &lt;span class="p">.&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>Oh no! The error has returned!&lt;/p>
+&lt;p>This is the Dockerfile:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-dockerfile" data-lang="dockerfile">&lt;span class="line">&lt;span class="cl">&lt;span class="k">FROM&lt;/span>&lt;span class="s"> node:14.4.0&lt;/span>&lt;span class="err">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">&lt;/span>&lt;span class="k">WORKDIR&lt;/span>&lt;span class="s"> /&lt;/span>&lt;span class="err">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">&lt;/span>&lt;span class="k">COPY&lt;/span> . .&lt;span class="err">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">&lt;/span>&lt;span class="k">RUN&lt;/span> npm install&lt;span class="err">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">&lt;/span>&lt;span class="k">RUN&lt;/span> &lt;span class="nb">echo&lt;/span> &lt;span class="s1">&amp;#39;module.exports = &amp;#39;&lt;/span> &lt;span class="p">|&lt;/span> cat - node_modules/@&amp;lt;redacted&amp;gt;/&amp;lt;redacted&amp;gt;/dist/libs/&amp;lt;redacted&amp;gt;-lib/index.js &amp;gt; temp &lt;span class="o">&amp;amp;&amp;amp;&lt;/span> mv temp helpers/index.js&lt;span class="err">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">&lt;/span>&lt;span class="k">RUN&lt;/span> &lt;span class="nb">cd&lt;/span> helpers &lt;span class="o">&amp;amp;&amp;amp;&lt;/span> ls -la&lt;span class="err">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">&lt;/span>&lt;span class="k">RUN&lt;/span> head -10 helpers/index.js&lt;span class="err">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">&lt;/span>&lt;span class="k">ENV&lt;/span> &lt;span class="nv">PORT&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="m">80&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">EXPOSE&lt;/span>&lt;span class="s"> 80&lt;/span>&lt;span class="err">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">&lt;/span>&lt;span class="k">CMD&lt;/span> &lt;span class="p">[&lt;/span>&lt;span class="s2">&amp;#34;npm&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s2">&amp;#34;run&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s2">&amp;#34;&amp;lt;redacted&amp;gt;&amp;#34;&lt;/span>&lt;span class="p">]&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>Apart from it not being the LTS, there was nothing obviously wrong with it plus it had been building ok leading up to this.&lt;/p>
+&lt;p>This a the credentials part of the .npmrc:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;pre>&lt;code>registry=https://pkgs.dev.azure.com/&amp;lt;org-name&amp;gt;/_packaging/&amp;lt;feed-name&amp;gt;/npm/registry
+always-auth=true
+//pkgs.dev.azure.com/&amp;lt;org-name&amp;gt;/_packaging/&amp;lt;feed-name&amp;gt;/npm/registry/:username=&amp;lt;any-value-not-empty&amp;gt;
+//pkgs.dev.azure.com/&amp;lt;org-name&amp;gt;/_packaging/&amp;lt;feed-name&amp;gt;/npm/registry/:_password=&amp;lt;Base64-encoded-PAT&amp;gt;
+//pkgs.dev.azure.com/&amp;lt;org-name&amp;gt;/_packaging/&amp;lt;feed-name&amp;gt;/npm/registry/:email=&amp;lt;email-is-not-used&amp;gt;
+//pkgs.dev.azure.com/&amp;lt;org-name&amp;gt;/_packaging/&amp;lt;feed-name&amp;gt;/npm/registry/:always-auth=true&lt;/code>&lt;/pre>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>According to this Microsoft documentation post ➡ &lt;a href="https://docs.microsoft.com/en-us/azure/devops/artifacts/npm/scopes?view=azure-devops#credentials-setup" target="_blank" rel="noopener">npm scopes&lt;/a>, the token structure was incomplete. I corrected the structure:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;pre>&lt;code>registry=https://pkgs.dev.azure.com/&amp;lt;org-name&amp;gt;/_packaging/&amp;lt;feed-name&amp;gt;/npm/registry
+always-auth=true
+//pkgs.dev.azure.com/&amp;lt;org-name&amp;gt;/_packaging/&amp;lt;feed-name&amp;gt;/npm/registry/:username=&amp;lt;any-value-not-empty&amp;gt;
+//pkgs.dev.azure.com/&amp;lt;org-name&amp;gt;/_packaging/&amp;lt;feed-name&amp;gt;/npm/registry/:_password=&amp;lt;Base64-encoded-PAT&amp;gt;
+//pkgs.dev.azure.com/&amp;lt;org-name&amp;gt;/_packaging/&amp;lt;feed-name&amp;gt;/npm/registry/:email=&amp;lt;email-is-not-used&amp;gt;
+//pkgs.dev.azure.com/&amp;lt;org-name&amp;gt;/_packaging/&amp;lt;feed-name&amp;gt;/npm/registry/:always-auth=true
+//pkgs.dev.azure.com/&amp;lt;org-name&amp;gt;/_packaging/&amp;lt;feed-name&amp;gt;/npm/:username=&amp;lt;any-value-not-empty&amp;gt;
+//pkgs.dev.azure.com/&amp;lt;org-name&amp;gt;/_packaging/&amp;lt;feed-name&amp;gt;/npm/:_password=&amp;lt;Base64-encoded-PAT&amp;gt;
+//pkgs.dev.azure.com/&amp;lt;org-name&amp;gt;/_packaging/&amp;lt;feed-name&amp;gt;/npm/:email=&amp;lt;email-is-not-used&amp;gt;
+//pkgs.dev.azure.com/&amp;lt;org-name&amp;gt;/_packaging/&amp;lt;feed-name&amp;gt;/npm/:always-auth=true&lt;/code>&lt;/pre>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>I re-ran the &lt;code>docker build -t &amp;lt;image:tag&amp;gt; .&lt;/code> This time I got a different error but the original &lt;code>E401&lt;/code> error had gone away!&lt;/p>
+&lt;p>The new error:&lt;/p>
+&lt;div class="hx-overflow-x-auto hx-mt-6 hx-flex hx-rounded-lg hx-border hx-py-2 ltr:hx-pr-4 rtl:hx-pl-4 contrast-more:hx-border-current contrast-more:dark:hx-border-current hx-border-red-200 hx-bg-red-100 hx-text-red-900 dark:hx-border-red-200/30 dark:hx-bg-red-900/30 dark:hx-text-red-200">
+&lt;div class="ltr:hx-pl-3 ltr:hx-pr-2 rtl:hx-pr-3 rtl:hx-pl-2">&lt;div class="hx-select-none hx-text-xl" style="font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';">🚫&lt;/div>&lt;/div>
+&lt;div class="hx-w-full hx-min-w-0 hx-leading-7">
+&lt;div class="hx-mt-6 hx-leading-7 first:hx-mt-0">&lt;p>#7 43.61 npm ERR! code CERT_NOT_YET_VALID&lt;/p>
+&lt;p>#7 43.61 npm ERR! errno CERT_NOT_YET_VALID&lt;/p>
+&lt;p>#7 43.61 npm ERR! request to &lt;a href="https://xuavsblobprodsu6weus12.blob.core.windows.net/b-7a3f75bdbbf3432bbe2621e93c98932a/86CDB768B8C395B14974" target="_blank" rel="noopener">https://xuavsblobprodsu6weus12.blob.core.windows.net/b-7a3f75bdbbf3432bbe2621e93c98932a/86CDB768B8C395B14974&lt;/a>&lt;em>&lt;strong>&lt;strong>&lt;strong>&lt;strong>1963D831555B55E3458&lt;/strong>&lt;/strong>&lt;/strong>&lt;/strong>&lt;/em>************.blob?sv=2019-07-07&amp;amp;sr=b&amp;amp;si=1&amp;amp;sig=LUCuO42mrmOAx5N&lt;em>&lt;strong>&lt;strong>&lt;strong>&lt;strong>&lt;strong>&lt;strong>zds9RWS0v2qL%2FwbB86c%3D&amp;amp;spr=https&amp;amp;se=2022-01-12T11%3A42%3A24Z&amp;amp;rscl=x-e2eid-59793e65-&lt;/strong>&lt;/strong>&lt;/strong>&lt;/strong>&lt;/strong>-a727df6e-***********-session-59793e65-&lt;/strong>&lt;/em>*******-a727df6e-8c628cc8&amp;amp;rscd=attachment%3B%20filename%3D%22string-width-4.2.3.tgz%22 failed, reason: certificate is not yet valid&lt;/p>
+&lt;/div>
+&lt;/div>
+&lt;/div>
+&lt;p>Mmmm, &lt;code>CERT_NOT_YET_VALID&lt;/code>. I&amp;rsquo;d not seen this error before. Google&amp;hellip;&lt;/p>
+&lt;p>After a short period of online research 👀 I found a suggestion about being explicit in setting the default npm registry. This meant I had to insert &lt;code>RUN npm config set registry http://registry.npmjs.org&lt;/code> before the &lt;code>RUN npm install&lt;/code> command. The resulting Dockerfile then looked like this:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-dockerfile" data-lang="dockerfile">&lt;span class="line">&lt;span class="cl">&lt;span class="k">FROM&lt;/span>&lt;span class="s"> node:14.4.0&lt;/span>&lt;span class="err">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">&lt;/span>&lt;span class="k">WORKDIR&lt;/span>&lt;span class="s"> /&lt;/span>&lt;span class="err">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">&lt;/span>&lt;span class="k">COPY&lt;/span> . .&lt;span class="err">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">&lt;/span>&lt;span class="k">RUN&lt;/span> npm config &lt;span class="nb">set&lt;/span> registry http://registry.npmjs.org&lt;span class="err">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">&lt;/span>&lt;span class="k">RUN&lt;/span> npm install &lt;span class="err">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">&lt;/span>&lt;span class="k">RUN&lt;/span> &lt;span class="nb">echo&lt;/span> &lt;span class="s1">&amp;#39;module.exports = &amp;#39;&lt;/span> &lt;span class="p">|&lt;/span> cat - node_modules/@&amp;lt;redacted&amp;gt;/&amp;lt;redacted&amp;gt;/dist/libs/&amp;lt;redacted&amp;gt;-lib/index.js &amp;gt; temp &lt;span class="o">&amp;amp;&amp;amp;&lt;/span> mv temp helpers/index.js&lt;span class="err">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">&lt;/span>&lt;span class="k">RUN&lt;/span> &lt;span class="nb">cd&lt;/span> helpers &lt;span class="o">&amp;amp;&amp;amp;&lt;/span> ls -la&lt;span class="err">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">&lt;/span>&lt;span class="k">RUN&lt;/span> head -10 helpers/index.js&lt;span class="err">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">&lt;/span>&lt;span class="k">ENV&lt;/span> &lt;span class="nv">PORT&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="m">80&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">EXPOSE&lt;/span>&lt;span class="s"> 80&lt;/span>&lt;span class="err">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">&lt;/span>&lt;span class="k">CMD&lt;/span> &lt;span class="p">[&lt;/span>&lt;span class="s2">&amp;#34;npm&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s2">&amp;#34;run&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s2">&amp;#34;prod&amp;#34;&lt;/span>&lt;span class="p">]&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>I re-ran the &lt;code>docker build -t &amp;lt;image:tag&amp;gt; .&lt;/code> and success! 🥳&lt;/p>
+&lt;p>I updated the appropriate GH Secret with the modified .npmrc file and asked the author of the PR that had reported this issue originally to make the 1 line change to the Dockerfile. He made the change, prompted for another PR review and merged to main on approval. The GHA ran successfully! The usual monitoring post deploy and feature/fix was confirmed and I set about updating internal documentation providing instructions on what to do to remediate for others and notifying all via slack that of this.&lt;/p>
+&lt;h1>References&lt;/h1>&lt;ul>
+&lt;li>&lt;a href="https://docs.microsoft.com/en-us/azure/devops/artifacts/npm/scopes?view=azure-devops" target="_blank" rel="noopener">Npm scopes&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;hr>
+&lt;p>&lt;sup>1&lt;/sup> - secrets that expire need to be registered centrally on a system that can notify you in advance, giving you ample time to remediate. For our Azure AAD SP (Service Principals) client secrets, we run an Automation Runbook each day that traverses the Azure Resource Graph and alerts me via email of those SP that will be expiring within 30 days.&lt;/p></description></item></channel></rss>

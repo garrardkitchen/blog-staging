@@ -1,0 +1,505 @@
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Garrard Kitchen – Docker</title><link>https://blog-dev.garrardkitchen.com/tags/docker/</link><description>Recent content in Docker on Garrard Kitchen</description><generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Mon, 05 Feb 2024 19:26:11 +0000</lastBuildDate><atom:link href="https://blog-dev.garrardkitchen.com/tags/docker/index.xml" rel="self" type="application/rss+xml"/><item><title>The 3rd Wave of Cloud Computing</title><link>https://blog-dev.garrardkitchen.com/blog/the-3rd-wave-of-cloud-computing/</link><pubDate>Mon, 05 Feb 2024 19:26:11 +0000</pubDate><guid>https://blog-dev.garrardkitchen.com/blog/the-3rd-wave-of-cloud-computing/</guid><description>
+&lt;p>That&amp;rsquo;s quite an opening statement, isn&amp;rsquo;t it?&lt;/p>
+&lt;p>As a reminder, the 1st and 2nd waves were Virtual Machines and Containers, respectively.&lt;/p>
+&lt;p>Warning, profound statement inbound…&lt;/p>
+&lt;div class="hx-overflow-x-auto hx-mt-6 hx-flex hx-rounded-lg hx-border hx-py-2 ltr:hx-pr-4 rtl:hx-pl-4 contrast-more:hx-border-current contrast-more:dark:hx-border-current hx-border-blue-200 hx-bg-blue-100 hx-text-blue-900 dark:hx-border-blue-200/30 dark:hx-bg-blue-900/30 dark:hx-text-blue-200">
+&lt;div class="ltr:hx-pl-3 ltr:hx-pr-2 rtl:hx-pr-3 rtl:hx-pl-2">&lt;div class="hx-select-none hx-text-xl" style="font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';">🌐&lt;/div>&lt;/div>
+&lt;div class="hx-w-full hx-min-w-0 hx-leading-7">
+&lt;div class="hx-mt-6 hx-leading-7 first:hx-mt-0">&lt;strong>The Docker cofounder, Solomon Hykes, said this in 2019&lt;/strong>&lt;br>
+&amp;ldquo;If WASM+WASI existed in 2008, we wouldn&amp;rsquo;t have needed to create Docker. That&amp;rsquo;s how important it is. WebAssembly on the server is the future of computing.&amp;rdquo; - &lt;a href="https://twitter.com/solomonstre/status/1111004913222324225" target="_blank" rel="noopener">Quote&lt;/a>&lt;/div>
+&lt;/div>
+&lt;/div>
+&lt;p>I think we need to let this sink in for a few moments. IMO, this is huge. Personally, since 2016, most of my DevOps [development &amp;amp; orchestration] work has involved containers. Container and FaaS is my preferred approach to development and orchestration. But now there&amp;rsquo;s a new way? Will I now have to throw out all this knowledge and return to ground zero and start over? In short, no. Anyways, back to this 3rd wave…&lt;/p>
+&lt;p>WebAssembly (or WASM for short) is now considered to be the 3rd wave. I will cover what both WASM and WASI are. Before I do, I first want to put your mind at rest (and my own!). This post will not be leading to a conclusion were this technology will replace containers. Far from it. After all, did containers replace VMs? No, they didn&amp;rsquo;t. Neither will I be suggesting we have to migrate all our existing container-based solutions to this new shiny, WASM. Reassured? Good, let&amp;rsquo;s move on.&lt;/p>
+&lt;h1>What is WASM?&lt;/h1>&lt;div class="columns-container flex flex-wrap">
+&lt;div class="column-item" style="flex-grow: 1;">
+&lt;p>So then, what is WASM? WebAssembly (or WASM) is a binary instruction format (Bytecode) that is designed to be a portable target for the compilation of high-level languages like JavaScript, C/C++, Rust, Python and .NET, enabling deployment on the web for either client or server applications. To run a WASM application you also require a WASM runtime.&lt;/p>
+&lt;p>WASM isn&amp;rsquo;t a new technology either. It&amp;rsquo;s been around for several years and if you&amp;rsquo;ve had any exposure to the .NET ecosystem then you&amp;rsquo;ll most likely be aware of Blazor. However, all that Blazor is, is JavaScript running in a NodeJS console application with very little association to the wider WASM eco-system. For example, you could not take a compiled application module from Blazor and deploy them to Docker or Kubernetes. However, with .NET 8.0 there is the wasi-experimental workload that you can use in conjunction with the wasi-sdk and CLang. But as the name suggests, this is experimental and both specifications as well as the tooling are likely to change. I&amp;rsquo;m including this here to show that there is some WASM 💖 being given to .NET.&lt;/p>
+&lt;/div>
+&lt;div class="column-item" style="flex-grow: 1;">
+&lt;p>What many of you (including myself up until a few months ago) may not be been aware of is that WASM can run outside of the browser (OOB) too; on a server. This is the very reason why I wanted to create this blog. This, and to make you aware of how profoundly this technology will impact how we will develop, and platform, our future applications.&lt;/p>
+&lt;p>WASM by design is sandboxed. This is intentional. So, what does this mean? It means it can&amp;rsquo;t directly access resources on the host machine. It can only perform actions that it&amp;rsquo;s allowed to do within that sandbox. This is rigorously enforced. It can do one of two things. Let&amp;rsquo;s call these capabilities instead of “things”, after all, we&amp;rsquo;re all grown-ups? It&amp;rsquo;s first capability is it can only perform operations on its own memory. This by design is purposely constraining so for it to be of any real use it has to offer up a method of allowing I/O with its host. And this is its second capability so making it possible to interact with its host. This is made possible using Import &amp;amp; export functions. Export functions allow the host to call into a WASM application. Conversely, Import functions allows the WASM application to call into the Host. This second capability is where a new technology comes into play - WASI. Which leads us nicely into what else is needed…&lt;/p>
+&lt;/div>
+&lt;/div>
+&lt;h1>What else is needed?&lt;/h1>&lt;div class="columns-container flex flex-wrap">
+&lt;div class="column-item" style="flex-grow: 1;">
+&lt;p>Now that we have touched on the second capability or Import &amp;amp; Export functions, we may now want to think about where these might sit as well as why do we need these.&lt;/p>
+&lt;p>For example, you may want to access the host&amp;rsquo;s filesystem (or what the host would like you to think is its filesystem) or to read the system clock. Infact there are a range of resources your WASM application may want to access from its host. This access will need to be performed irrespective of what O/S you&amp;rsquo;re on, or what its instruction set is. This range of access is known as the API. To help in the development of this API and to ensure there&amp;rsquo;s an associated standard, the Bytecode Alliance was formed and became responsible for driving this forward. The Bytecode Alliance consists of an alliance of many organisations, as seen here:&lt;/p>
+&lt;p>&lt;img src="../img/bytecode-alliance.png" alt="" loading="lazy" />&lt;/p>
+&lt;p>&lt;em>List of all the companies that form the Bytecode Alliance&lt;/em>&lt;/p>
+&lt;/div>
+&lt;div class="column-item" style="flex-grow: 1;">
+&lt;p>What is being developed is a specification that is a standardized system interface for WASM that enables it to interact with the underlying operating system in a secure and platform independent manner.&lt;/p>
+&lt;p>&lt;img src="../img/wasi-logo.png" alt="" loading="lazy" />&lt;/p>
+&lt;p>&lt;em>The WASI logo&lt;/em>&lt;/p>
+&lt;p>This is known as WASI (Web Assembly Standard Interface). WASI provides a single standard way to call the low-level functions that are present on any platform, making it easier to write software once and run it anywhere.&lt;/p>
+&lt;p>⚠️ WASI specifically relates to running WASM on a server and has nothing to do with running WASM in the browser.&lt;/p>
+&lt;p>There&amp;rsquo;s an important point to make known and this is, just because the spec says you can access the host&amp;rsquo;s filesystem, by default, you can&amp;rsquo;t. The host must first allow you to access it&amp;rsquo;s filesystem. This ensures that the sandbox remains rigorously enforced.&lt;/p>
+&lt;p>So, we have the application that has been compiled into WASM bytecode, and we need to use the WASI API to be able to access the host&amp;rsquo;s resources. But we also need something to actually run the WASM application on the host. This is known as the WASM runtime and there are several runtimes available. The runtimes available from the Bytecode Alliance are &lt;a href="https://wasmtime.dev/" target="_blank" rel="noopener">wasmtime&lt;/a> and WAMR. &lt;a href="https://wasmtime.dev/" target="_blank" rel="noopener">wasmtime&lt;/a> is a high-performance runtime for the server. WAMR targets more resource constrained scenarios such as IoT. The runtime that I have been using recently is &lt;a href="https://wasmtime.dev/" target="_blank" rel="noopener">wasmtime&lt;/a>. This, however, is abstracted away from me through the toolchain. I have been using the spin toolchain from &lt;a href="https://www.fermyon.com/" target="_blank" rel="noopener">Fermyon&lt;/a>.&lt;/p>
+&lt;/div>
+&lt;/div>
+&lt;h1>What are the benefits?&lt;/h1>&lt;p>So far, I&amp;rsquo;ve described what WASM is, what it needs to offer up any real value as well as how it gets executed on the host. What I am yet to touch on is why anybody should invest their time in this technology. Let&amp;rsquo;s address this now by highlighting the main benefits of WASM.&lt;/p>
+&lt;p>WASM&amp;rsquo;s benefits aren&amp;rsquo;t too dissimilar to those of containerization. Here&amp;rsquo;s the list:&lt;/p>
+&lt;ul>
+&lt;li>It has near native performance without sacrificing safety.&lt;/li>
+&lt;li>It supports multiple programming languages including emerging languages like Rust.&lt;/li>
+&lt;li>If a WASM application crashes, it will not bring down anything else running on that same machine.&lt;/li>
+&lt;li>It has a smaller attack surface and a simpler software supply chain than Linux containers.&lt;/li>
+&lt;li>There&amp;rsquo;s no possibility of malicious data leaks or the exfiltration of data.&lt;/li>
+&lt;li>It is ideal for serverless use-cases and those event-based scenario; once run, then it can scale to zero.&lt;/li>
+&lt;li>It is more portable than containers as the same WASM Bytecode works the same across every machine so therefore it is architectural independent.&lt;/li>
+&lt;li>It&amp;rsquo;s very light weight, more so than docker. An application can be as small as a few KBs. In comparison, each of your docker processes are effectively running it&amp;rsquo;s own O/S. An example size can be seen here:&lt;/li>
+&lt;/ul>
+&lt;p>&lt;img src="../img/dockerhug-wasm-os-image.png" alt="" loading="lazy" />&lt;/p>
+&lt;p>&lt;em>Image as shown in DockerHub, confirming OS &amp;amp; Architecture as WASI &amp;amp; WASM&lt;/em>&lt;/p>
+&lt;p>There is other functionality that is planned. For example, in the next 12 months we will likely see greater emphasis made around the &lt;strong>component model&lt;/strong>. The component model is a way to define and compose WASM modules so that they can interact with each other, and the host environment. This will enable WASM modules to be reusable, portable, secure, and efficient across different platforms and fulfil a richer set of use cases.&lt;/p>
+&lt;h1>Why is this interesting?&lt;/h1>&lt;p>For me, somebody who has a genuine passion for &lt;strong>Sustainability&lt;/strong>, and in particular, &lt;strong>Sustainability Transformation&lt;/strong>, it&amp;rsquo;s speaks to me at a GSF principle level - Energy Efficiency in particular. Meaning that we must aim to use as little as energy as possible, essentially getting the most out of each unit of energy. I feel that this 3rd wave is a perfect fit for this principle. This is providing that the bin packing/right-sizing capability of the hosts is maximized, otherwise it&amp;rsquo;s just another application rattlingly around in the server that by default will always use a set amount of energy and emit a set amount of carbon.&lt;/p>
+&lt;p>As an FYI, I gave a talk on &lt;strong>Sustainability Transformation&lt;/strong> during our &lt;strong>Fujitsu PROSummit&lt;/strong> as well as at the &lt;strong>National DevOps Conference&lt;/strong> in October in a Breakout session with a colleague. All talks I give will have an aspect of sustainability associated with them.&lt;/p>
+&lt;p>What also reignited my interest in WASM was when I researched WASM with my fellow Professions colleagues. This was at the request of our CDO and to produce an executive summary a few months back. Since, I&amp;rsquo;ve continued my research in this area, even writing some C code which I&amp;rsquo;ve not done since 1995! This code can also be found in another public GH repo of mine.&lt;/p>
+&lt;h1>How easy is running a WASM application on a server?&lt;/h1>&lt;p>I&amp;rsquo;ve experience of using a few toolchains in this area. The toolchain I&amp;rsquo;m using presently comes from &lt;a href="https://www.fermyon.com/" target="_blank" rel="noopener">Fermyon&lt;/a> and this is called &lt;a href="https://www.fermyon.com/spin" target="_blank" rel="noopener">spin&lt;/a>. I&amp;rsquo;ve a GitHub code repository here &lt;a href="https://github.com/garrardkitchen/docker-wasm-spin" target="_blank" rel="noopener">https://github.com/garrardkitchen/docker-wasm-spin&lt;/a> that, if you&amp;rsquo;re interested, will get you up and running in a few minutes. If you know me or have seen any of my talks on the Professions platform, you&amp;rsquo;ll know I always accompany a talk with a GitHub code repository. &lt;a href="https://www.fermyon.com/" target="_blank" rel="noopener">Fermyon&lt;/a> also have a cloud offering that you can deploy directly to. You can also deploy your WASM application to your own Kubernetes cluster. My code repository covers running a spin WASM application on Docker for Desktop and it is a TypeScript HTTP Trigger taken directly from a spin template. The instructions to build, run and deploy are in the &lt;a href="https://github.com/garrardkitchen/docker-wasm-spin/blob/main/README.md" target="_blank" rel="noopener">README&lt;/a>&lt;/p>
+&lt;p>Here&amp;rsquo;s a picture of my running container on Docker for Desktop (see the &lt;code>WASM&lt;/code> tag):&lt;/p>
+&lt;p>&lt;img src="../img/wasm-docker-container.png" alt="" loading="lazy" />&lt;/p>
+&lt;p>&lt;em>Showing a WASM container running on Docker for Desktop&lt;/em>&lt;/p>
+&lt;div class="columns-container flex flex-wrap">
+&lt;div class="column-item" style="flex-grow: 1;">
+&lt;p>&lt;img src="../img/engineer-coding.png" alt="" loading="lazy" />&lt;/p>
+&lt;p>&lt;em>An engineer coding a serverless function in WASM&lt;/em>&lt;/p>
+&lt;/div>
+&lt;div class="column-item" style="flex-grow: 1;">
+&lt;p>My sample code is ultra basic and all it does is run an HTTP listener. You could add a KV store or Db connection to extend this example to make it more realistic.&lt;/p>
+&lt;p>One fun activity you could participate in is to review some of the Azure Functions or AWS Lambdas or GCP Cloud Functions you have recently written and assess which of these could have been done in WASM?&lt;/p>
+&lt;p>You could even go one step farther and rewrite one of these in WASM then share the link in the Comment section below. I would genuinely love to see this!&lt;/p>
+&lt;/div>
+&lt;/div>
+&lt;h1>The OSS community&lt;/h1>&lt;p>I did hit a problem when I first dipped my toe into &lt;a href="https://www.fermyon.com/spin" target="_blank" rel="noopener">spin&lt;/a>, that the good people from the Fermyon community in Discord helped me with. I do make a point of reaching out to the community of any open-source project I am looking into, and I use this as a barometer as to the quality and longevity of their product. I have to say, they didn&amp;rsquo;t disappoint. Several members helped me, including their CEO!&lt;/p>
+&lt;h1>In Summary&lt;/h1>&lt;p>In summary, WASM on the server is important for developing modern, secure, and efficient applications that can run closer to the data and the users. It is especially useful for microservices, edge computing and cloud-native computing.&lt;/p>
+&lt;p>I do hope you have found this article interesting and seen how uncomplicated it is to deploy having cloned my GitHub code repository. I also hope this has piqued your interest to the point that you&amp;rsquo;re already started exploring this fascinating ecosystem. It&amp;rsquo;s an area of cloud computing that I&amp;rsquo;m excited about and looking forward to it being mainstream. It is clear to see that WASM/WASI will be a cloud disruptor, and that a delivery cycle involving this technology can be ridiculously short, not to mention &lt;strong>energy efficient&lt;/strong>.&lt;/p></description></item><item><title>How to Conditionally Include a Nuget Package</title><link>https://blog-dev.garrardkitchen.com/blog/how-to-conditionally-include-a-nuget-package/</link><pubDate>Wed, 21 Sep 2022 20:58:53 +0100</pubDate><guid>https://blog-dev.garrardkitchen.com/blog/how-to-conditionally-include-a-nuget-package/</guid><description>
+&lt;h1>The context&lt;/h1>&lt;p>I have implemented a solution that as it&amp;rsquo;s primary objective iterates through a sequence of HTTP Requests and page interactions. With sequencing through these steps regularly it gives the support team the maximum amount of time to react to an outage. This outage can be isolated to this particular service, or can originate from any of it&amp;rsquo;s downstream dependencies.&lt;/p>
+&lt;p>To help with the automation of these steps, I&amp;rsquo;m using Selenium and in particular, it&amp;rsquo;s headless browser capability in conjunction with ChromeDriver. With this combination, I can navigate within a Chrome browser, provide alphanumerical inputs and execute mouse clicks, all by using imperative code.&lt;/p>
+&lt;p>I am using serverless technologies to orchestrate it&amp;rsquo;s delivery, and for this solution&amp;rsquo;s resiliency. The particulars include an Azure FucntionsApp (Linux Container) that hosts the C# .NET 6.0 FunctionsApp, and the ChromeDriver which happens to be an external program (ergo, not managed code). I use the DevOps approach to build the FunctionsApp and associated unit tests, run the unit tests, produce code coverage stats (with min threshold), push the Docker image to ACR, deploy to a slot, assess error rates by calling &lt;strong>az monitor log-analytics query &amp;hellip;&lt;/strong> then performing a swap with the production slot post a manual verification step. These steps are incorporated into separate pipelines within &lt;strong>Azure DevOps&lt;/strong>. There are multiple pipelines, one for infrastructure and one for the application. For the IaC I use the &lt;strong>bicep&lt;/strong> DSL. I&amp;rsquo;m using common pipeline patterns such as variable and jobs templates. I&amp;rsquo;m also interacting with the az pipelines (azure-devops cli extension) to create/update variable-groups and variables.&lt;/p>
+&lt;h1>The issue&lt;/h1>&lt;p>During the execution of this FunctionsApp, I have observed warnings reporting a ChromeDriver mismatch with the Chrome browser, in the logs. This needed to be addressed.&lt;/p>
+&lt;p>My Dockerfile installs the latest stable version of Chrome - which happens to be version (major - semantic versioning) 105. However, my local development environment is constrained to using Chrome 104. To avoid any potential incompatibility issues, as well as to quieten these &lt;em>annoying&lt;/em> warnings, I somehow need to implement a solution that requires zero maintenance.&lt;/p>
+&lt;h1>The solution&lt;/h1>&lt;p>Thanks to Mrs Google, and DDoSing this search engine with of terms such as &lt;em>nuget, conditions, linux&lt;/em>, I eventually cobbled together a way to conditionally include package references. IDK there is a &lt;strong>choose&lt;/strong> element within a csproj xml schema. I do now!&lt;/p>
+&lt;p>I felt that the real challenge here was to &lt;strong>include&lt;/strong> a package based on the intended operating system of the runtime. In &lt;strong>dotnet&lt;/strong> vernacular, this is know as a &lt;strong>Runtime Identifier&lt;/strong>. Examples of such are, &lt;em>linux-64, win-64, win-32&lt;/em>. You provide this &lt;strong>Runtime Identifier&lt;/strong> by using the -r (runtime) switch. A full example can be found later in this post.&lt;/p>
+&lt;p>Additionally, I felt it was important that the DX would not suffer consequently. So, I needed someway to set a default. This default will come into play when a developer runs this FunctionsApp via:&lt;/p>
+&lt;ul>
+&lt;li>the &lt;code>dotnet run&lt;/code> cli command or&lt;/li>
+&lt;li>from within an IDE (Rider, VS) or&lt;/li>
+&lt;li>code editor such as VSCode.&lt;/li>
+&lt;/ul>
+&lt;p>In this example xml snippet, you can see how I&amp;rsquo;ve implemented a default and how I used the &lt;strong>Condition&lt;/strong> attribute to include packages based on the &lt;strong>Runtime Identifier&lt;/strong>:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-xml" data-lang="xml">&lt;span class="line">&lt;span class="cl">&lt;span class="nt">&amp;lt;Choose&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;lt;When&lt;/span> &lt;span class="na">Condition=&lt;/span>&lt;span class="s">&amp;#34;$(RuntimeIdentifier) != &amp;#39;&amp;#39;&amp;#34;&lt;/span>&lt;span class="nt">&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;lt;ItemGroup&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;lt;PackageReference&lt;/span> &lt;span class="na">Condition=&lt;/span>&lt;span class="s">&amp;#34;$(RuntimeIdentifier.StartsWith(&amp;#39;win&amp;#39;))&amp;#34;&lt;/span> &lt;span class="na">Include=&lt;/span>&lt;span class="s">&amp;#34;Selenium.WebDriver.ChromeDriver&amp;#34;&lt;/span> &lt;span class="na">Version=&lt;/span>&lt;span class="s">&amp;#34;104.0.5112.7900&amp;#34;&lt;/span> &lt;span class="nt">/&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;lt;PackageReference&lt;/span> &lt;span class="na">Condition=&lt;/span>&lt;span class="s">&amp;#34;$(RuntimeIdentifier.StartsWith(&amp;#39;linux&amp;#39;))&amp;#34;&lt;/span> &lt;span class="na">Include=&lt;/span>&lt;span class="s">&amp;#34;Selenium.WebDriver.ChromeDriver&amp;#34;&lt;/span> &lt;span class="na">Version=&lt;/span>&lt;span class="s">&amp;#34;105.0.5195.1900&amp;#34;&lt;/span> &lt;span class="nt">/&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;lt;/ItemGroup&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;lt;/When&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;lt;Otherwise&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;lt;ItemGroup&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;lt;PackageReference&lt;/span> &lt;span class="na">Include=&lt;/span>&lt;span class="s">&amp;#34;Selenium.WebDriver.ChromeDriver&amp;#34;&lt;/span> &lt;span class="na">Version=&lt;/span>&lt;span class="s">&amp;#34;104.0.5112.7900&amp;#34;&lt;/span> &lt;span class="nt">/&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;lt;/ItemGroup&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;lt;/Otherwise&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nt">&amp;lt;/Choose&amp;gt;&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>I specify the &lt;strong>runtime identifier&lt;/strong> of &lt;em>linux-64&lt;/em> in the Dockerfile when I &lt;em>publish&lt;/em> the .NET Core FunctionsApp. This can be seen in the command snippet below. This will ensure that the version (major) 105 is included:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-powershell" data-lang="powershell">&lt;span class="line">&lt;span class="cl">&lt;span class="n">dotnet&lt;/span> &lt;span class="n">publish&lt;/span> &lt;span class="n">-p:PublishChromeDriver&lt;/span>&lt;span class="p">=&lt;/span>&lt;span class="n">true&lt;/span> &lt;span class="p">.\&lt;/span>&lt;span class="nb">my-functionsapp&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="py">csproj&lt;/span> &lt;span class="n">-c&lt;/span> &lt;span class="n">release&lt;/span> &lt;span class="p">-&lt;/span>&lt;span class="n">-self-contained&lt;/span> &lt;span class="n">-r&lt;/span> &lt;span class="nb">linux-x64&lt;/span> &lt;span class="p">-&lt;/span>&lt;span class="n">-output&lt;/span> &lt;span class="p">./&lt;/span>&lt;span class="n">publish&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>And if you set the verbosity of the output by adding this switch &lt;code>-v d&lt;/code> (d&lt;em>etailed&lt;/em>) you will have visual confirmation that the appropriate version has been included:&lt;/p>
+&lt;p>&lt;img src="../img/2022-09-21-13-01-36.png" alt="" loading="lazy" />&lt;/p>
+&lt;p>And there you have it, an example of how to include a different version of a nuget package.&lt;/p></description></item><item><title>Npm E401 and CERT_NOT_YET_VALID</title><link>https://blog-dev.garrardkitchen.com/blog/npm-issues-e401-cert_not_yet_valid/</link><pubDate>Tue, 11 Jan 2022 11:47:54 +0000</pubDate><guid>https://blog-dev.garrardkitchen.com/blog/npm-issues-e401-cert_not_yet_valid/</guid><description>
+&lt;p>Today a PR Merge resulted in a GHA failure. Sadly, this is not the only CICD pipeline to fail this year! This particular pipeline builds a NodeJS Image, pushes the image to ACR and deploys the service to a production Docker Swarm (on merge to main).&lt;/p>
+&lt;p>This was the error:&lt;/p>
+&lt;div class="hx-overflow-x-auto hx-mt-6 hx-flex hx-rounded-lg hx-border hx-py-2 ltr:hx-pr-4 rtl:hx-pl-4 contrast-more:hx-border-current contrast-more:dark:hx-border-current hx-border-red-200 hx-bg-red-100 hx-text-red-900 dark:hx-border-red-200/30 dark:hx-bg-red-900/30 dark:hx-text-red-200">
+&lt;div class="ltr:hx-pl-3 ltr:hx-pr-2 rtl:hx-pr-3 rtl:hx-pl-2">&lt;div class="hx-select-none hx-text-xl" style="font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';">🚫&lt;/div>&lt;/div>
+&lt;div class="hx-w-full hx-min-w-0 hx-leading-7">
+&lt;div class="hx-mt-6 hx-leading-7 first:hx-mt-0">&lt;hr>
+&lt;p>[3/7] RUN npm install:&lt;/p>
+&lt;p>#7 1.469 npm ERR! code E401&lt;/p>
+&lt;p>#7 1.470 npm ERR! Unable to authenticate, need: Bearer authorization_uri=https://login.windows.net/736f9f**-0&lt;strong>9-49&lt;/strong>-86**-b******31f407, Basic realm=&amp;ldquo;&lt;a href="https://pkgsprodsu3weu.app.pkgs.visualstudio.com/%22" target="_blank" rel="noopener">https://pkgsprodsu3weu.app.pkgs.visualstudio.com/"&lt;/a>, TFS-Federated&lt;/p>
+&lt;p>#7 1.475&lt;/p>
+&lt;p>#7 1.475 npm ERR! A complete log of this run can be found in:&lt;/p>
+&lt;p>#7 1.475 npm ERR! /root/.npm/_logs/2021-12-27T09_38_24_060Z-debug.log&lt;/p>
+&lt;/div>
+&lt;/div>
+&lt;/div>
+&lt;p>Mmmm, E401? 🤔&lt;/p>
+&lt;p>I&amp;rsquo;ve not seen this error before but as it was auth related, assumed the PAT token had expired &lt;sup>1&lt;/sup>. Google&amp;hellip;&lt;/p>
+&lt;p>I did not have the actual .npmrc file that was in a GH Secret so I used my own local .npmrc file to confirm I can pull from our organisation&amp;rsquo;s npm feed.&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-powershell" data-lang="powershell">&lt;span class="line">&lt;span class="cl">&lt;span class="nb">cd &lt;/span>&lt;span class="p">&amp;lt;&lt;/span>&lt;span class="nb">project-root&lt;/span>&lt;span class="p">&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">rm node-modules&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">npm&lt;/span> &lt;span class="n">cache&lt;/span> &lt;span class="n">clean&lt;/span> &lt;span class="p">-&lt;/span>&lt;span class="n">-force&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">npm&lt;/span> &lt;span class="n">install&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>It worked. So, I had my first fallback option - regenerate PAT, register centrally for a reminder of when the PAT is to expire and update GH secret. However, I was not yet done. I had not yet reproduced verbatim the pipeline, egro a &lt;code>docker build&lt;/code>.&lt;/p>
+&lt;p>So, I ran this:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-powershell" data-lang="powershell">&lt;span class="line">&lt;span class="cl">&lt;span class="n">docker&lt;/span> &lt;span class="n">build&lt;/span> &lt;span class="n">-t&lt;/span> &lt;span class="p">&amp;lt;&lt;/span>&lt;span class="n">image&lt;/span>&lt;span class="err">:&lt;/span>&lt;span class="n">tag&lt;/span>&lt;span class="p">&amp;gt;&lt;/span> &lt;span class="p">.&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>Oh no! The error has returned!&lt;/p>
+&lt;p>This is the Dockerfile:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-dockerfile" data-lang="dockerfile">&lt;span class="line">&lt;span class="cl">&lt;span class="k">FROM&lt;/span>&lt;span class="s"> node:14.4.0&lt;/span>&lt;span class="err">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">&lt;/span>&lt;span class="k">WORKDIR&lt;/span>&lt;span class="s"> /&lt;/span>&lt;span class="err">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">&lt;/span>&lt;span class="k">COPY&lt;/span> . .&lt;span class="err">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">&lt;/span>&lt;span class="k">RUN&lt;/span> npm install&lt;span class="err">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">&lt;/span>&lt;span class="k">RUN&lt;/span> &lt;span class="nb">echo&lt;/span> &lt;span class="s1">&amp;#39;module.exports = &amp;#39;&lt;/span> &lt;span class="p">|&lt;/span> cat - node_modules/@&amp;lt;redacted&amp;gt;/&amp;lt;redacted&amp;gt;/dist/libs/&amp;lt;redacted&amp;gt;-lib/index.js &amp;gt; temp &lt;span class="o">&amp;amp;&amp;amp;&lt;/span> mv temp helpers/index.js&lt;span class="err">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">&lt;/span>&lt;span class="k">RUN&lt;/span> &lt;span class="nb">cd&lt;/span> helpers &lt;span class="o">&amp;amp;&amp;amp;&lt;/span> ls -la&lt;span class="err">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">&lt;/span>&lt;span class="k">RUN&lt;/span> head -10 helpers/index.js&lt;span class="err">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">&lt;/span>&lt;span class="k">ENV&lt;/span> &lt;span class="nv">PORT&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="m">80&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">EXPOSE&lt;/span>&lt;span class="s"> 80&lt;/span>&lt;span class="err">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">&lt;/span>&lt;span class="k">CMD&lt;/span> &lt;span class="p">[&lt;/span>&lt;span class="s2">&amp;#34;npm&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s2">&amp;#34;run&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s2">&amp;#34;&amp;lt;redacted&amp;gt;&amp;#34;&lt;/span>&lt;span class="p">]&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>Apart from it not being the LTS, there was nothing obviously wrong with it plus it had been building ok leading up to this.&lt;/p>
+&lt;p>This a the credentials part of the .npmrc:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;pre>&lt;code>registry=https://pkgs.dev.azure.com/&amp;lt;org-name&amp;gt;/_packaging/&amp;lt;feed-name&amp;gt;/npm/registry
+always-auth=true
+//pkgs.dev.azure.com/&amp;lt;org-name&amp;gt;/_packaging/&amp;lt;feed-name&amp;gt;/npm/registry/:username=&amp;lt;any-value-not-empty&amp;gt;
+//pkgs.dev.azure.com/&amp;lt;org-name&amp;gt;/_packaging/&amp;lt;feed-name&amp;gt;/npm/registry/:_password=&amp;lt;Base64-encoded-PAT&amp;gt;
+//pkgs.dev.azure.com/&amp;lt;org-name&amp;gt;/_packaging/&amp;lt;feed-name&amp;gt;/npm/registry/:email=&amp;lt;email-is-not-used&amp;gt;
+//pkgs.dev.azure.com/&amp;lt;org-name&amp;gt;/_packaging/&amp;lt;feed-name&amp;gt;/npm/registry/:always-auth=true&lt;/code>&lt;/pre>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>According to this Microsoft documentation post ➡ &lt;a href="https://docs.microsoft.com/en-us/azure/devops/artifacts/npm/scopes?view=azure-devops#credentials-setup" target="_blank" rel="noopener">npm scopes&lt;/a>, the token structure was incomplete. I corrected the structure:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;pre>&lt;code>registry=https://pkgs.dev.azure.com/&amp;lt;org-name&amp;gt;/_packaging/&amp;lt;feed-name&amp;gt;/npm/registry
+always-auth=true
+//pkgs.dev.azure.com/&amp;lt;org-name&amp;gt;/_packaging/&amp;lt;feed-name&amp;gt;/npm/registry/:username=&amp;lt;any-value-not-empty&amp;gt;
+//pkgs.dev.azure.com/&amp;lt;org-name&amp;gt;/_packaging/&amp;lt;feed-name&amp;gt;/npm/registry/:_password=&amp;lt;Base64-encoded-PAT&amp;gt;
+//pkgs.dev.azure.com/&amp;lt;org-name&amp;gt;/_packaging/&amp;lt;feed-name&amp;gt;/npm/registry/:email=&amp;lt;email-is-not-used&amp;gt;
+//pkgs.dev.azure.com/&amp;lt;org-name&amp;gt;/_packaging/&amp;lt;feed-name&amp;gt;/npm/registry/:always-auth=true
+//pkgs.dev.azure.com/&amp;lt;org-name&amp;gt;/_packaging/&amp;lt;feed-name&amp;gt;/npm/:username=&amp;lt;any-value-not-empty&amp;gt;
+//pkgs.dev.azure.com/&amp;lt;org-name&amp;gt;/_packaging/&amp;lt;feed-name&amp;gt;/npm/:_password=&amp;lt;Base64-encoded-PAT&amp;gt;
+//pkgs.dev.azure.com/&amp;lt;org-name&amp;gt;/_packaging/&amp;lt;feed-name&amp;gt;/npm/:email=&amp;lt;email-is-not-used&amp;gt;
+//pkgs.dev.azure.com/&amp;lt;org-name&amp;gt;/_packaging/&amp;lt;feed-name&amp;gt;/npm/:always-auth=true&lt;/code>&lt;/pre>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>I re-ran the &lt;code>docker build -t &amp;lt;image:tag&amp;gt; .&lt;/code> This time I got a different error but the original &lt;code>E401&lt;/code> error had gone away!&lt;/p>
+&lt;p>The new error:&lt;/p>
+&lt;div class="hx-overflow-x-auto hx-mt-6 hx-flex hx-rounded-lg hx-border hx-py-2 ltr:hx-pr-4 rtl:hx-pl-4 contrast-more:hx-border-current contrast-more:dark:hx-border-current hx-border-red-200 hx-bg-red-100 hx-text-red-900 dark:hx-border-red-200/30 dark:hx-bg-red-900/30 dark:hx-text-red-200">
+&lt;div class="ltr:hx-pl-3 ltr:hx-pr-2 rtl:hx-pr-3 rtl:hx-pl-2">&lt;div class="hx-select-none hx-text-xl" style="font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';">🚫&lt;/div>&lt;/div>
+&lt;div class="hx-w-full hx-min-w-0 hx-leading-7">
+&lt;div class="hx-mt-6 hx-leading-7 first:hx-mt-0">&lt;p>#7 43.61 npm ERR! code CERT_NOT_YET_VALID&lt;/p>
+&lt;p>#7 43.61 npm ERR! errno CERT_NOT_YET_VALID&lt;/p>
+&lt;p>#7 43.61 npm ERR! request to &lt;a href="https://xuavsblobprodsu6weus12.blob.core.windows.net/b-7a3f75bdbbf3432bbe2621e93c98932a/86CDB768B8C395B14974" target="_blank" rel="noopener">https://xuavsblobprodsu6weus12.blob.core.windows.net/b-7a3f75bdbbf3432bbe2621e93c98932a/86CDB768B8C395B14974&lt;/a>&lt;em>&lt;strong>&lt;strong>&lt;strong>&lt;strong>1963D831555B55E3458&lt;/strong>&lt;/strong>&lt;/strong>&lt;/strong>&lt;/em>************.blob?sv=2019-07-07&amp;amp;sr=b&amp;amp;si=1&amp;amp;sig=LUCuO42mrmOAx5N&lt;em>&lt;strong>&lt;strong>&lt;strong>&lt;strong>&lt;strong>&lt;strong>zds9RWS0v2qL%2FwbB86c%3D&amp;amp;spr=https&amp;amp;se=2022-01-12T11%3A42%3A24Z&amp;amp;rscl=x-e2eid-59793e65-&lt;/strong>&lt;/strong>&lt;/strong>&lt;/strong>&lt;/strong>-a727df6e-***********-session-59793e65-&lt;/strong>&lt;/em>*******-a727df6e-8c628cc8&amp;amp;rscd=attachment%3B%20filename%3D%22string-width-4.2.3.tgz%22 failed, reason: certificate is not yet valid&lt;/p>
+&lt;/div>
+&lt;/div>
+&lt;/div>
+&lt;p>Mmmm, &lt;code>CERT_NOT_YET_VALID&lt;/code>. I&amp;rsquo;d not seen this error before. Google&amp;hellip;&lt;/p>
+&lt;p>After a short period of online research 👀 I found a suggestion about being explicit in setting the default npm registry. This meant I had to insert &lt;code>RUN npm config set registry http://registry.npmjs.org&lt;/code> before the &lt;code>RUN npm install&lt;/code> command. The resulting Dockerfile then looked like this:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-dockerfile" data-lang="dockerfile">&lt;span class="line">&lt;span class="cl">&lt;span class="k">FROM&lt;/span>&lt;span class="s"> node:14.4.0&lt;/span>&lt;span class="err">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">&lt;/span>&lt;span class="k">WORKDIR&lt;/span>&lt;span class="s"> /&lt;/span>&lt;span class="err">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">&lt;/span>&lt;span class="k">COPY&lt;/span> . .&lt;span class="err">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">&lt;/span>&lt;span class="k">RUN&lt;/span> npm config &lt;span class="nb">set&lt;/span> registry http://registry.npmjs.org&lt;span class="err">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">&lt;/span>&lt;span class="k">RUN&lt;/span> npm install &lt;span class="err">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">&lt;/span>&lt;span class="k">RUN&lt;/span> &lt;span class="nb">echo&lt;/span> &lt;span class="s1">&amp;#39;module.exports = &amp;#39;&lt;/span> &lt;span class="p">|&lt;/span> cat - node_modules/@&amp;lt;redacted&amp;gt;/&amp;lt;redacted&amp;gt;/dist/libs/&amp;lt;redacted&amp;gt;-lib/index.js &amp;gt; temp &lt;span class="o">&amp;amp;&amp;amp;&lt;/span> mv temp helpers/index.js&lt;span class="err">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">&lt;/span>&lt;span class="k">RUN&lt;/span> &lt;span class="nb">cd&lt;/span> helpers &lt;span class="o">&amp;amp;&amp;amp;&lt;/span> ls -la&lt;span class="err">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">&lt;/span>&lt;span class="k">RUN&lt;/span> head -10 helpers/index.js&lt;span class="err">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">&lt;/span>&lt;span class="k">ENV&lt;/span> &lt;span class="nv">PORT&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="m">80&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">EXPOSE&lt;/span>&lt;span class="s"> 80&lt;/span>&lt;span class="err">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">&lt;/span>&lt;span class="k">CMD&lt;/span> &lt;span class="p">[&lt;/span>&lt;span class="s2">&amp;#34;npm&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s2">&amp;#34;run&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s2">&amp;#34;prod&amp;#34;&lt;/span>&lt;span class="p">]&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>I re-ran the &lt;code>docker build -t &amp;lt;image:tag&amp;gt; .&lt;/code> and success! 🥳&lt;/p>
+&lt;p>I updated the appropriate GH Secret with the modified .npmrc file and asked the author of the PR that had reported this issue originally to make the 1 line change to the Dockerfile. He made the change, prompted for another PR review and merged to main on approval. The GHA ran successfully! The usual monitoring post deploy and feature/fix was confirmed and I set about updating internal documentation providing instructions on what to do to remediate for others and notifying all via slack that of this.&lt;/p>
+&lt;h1>References&lt;/h1>&lt;ul>
+&lt;li>&lt;a href="https://docs.microsoft.com/en-us/azure/devops/artifacts/npm/scopes?view=azure-devops" target="_blank" rel="noopener">Npm scopes&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;hr>
+&lt;p>&lt;sup>1&lt;/sup> - secrets that expire need to be registered centrally on a system that can notify you in advance, giving you ample time to remediate. For our Azure AAD SP (Service Principals) client secrets, we run an Automation Runbook each day that traverses the Azure Resource Graph and alerts me via email of those SP that will be expiring within 30 days.&lt;/p></description></item><item><title>Permission Denied While Trying to Connect to the Docker Daemon Socket</title><link>https://blog-dev.garrardkitchen.com/blog/permission-denied-while-trying-to-connect-to-the-docker-daemon-socket/</link><pubDate>Fri, 07 Jan 2022 08:20:20 +0000</pubDate><guid>https://blog-dev.garrardkitchen.com/blog/permission-denied-while-trying-to-connect-to-the-docker-daemon-socket/</guid><description>
+&lt;p>Out of the blue today, my first day back after Christmas break, I got this when running a GH Actions Workflow on one of our Self-Hosted Linux Runners 😱:&lt;/p>
+&lt;div class="hx-overflow-x-auto hx-mt-6 hx-flex hx-rounded-lg hx-border hx-py-2 ltr:hx-pr-4 rtl:hx-pl-4 contrast-more:hx-border-current contrast-more:dark:hx-border-current hx-border-red-200 hx-bg-red-100 hx-text-red-900 dark:hx-border-red-200/30 dark:hx-bg-red-900/30 dark:hx-text-red-200">
+&lt;div class="ltr:hx-pl-3 ltr:hx-pr-2 rtl:hx-pr-3 rtl:hx-pl-2">&lt;div class="hx-select-none hx-text-xl" style="font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';">🚫&lt;/div>&lt;/div>
+&lt;div class="hx-w-full hx-min-w-0 hx-leading-7">
+&lt;div class="hx-mt-6 hx-leading-7 first:hx-mt-0">Got permission denied while trying to connect to the Docker daemon socket at unix:///var/run/docker.sock: Get &amp;ldquo;&lt;a href="http://%2Fvar%2Frun%2Fdocker.sock/v1.24/containers/json%22" target="_blank" rel="noopener">http://%2Fvar%2Frun%2Fdocker.sock/v1.24/containers/json"&lt;/a>: dial unix /var/run/docker.sock: connect: permission denied&lt;/div>
+&lt;/div>
+&lt;/div>
+&lt;div class="hx-overflow-x-auto hx-mt-6 hx-flex hx-rounded-lg hx-border hx-py-2 ltr:hx-pr-4 rtl:hx-pl-4 contrast-more:hx-border-current contrast-more:dark:hx-border-current hx-border-blue-200 hx-bg-blue-100 hx-text-blue-900 dark:hx-border-blue-200/30 dark:hx-bg-blue-900/30 dark:hx-text-blue-200">
+&lt;div class="ltr:hx-pl-3 ltr:hx-pr-2 rtl:hx-pr-3 rtl:hx-pl-2">&lt;div class="hx-select-none hx-text-xl" style="font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';">ℹ️&lt;/div>&lt;/div>
+&lt;div class="hx-w-full hx-min-w-0 hx-leading-7">
+&lt;div class="hx-mt-6 hx-leading-7 first:hx-mt-0">We have several GitHub Self-Hosted Runners running on Linux and Windows O/S that produce, amongst other artefacts, Linux and Windows images. These images are pushed to ACR. We&amp;rsquo;re in the process of migrating our on-premise real-estate - IIS Web apps, Windows Services, Docker swarm containers - to AKS as well as migrating our SQL Server AG to Azure. We&amp;rsquo;re using Self-Hosted Runners as we have spare compute capacity and some of our applications have a dependency on a legacy NuGet server which requires our CI pipelines to run in our network. We are in the process of also migrating these legacy packages to our Azure DevOps NuGet Feed as part of our modernization initiative. This modernization initiative encompasses upgrading our runtimes to .NET Framework 4.8 and .NET 6.0.&lt;/div>
+&lt;/div>
+&lt;/div>
+&lt;p>It had been running fine prior to my break so what gives? I started to investigate&amp;hellip;&lt;/p>
+&lt;p>I logged in to the Linux VM where this particular Self-Hosted Runner is hosted with the same credentials as used when I installed the Self-Hosted Runner originally. I used the following command to confirm the same outcome:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-powershell" data-lang="powershell">&lt;span class="line">&lt;span class="cl">&lt;span class="n">docker&lt;/span> &lt;span class="n">ps&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>Yup, same thing.&lt;/p>
+&lt;p>The next configuration I wanted to check was whether this user is a member of the &lt;code>docker&lt;/code> group so I used this command:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-powershell" data-lang="powershell">&lt;span class="line">&lt;span class="cl">&lt;span class="n">sudo&lt;/span> &lt;span class="n">groups&lt;/span> &lt;span class="p">&amp;lt;&lt;/span>&lt;span class="n">user&lt;/span>&lt;span class="p">&amp;gt;&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>Mmmmm, that&amp;rsquo;s odd. This user wasn&amp;rsquo;t a member and therefore begs the question, how did this ever work in the first place?!!&lt;/p>
+&lt;p>I added this user using this command:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-powershell" data-lang="powershell">&lt;span class="line">&lt;span class="cl">&lt;span class="n">sudo&lt;/span> &lt;span class="n">usermod&lt;/span> &lt;span class="n">-a&lt;/span> &lt;span class="n">-G&lt;/span> &lt;span class="n">docker&lt;/span> &lt;span class="p">&amp;lt;&lt;/span>&lt;span class="n">user&lt;/span>&lt;span class="p">&amp;gt;&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>I ran &lt;code>docker ps&lt;/code> again but still no dice. 🤔.&lt;/p>
+&lt;p>I then checked the status of the docker service using this command:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-powershell" data-lang="powershell">&lt;span class="line">&lt;span class="cl">&lt;span class="n">sudo&lt;/span> &lt;span class="n">systemctl&lt;/span> &lt;span class="n">status&lt;/span> &lt;span class="n">docker&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>It reported:&lt;/p>
+&lt;div class="hx-overflow-x-auto hx-mt-6 hx-flex hx-rounded-lg hx-border hx-py-2 ltr:hx-pr-4 rtl:hx-pl-4 contrast-more:hx-border-current contrast-more:dark:hx-border-current hx-border-blue-200 hx-bg-blue-100 hx-text-blue-900 dark:hx-border-blue-200/30 dark:hx-bg-blue-900/30 dark:hx-text-blue-200">
+&lt;div class="ltr:hx-pl-3 ltr:hx-pr-2 rtl:hx-pr-3 rtl:hx-pl-2">&lt;div class="hx-select-none hx-text-xl" style="font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';">ℹ️&lt;/div>&lt;/div>
+&lt;div class="hx-w-full hx-min-w-0 hx-leading-7">
+&lt;div class="hx-mt-6 hx-leading-7 first:hx-mt-0">Active: active (running) since Thu 2021-09-16 14:13:04 UTC; 3 months 20 days ago&lt;/div>
+&lt;/div>
+&lt;/div>
+&lt;p>Ok, what next? 🤔&lt;/p>
+&lt;p>I decided to restart the self-hosted service so I entered these commands:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-powershell" data-lang="powershell">&lt;span class="line">&lt;span class="cl">&lt;span class="nb">cd actions-runner&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">sudo&lt;/span> &lt;span class="p">./&lt;/span>&lt;span class="n">svc&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="py">sh&lt;/span> &lt;span class="n">start&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>This is when I saw these failures:&lt;/p>
+&lt;div class="hx-overflow-x-auto hx-mt-6 hx-flex hx-rounded-lg hx-border hx-py-2 ltr:hx-pr-4 rtl:hx-pl-4 contrast-more:hx-border-current contrast-more:dark:hx-border-current hx-border-red-200 hx-bg-red-100 hx-text-red-900 dark:hx-border-red-200/30 dark:hx-bg-red-900/30 dark:hx-text-red-200">
+&lt;div class="ltr:hx-pl-3 ltr:hx-pr-2 rtl:hx-pr-3 rtl:hx-pl-2">&lt;div class="hx-select-none hx-text-xl" style="font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';">🚫&lt;/div>&lt;/div>
+&lt;div class="hx-w-full hx-min-w-0 hx-leading-7">
+&lt;div class="hx-mt-6 hx-leading-7 first:hx-mt-0">&lt;p>Dec 19 22:01:15 &lt;em>redacted&lt;/em> runsvc.sh[291703]: 2021-12-19 22:01:15Z: Runner connect error: The HTTP request timed out after 00:01:00.. Retrying unt…econnected.&lt;/p>
+&lt;p>Dec 19 22:02:35 &lt;em>redacted&lt;/em> runsvc.sh[291703]: 2021-12-19 22:02:35Z: Runner reconnected.&lt;/p>
+&lt;p>Jan 06 14:42:21 &lt;em>redacted&lt;/em> runsvc.sh[291703]: 2022-01-06 14:42:21Z: Running job: deploy&lt;/p>
+&lt;p>Jan 06 14:42:41 &lt;em>redacted&lt;/em> runsvc.sh[291703]: 2022-01-06 14:42:41Z: Job deploy completed with result: Failed&lt;/p>
+&lt;p>Jan 06 14:46:19 &lt;em>redacted&lt;/em> runsvc.sh[291703]: 2022-01-06 14:46:19Z: Running job: deploy&lt;/p>
+&lt;p>&amp;hellip;&lt;/p>
+&lt;/div>
+&lt;/div>
+&lt;/div>
+&lt;p>I restarted the Self-Hosted Runner using these commands:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-powershell" data-lang="powershell">&lt;span class="line">&lt;span class="cl">&lt;span class="n">sudo&lt;/span> &lt;span class="p">./&lt;/span>&lt;span class="n">svc&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="py">sh&lt;/span> &lt;span class="n">stop&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">sudo&lt;/span> &lt;span class="p">./&lt;/span>&lt;span class="n">svc&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="py">sh&lt;/span> &lt;span class="n">start&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>Then I logged out and back in again to confirm docker access &lt;code>docker ps&lt;/code> and finished off by re-running the failed GH Action Workflow. 🥳 Equilibrium is once again restored. As per protocol, I shared issue and resolution with our IT Team in case this crops up again when I&amp;rsquo;m not online to help.&lt;/p></description></item><item><title>Nodejs Container Restart Policy</title><link>https://blog-dev.garrardkitchen.com/blog/nodejs-container-restart-policy/</link><pubDate>Mon, 21 Sep 2020 16:36:35 +0100</pubDate><guid>https://blog-dev.garrardkitchen.com/blog/nodejs-container-restart-policy/</guid><description>
+&lt;p>If by accident to deploy a solution using the &lt;a href="https://nodejs.org/en/" target="_blank" rel="noopener">Node.js&lt;/a> &lt;a href="https://nodejs.org/dist/latest-v14.x/docs/api/cluster.html" target="_blank" rel="noopener">Cluster API&lt;/a> and do not fork exited processes then the following &lt;code>docker-compose&lt;/code> restart_policy will not help you:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div class="filename not-prose" dir="auto">docker-compose.yml&lt;/div>&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-yml" data-lang="yml">&lt;span class="line">&lt;span class="cl">&lt;span class="nt">deploy&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">restart_policy&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">condition&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kc">on&lt;/span>-&lt;span class="l">failure&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-8">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>If you&amp;rsquo;re using the Cluster API to schedule tasks across your processes, and all forked processes die, then the docker engine will just assume you&amp;rsquo;ve gracefully shutdown.&lt;/p>
+&lt;p>Take this code for example, you will see that it doesn&amp;rsquo;t fork another process and therefore, at some point it will no longer process any anything:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div class="filename not-prose" dir="auto">cluster-service.ts&lt;/div>&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-ts" data-lang="ts">&lt;span class="line">&lt;span class="cl">&lt;span class="kr">import&lt;/span> &lt;span class="p">{&lt;/span> &lt;span class="nx">Injectable&lt;/span> &lt;span class="p">}&lt;/span> &lt;span class="kr">from&lt;/span> &lt;span class="s1">&amp;#39;@nestjs/common&amp;#39;&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kr">import&lt;/span> &lt;span class="o">*&lt;/span> &lt;span class="kr">as&lt;/span> &lt;span class="nx">cluster&lt;/span> &lt;span class="kr">from&lt;/span> &lt;span class="s1">&amp;#39;cluster&amp;#39;&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kr">import&lt;/span> &lt;span class="o">*&lt;/span> &lt;span class="kr">as&lt;/span> &lt;span class="nx">os&lt;/span> &lt;span class="kr">from&lt;/span> &lt;span class="s1">&amp;#39;os&amp;#39;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kd">@Injectable&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kr">export&lt;/span> &lt;span class="kr">class&lt;/span> &lt;span class="nx">ClusterService&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kr">static&lt;/span> &lt;span class="nx">clusterize&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nx">numCPUs&lt;/span>: &lt;span class="kt">number&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nx">callback&lt;/span>&lt;span class="o">:&lt;/span> &lt;span class="p">()&lt;/span> &lt;span class="o">=&amp;gt;&lt;/span> &lt;span class="k">void&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="o">:&lt;/span> &lt;span class="k">void&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">if&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="nx">cluster&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">isMaster&lt;/span> &lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kr">const&lt;/span> &lt;span class="nx">procs&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="nx">numCPUs&lt;/span> &lt;span class="o">&amp;gt;&lt;/span> &lt;span class="nx">os&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">cpus&lt;/span>&lt;span class="p">().&lt;/span>&lt;span class="nx">length&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">?&lt;/span> &lt;span class="nx">os&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">cpus&lt;/span>&lt;span class="p">().&lt;/span>&lt;span class="nx">length&lt;/span> : &lt;span class="kt">numCPUs&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">console&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">log&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="sb">`GOING TO USE &lt;/span>&lt;span class="si">${&lt;/span>&lt;span class="nx">procs&lt;/span>&lt;span class="si">}&lt;/span>&lt;span class="sb"> PROCESSES`&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">console&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">log&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="sb">`MASTER SERVER (&lt;/span>&lt;span class="si">${&lt;/span>&lt;span class="nx">process&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">pid&lt;/span>&lt;span class="si">}&lt;/span>&lt;span class="sb">) IS RUNNING `&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">console&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">log&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="sb">`MASTER SERVER (&lt;/span>&lt;span class="si">${&lt;/span>&lt;span class="nx">process&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">pid&lt;/span>&lt;span class="si">}&lt;/span>&lt;span class="sb">) IS RUNNING `&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">console&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">log&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="sb">`SCHED_NONE: &lt;/span>&lt;span class="si">${&lt;/span>&lt;span class="nx">cluster&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">SCHED_NONE&lt;/span>&lt;span class="si">}&lt;/span>&lt;span class="sb">`&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">console&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">log&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="sb">`SCHED_RR: &lt;/span>&lt;span class="si">${&lt;/span>&lt;span class="nx">cluster&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">SCHED_RR&lt;/span>&lt;span class="si">}&lt;/span>&lt;span class="sb">`&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">console&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">log&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="sb">`CLUSTER SCHEDULING POLICY: &lt;/span>&lt;span class="si">${&lt;/span>&lt;span class="nx">cluster&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">schedulingPolicy&lt;/span>&lt;span class="si">}&lt;/span>&lt;span class="sb">`&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">for&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="kd">let&lt;/span> &lt;span class="nx">i&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mi">0&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="nx">i&lt;/span> &lt;span class="o">&amp;lt;&lt;/span> &lt;span class="nx">procs&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="nx">i&lt;/span>&lt;span class="o">++&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kr">const&lt;/span> &lt;span class="nx">worker&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nx">cluster&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">fork&lt;/span>&lt;span class="p">();&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">console&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">log&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="sb">`CREATING PROCESS &lt;/span>&lt;span class="si">${&lt;/span>&lt;span class="nx">worker&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">process&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">pid&lt;/span>&lt;span class="si">}&lt;/span>&lt;span class="sb">`&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">cluster&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">on&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s1">&amp;#39;exit&amp;#39;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="nx">worker&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nx">code&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nx">signal&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">=&amp;gt;&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">console&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">log&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="sb">`worker &lt;/span>&lt;span class="si">${&lt;/span>&lt;span class="nx">worker&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">process&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">pid&lt;/span>&lt;span class="si">}&lt;/span>&lt;span class="sb"> died &lt;/span>&lt;span class="si">${&lt;/span>&lt;span class="nx">signal&lt;/span> &lt;span class="o">||&lt;/span> &lt;span class="nx">code&lt;/span>&lt;span class="si">}&lt;/span>&lt;span class="sb">`&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">});&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">cluster&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">on&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s1">&amp;#39;disconnect&amp;#39;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="nx">worker&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">=&amp;gt;&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">console&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">log&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="sb">`worker &lt;/span>&lt;span class="si">${&lt;/span>&lt;span class="nx">worker&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">process&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">pid&lt;/span>&lt;span class="si">}&lt;/span>&lt;span class="sb"> disconnected`&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">})&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span> &lt;span class="k">else&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">callback&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-8">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>To mitigate this, you simply fork another process within the &lt;code>exit&lt;/code> event handler like this:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div class="filename not-prose" dir="auto">server.ts&lt;/div>&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-ts" data-lang="ts">&lt;span class="line">&lt;span class="cl">&lt;span class="nx">cluster&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">on&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s1">&amp;#39;exit&amp;#39;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="nx">worker&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nx">code&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nx">signal&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">=&amp;gt;&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">console&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">log&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="sb">`worker &lt;/span>&lt;span class="si">${&lt;/span>&lt;span class="nx">worker&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">process&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">pid&lt;/span>&lt;span class="si">}&lt;/span>&lt;span class="sb"> died &lt;/span>&lt;span class="si">${&lt;/span>&lt;span class="nx">signal&lt;/span> &lt;span class="o">||&lt;/span> &lt;span class="nx">code&lt;/span>&lt;span class="si">}&lt;/span>&lt;span class="sb">, restarting...`&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kr">const&lt;/span> &lt;span class="nx">newWorker&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nx">cluster&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">fork&lt;/span>&lt;span class="p">();&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">console&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">log&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="sb">`CREATING PROCESS &lt;/span>&lt;span class="si">${&lt;/span>&lt;span class="nx">newWorker&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">process&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">pid&lt;/span>&lt;span class="si">}&lt;/span>&lt;span class="sb">`&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">});&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-8">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;hr>
+&lt;p>To avoid the container not restarting due to lack of process availability to deal with demand in the above scenario, you can&amp;rsquo;t use the &lt;code>on-failure&lt;/code> condition in the restart_policy. You must use the &amp;lsquo;any&amp;rsquo; condition. This section incidentally replaces the old &lt;code>restart&lt;/code> sub-option.&lt;/p>
+&lt;p>&lt;img src="../img/2020-09-21-16-39-00.png" alt="" loading="lazy" />&lt;/p>
+&lt;hr>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div class="filename not-prose" dir="auto">docker-compose.yml&lt;/div>&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-yml" data-lang="yml">&lt;span class="line">&lt;span class="cl">&lt;span class="nt">deploy&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">replicas&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="m">1&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">resources&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">limits&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">cpus&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="s2">&amp;#34;2&amp;#34;&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">memory&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">512M&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">update_config&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">order&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">start-first&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">parallelism&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="m">1&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">restart_policy&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">condition&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">any&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">delay&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">5s&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">window&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">120s&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">placement&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">constraints&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="l">node.role == worker&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-8">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>&lt;strong>Caution&lt;/strong>: You can&amp;rsquo;t use &lt;code>max_attempts: 3&lt;/code> in combination with &lt;code>condition: any&lt;/code>&lt;/p>
+&lt;hr>
+&lt;p>Additionally, I found one further interesting facts when looking into this issue.&lt;/p>
+&lt;p>If you&amp;rsquo;re using &lt;code>Docker Stack Deploy&lt;/code> (think stack in Portainer) using a docker-compose file to deploy to your swarm and you&amp;rsquo;re using &lt;code>restart: always&lt;/code>, then beware, the &lt;code>restart&lt;/code> is not supported.&lt;/p>
+&lt;p>&lt;img src="../img/2020-09-21-16-38-12.png" alt="" loading="lazy" />&lt;/p>
+&lt;p>ref: 👆 &lt;a href="https://docs.docker.com/compose/compose-file/" target="_blank" rel="noopener">compose-file&lt;/a>&lt;/p>
+&lt;hr></description></item></channel></rss>
