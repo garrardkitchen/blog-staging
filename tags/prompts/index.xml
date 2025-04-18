@@ -1,0 +1,82 @@
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Garrard Kitchen – Prompts</title><link>https://blog-dev.garrardkitchen.com/tags/prompts/</link><description>Recent content in Prompts on Garrard Kitchen</description><generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Fri, 18 Apr 2025 00:00:00 +0000</lastBuildDate><atom:link href="https://blog-dev.garrardkitchen.com/tags/prompts/index.xml" rel="self" type="application/rss+xml"/><item><title>Prompts</title><link>https://blog-dev.garrardkitchen.com/blog/prompts/</link><pubDate>Fri, 18 Apr 2025 00:00:00 +0000</pubDate><guid>https://blog-dev.garrardkitchen.com/blog/prompts/</guid><description>
+&lt;h2>Summary&lt;span class="hx-absolute -hx-mt-20" id="summary">&lt;/span>
+&lt;a href="#summary" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>This post explains what prompts are in the context of GitHub Copilot Chat, how to create reusable prompts in the &lt;code>.github/prompts&lt;/code> directory, and how to automatically include them in Copilot Chat using the &lt;code>github.copilot.chat.codeGeneration.instructions&lt;/code> setting. An example and useful references are provided.&lt;/p>
+&lt;p>For more tips on writing effective prompts and using Copilot efficiently, see the &lt;a href="#best-practices-for-using-github-copilot" >Best Practices for Using GitHub Copilot&lt;/a> section below.&lt;/p>
+&lt;h2>Understanding Prompts in GitHub Copilot Chat&lt;span class="hx-absolute -hx-mt-20" id="understanding-prompts-in-github-copilot-chat">&lt;/span>
+&lt;a href="#understanding-prompts-in-github-copilot-chat" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>Prompts are instructions or context you provide to GitHub Copilot Chat to guide its code generation or responses. Well-crafted prompts help Copilot understand your intent, resulting in more accurate and relevant suggestions.&lt;/p>
+&lt;h2>Creating Custom Prompts&lt;span class="hx-absolute -hx-mt-20" id="creating-custom-prompts">&lt;/span>
+&lt;a href="#creating-custom-prompts" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>You can create reusable prompts by adding &lt;code>.prompt.md&lt;/code> files in your repository’s &lt;code>.github/prompts&lt;/code> directory. Each file should contain a specific instruction or context you want Copilot to use.&lt;/p>
+&lt;p>&lt;strong>Steps:&lt;/strong>&lt;/p>
+&lt;ol>
+&lt;li>Create a &lt;code>.github/prompts&lt;/code> directory in your repository if it doesn’t exist.&lt;/li>
+&lt;li>Add a Markdown file (e.g., &lt;code>readme.prompt.md&lt;/code>) with your prompt content.&lt;/li>
+&lt;/ol>
+&lt;p>Example (&lt;code>.github/prompts/readme.prompt.md&lt;/code>):&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-markdown" data-lang="markdown">&lt;span class="line">&lt;span class="cl">Always use 2 spaces for indentation and single quotes for strings.&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;h2>Automatically Including Prompts in Copilot Chat&lt;span class="hx-absolute -hx-mt-20" id="automatically-including-prompts-in-copilot-chat">&lt;/span>
+&lt;a href="#automatically-including-prompts-in-copilot-chat" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>To have Copilot Chat automatically use your custom prompts, configure the &lt;code>github.copilot.chat.codeGeneration.instructions&lt;/code> setting in your workspace settings (e.g., &lt;code>.vscode/settings.json&lt;/code>):&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-json" data-lang="json">&lt;span class="line">&lt;span class="cl">&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;#34;github.copilot.chat.codeGeneration.instructions&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="p">[&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;#34;file&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="s2">&amp;#34;readme.prompt.md&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>This tells Copilot Chat to include the content of &lt;code>readme.prompt.md&lt;/code> as context for your requests.&lt;/p>
+&lt;h2>Example&lt;span class="hx-absolute -hx-mt-20" id="example">&lt;/span>
+&lt;a href="#example" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>Suppose you want Copilot to always follow your project’s code style. Create &lt;code>.github/prompts/codestyle.prompt.md&lt;/code>:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-markdown" data-lang="markdown">&lt;span class="line">&lt;span class="cl">Always use 2 spaces for indentation and single quotes for strings.&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>Then, update &lt;code>.vscode/settings.json&lt;/code>:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-json" data-lang="json">&lt;span class="line">&lt;span class="cl">&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;#34;github.copilot.chat.codeGeneration.instructions&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="p">[&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">{&lt;/span> &lt;span class="nt">&amp;#34;file&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="s2">&amp;#34;codestyle.prompt.md&amp;#34;&lt;/span> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>Now, Copilot Chat will automatically consider your code style instructions.&lt;/p>
+&lt;h2>References&lt;span class="hx-absolute -hx-mt-20" id="references">&lt;/span>
+&lt;a href="#references" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;ul>
+&lt;li>&lt;a href="https://docs.github.com/en/copilot/copilot-chat-cookbook" target="_blank" rel="noopener">GitHub Copilot Chat Cookbook&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://docs.github.com/en/copilot/copilot-chat" target="_blank" rel="noopener">GitHub Copilot Chat Documentation&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://docs.github.com/en/copilot/copilot-chat/configuring-copilot-chat" target="_blank" rel="noopener">Configuring Copilot Chat&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://docs.github.com/en/copilot/using-github-copilot/best-practices-for-using-github-copilot" target="_blank" rel="noopener">Best Practices for Using GitHub Copilot&lt;/a>&lt;/li>
+&lt;/ul></description></item></channel></rss>
