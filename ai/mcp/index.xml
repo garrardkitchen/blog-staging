@@ -1,0 +1,129 @@
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Garrard Kitchen – Model Context Protocol</title><link>https://blog-dev.garrardkitchen.com/ai/mcp/</link><description>Recent content in Model Context Protocol on Garrard Kitchen</description><generator>Hugo -- gohugo.io</generator><language>en</language><atom:link href="https://blog-dev.garrardkitchen.com/ai/mcp/index.xml" rel="self" type="application/rss+xml"/><item><title>Local MCP Server</title><link>https://blog-dev.garrardkitchen.com/ai/mcp/mcp-local/</link><pubDate>Thu, 17 Apr 2025 00:00:00 +0000</pubDate><guid>https://blog-dev.garrardkitchen.com/ai/mcp/mcp-local/</guid><description>
+&lt;h2>Links&lt;span class="hx-absolute -hx-mt-20" id="links">&lt;/span>
+&lt;a href="#links" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th style="text-align: center">Link&lt;/th>
+&lt;th style="text-align: left">Description&lt;/th>
+&lt;th style="text-align: center">&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td style="text-align: center">&lt;a href="https://github.com/garrardkitchen/mcp-example" target="_blank" rel="noopener">Click here&lt;/a>&lt;/td>
+&lt;td style="text-align: left">I wanted to see for myself how easy it is to create an MCP Server (albeit running locally). I am keen to start my personal journey and the way to communicate context, improve interoperability, privacy and enure quality of AI-powered suggestions.&lt;/td>
+&lt;td style="text-align: center">&lt;div class="hextra-badge ">
+&lt;div class="hx-inline-flex hx-gap-1 hx-items-center hx-rounded-full hx-px-2.5 hx-leading-6 hx-text-[.65rem] hx-border hx-border-red-200 hx-bg-red-100 hx-text-red-900 dark:hx-border-red-200/30 dark:hx-bg-red-900/30 dark:hx-text-red-200">new&lt;/div>
+&lt;/div>&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table></description></item><item><title>Comparison to OpenAPI</title><link>https://blog-dev.garrardkitchen.com/ai/mcp/mcp-intro/</link><pubDate>Thu, 27 Jan 2022 11:49:14 +0100</pubDate><guid>https://blog-dev.garrardkitchen.com/ai/mcp/mcp-intro/</guid><description>
+&lt;p>When I first came across the Model Context Protocol (MCP), I couldn&amp;rsquo;t help but notice its parallels with OpenAPI. What follows is my attempt to connect the dots. While it&amp;rsquo;s not a perfect one-to-one comparison, it&amp;rsquo;s fascinating how concepts can feel similar simply by swapping a few key terms.&lt;/p>
+&lt;h1>Understanding MCP and Its Comparison to OpenAPI for LLMs&lt;/h1>&lt;p>In the world of APIs, OpenAPI has become the gold standard for describing RESTful APIs in a way that is machine-readable, consistent, and developer-friendly. Similarly, the &lt;strong>Model Communication Protocol (MCP)&lt;/strong> aims to provide a standardized framework for &lt;strong>Large Language Models (LLMs)&lt;/strong> to interact with applications, enabling interoperability, scalability, and ease of integration. This document explores how MCP is comparable to OpenAPI, introduces the concept of &lt;strong>Agent-to-Agent (A2A) communication&lt;/strong>, and examines the problems MCP solves in the LLM ecosystem.&lt;/p>
+&lt;hr>
+&lt;h2>What is MCP?&lt;span class="hx-absolute -hx-mt-20" id="what-is-mcp">&lt;/span>
+&lt;a href="#what-is-mcp" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>MCP, or &lt;strong>Model Communication Protocol&lt;/strong>, is a standard designed to facilitate seamless interaction between LLMs and external systems. It provides a structured way to define how LLMs can:&lt;/p>
+&lt;ul>
+&lt;li>Understand requests from external applications.&lt;/li>
+&lt;li>Respond in a consistent format that applications can parse.&lt;/li>
+&lt;li>Allow multiple LLMs or agents to communicate with each other (Agent-to-Agent communication).&lt;/li>
+&lt;/ul>
+&lt;h3>Core Goals of MCP:&lt;span class="hx-absolute -hx-mt-20" id="core-goals-of-mcp">&lt;/span>
+&lt;a href="#core-goals-of-mcp" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;ol>
+&lt;li>&lt;strong>Interoperability&lt;/strong>: Ensure different LLMs can work within the same ecosystem.&lt;/li>
+&lt;li>&lt;strong>Standardization&lt;/strong>: Provide a protocol for defining inputs, outputs, and behaviors.&lt;/li>
+&lt;li>&lt;strong>Scalability&lt;/strong>: Enable the expansion to more complex systems with multiple agents.&lt;/li>
+&lt;li>&lt;strong>Modularity&lt;/strong>: Allow developers to plug in or swap out LLMs easily.&lt;/li>
+&lt;/ol>
+&lt;hr>
+&lt;h2>How is MCP Comparable to OpenAPI?&lt;span class="hx-absolute -hx-mt-20" id="how-is-mcp-comparable-to-openapi">&lt;/span>
+&lt;a href="#how-is-mcp-comparable-to-openapi" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>OpenAPI is a specification for RESTful APIs that defines how endpoints, methods, and payloads are described. MCP provides a similar structure but is tailored for LLM interactions.&lt;/p>
+&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th>&lt;strong>Aspect&lt;/strong>&lt;/th>
+&lt;th>&lt;strong>OpenAPI&lt;/strong>&lt;/th>
+&lt;th>&lt;strong>MCP&lt;/strong>&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td>&lt;strong>Purpose&lt;/strong>&lt;/td>
+&lt;td>Standardizes RESTful API communication&lt;/td>
+&lt;td>Standardizes communication for LLMs&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;strong>Describes&lt;/strong>&lt;/td>
+&lt;td>Endpoints, methods, payloads, responses&lt;/td>
+&lt;td>Prompts, responses, behaviors of LLMs&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;strong>Format&lt;/strong>&lt;/td>
+&lt;td>JSON or YAML&lt;/td>
+&lt;td>JSON-based protocol&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;strong>Machine-readable&lt;/strong>&lt;/td>
+&lt;td>Yes&lt;/td>
+&lt;td>Yes&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;strong>Interoperability&lt;/strong>&lt;/td>
+&lt;td>Enables systems to integrate with APIs easily&lt;/td>
+&lt;td>Enables systems and LLMs to work together&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;strong>Developer Benefits&lt;/strong>&lt;/td>
+&lt;td>Clear API contracts, faster integration&lt;/td>
+&lt;td>Consistent LLM interaction, easier scaling&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;p>In essence, MCP acts as the &amp;ldquo;contract&amp;rdquo; for how LLMs interact with other systems, just as OpenAPI does for REST APIs.&lt;/p>
+&lt;hr>
+&lt;h2>What is Agent-to-Agent (A2A) Communication?&lt;span class="hx-absolute -hx-mt-20" id="what-is-agent-to-agent-a2a-communication">&lt;/span>
+&lt;a href="#what-is-agent-to-agent-a2a-communication" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>Agent-to-Agent (A2A) is a critical component of MCP. It refers to the ability of multiple agents (LLMs or other AI systems) to communicate with one another in a standardized manner.&lt;/p>
+&lt;h3>Where A2A Fits into MCP:&lt;span class="hx-absolute -hx-mt-20" id="where-a2a-fits-into-mcp">&lt;/span>
+&lt;a href="#where-a2a-fits-into-mcp" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;ul>
+&lt;li>&lt;strong>Collaboration&lt;/strong>: A2A allows different LLMs or agents to collaborate on tasks by sharing information and results.&lt;/li>
+&lt;li>&lt;strong>Decentralization&lt;/strong>: By enabling direct agent communication, A2A reduces the reliance on a centralized system.&lt;/li>
+&lt;li>&lt;strong>Scalability&lt;/strong>: A2A helps scale systems by distributing tasks across multiple agents or models.&lt;/li>
+&lt;/ul>
+&lt;h3>Example Use Case:&lt;span class="hx-absolute -hx-mt-20" id="example-use-case">&lt;/span>
+&lt;a href="#example-use-case" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>Imagine a customer support system where:&lt;/p>
+&lt;ol>
+&lt;li>&lt;strong>Agent 1&lt;/strong> specializes in answering technical questions.&lt;/li>
+&lt;li>&lt;strong>Agent 2&lt;/strong> focuses on billing inquiries.&lt;/li>
+&lt;li>&lt;strong>Agent 3&lt;/strong> is a general-purpose assistant.&lt;/li>
+&lt;/ol>
+&lt;p>With A2A, these agents can coordinate:&lt;/p>
+&lt;ul>
+&lt;li>Agent 3 receives a query and determines it&amp;rsquo;s a billing issue.&lt;/li>
+&lt;li>It forwards the query to Agent 2 using MCP protocols.&lt;/li>
+&lt;li>Agent 2 processes the query and returns the response to Agent 3, which relays it to the user.&lt;/li>
+&lt;/ul>
+&lt;hr>
+&lt;h2>Problems MCP Solves&lt;span class="hx-absolute -hx-mt-20" id="problems-mcp-solves">&lt;/span>
+&lt;a href="#problems-mcp-solves" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;h3>1. &lt;strong>Lack of Standardization&lt;/strong>&lt;span class="hx-absolute -hx-mt-20" id="1-lack-of-standardization">&lt;/span>
+&lt;a href="#1-lack-of-standardization" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;ul>
+&lt;li>Currently, every LLM has its own unique API and interaction model.&lt;/li>
+&lt;li>MCP provides a universal protocol, reducing the need for custom integrations.&lt;/li>
+&lt;/ul>
+&lt;h3>2. &lt;strong>Complex LLM Ecosystems&lt;/strong>&lt;span class="hx-absolute -hx-mt-20" id="2-complex-llm-ecosystems">&lt;/span>
+&lt;a href="#2-complex-llm-ecosystems" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;ul>
+&lt;li>In systems with multiple LLMs or agents, communication can become fragmented.&lt;/li>
+&lt;li>MCP and A2A enable a cohesive framework for inter-agent communication.&lt;/li>
+&lt;/ul>
+&lt;h3>3. &lt;strong>Scalability Challenges&lt;/strong>&lt;span class="hx-absolute -hx-mt-20" id="3-scalability-challenges">&lt;/span>
+&lt;a href="#3-scalability-challenges" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;ul>
+&lt;li>Scaling LLM systems often involves ad-hoc solutions for orchestration.&lt;/li>
+&lt;li>MCP introduces modularity, making it easier to scale and manage these systems.&lt;/li>
+&lt;/ul>
+&lt;h3>4. &lt;strong>Developer Friction&lt;/strong>&lt;span class="hx-absolute -hx-mt-20" id="4-developer-friction">&lt;/span>
+&lt;a href="#4-developer-friction" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;ul>
+&lt;li>Developers often face difficulty in integrating different LLMs.&lt;/li>
+&lt;li>MCP simplifies this process by providing a clear and consistent interface.&lt;/li>
+&lt;/ul>
+&lt;hr>
+&lt;h2>Conclusion&lt;span class="hx-absolute -hx-mt-20" id="conclusion">&lt;/span>
+&lt;a href="#conclusion" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>MCP is to LLMs what OpenAPI is to RESTful APIs—a standard for communication, interaction, and integration. By introducing features like Agent-to-Agent communication, MCP addresses key challenges in scalability, standardization, and interoperability. As the adoption of LLMs grows, MCP will play an essential role in shaping how these models interact with each other and the systems they serve.&lt;/p></description></item></channel></rss>

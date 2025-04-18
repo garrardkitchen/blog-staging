@@ -382,13 +382,30 @@ title="Copy code"
 &lt;/ul></description></item><item><title>Prompts</title><link>https://blog-dev.garrardkitchen.com/nuggets/prompts/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://blog-dev.garrardkitchen.com/nuggets/prompts/</guid><description>
 &lt;p>&lt;a href="https://blog-dev.garrardkitchen.com/blog/prompts" >This post explains what prompts are in the context of GitHub Copilot Chat&lt;/a>&lt;/p></description></item><item><title>Local</title><link>https://blog-dev.garrardkitchen.com/nuggets/mcp/mcp-local/</link><pubDate>Thu, 17 Apr 2025 00:00:00 +0000</pubDate><guid>https://blog-dev.garrardkitchen.com/nuggets/mcp/mcp-local/</guid><description>
 &lt;h2>Links&lt;span class="hx-absolute -hx-mt-20" id="links">&lt;/span>
-&lt;a href="#links" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2></description></item><item><title>Remote</title><link>https://blog-dev.garrardkitchen.com/nuggets/mcp/mcp-remote/</link><pubDate>Thu, 17 Apr 2025 00:00:00 +0000</pubDate><guid>https://blog-dev.garrardkitchen.com/nuggets/mcp/mcp-remote/</guid><description>
+&lt;a href="#links" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2></description></item><item><title>Local MCP Server</title><link>https://blog-dev.garrardkitchen.com/ai/mcp/mcp-local/</link><pubDate>Thu, 17 Apr 2025 00:00:00 +0000</pubDate><guid>https://blog-dev.garrardkitchen.com/ai/mcp/mcp-local/</guid><description>
+&lt;h2>Links&lt;span class="hx-absolute -hx-mt-20" id="links">&lt;/span>
+&lt;a href="#links" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th style="text-align: center">Link&lt;/th>
+&lt;th style="text-align: left">Description&lt;/th>
+&lt;th style="text-align: center">&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td style="text-align: center">&lt;a href="https://github.com/garrardkitchen/mcp-example" target="_blank" rel="noopener">Click here&lt;/a>&lt;/td>
+&lt;td style="text-align: left">I wanted to see for myself how easy it is to create an MCP Server (albeit running locally). I am keen to start my personal journey and the way to communicate context, improve interoperability, privacy and enure quality of AI-powered suggestions.&lt;/td>
+&lt;td style="text-align: center">&lt;div class="hextra-badge ">
+&lt;div class="hx-inline-flex hx-gap-1 hx-items-center hx-rounded-full hx-px-2.5 hx-leading-6 hx-text-[.65rem] hx-border hx-border-red-200 hx-bg-red-100 hx-text-red-900 dark:hx-border-red-200/30 dark:hx-bg-red-900/30 dark:hx-text-red-200">new&lt;/div>
+&lt;/div>&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table></description></item><item><title>Remote</title><link>https://blog-dev.garrardkitchen.com/nuggets/mcp/mcp-remote/</link><pubDate>Thu, 17 Apr 2025 00:00:00 +0000</pubDate><guid>https://blog-dev.garrardkitchen.com/nuggets/mcp/mcp-remote/</guid><description>
 &lt;h2>Links&lt;span class="hx-absolute -hx-mt-20" id="links">&lt;/span>
 &lt;a href="#links" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2></description></item><item><title>VSCode</title><link>https://blog-dev.garrardkitchen.com/nuggets/mcp/mcp-vscode/</link><pubDate>Thu, 17 Apr 2025 00:00:00 +0000</pubDate><guid>https://blog-dev.garrardkitchen.com/nuggets/mcp/mcp-vscode/</guid><description>
 &lt;h2>Links&lt;span class="hx-absolute -hx-mt-20" id="links">&lt;/span>
-&lt;a href="#links" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2></description></item><item><title>I am not Steve!</title><link>https://blog-dev.garrardkitchen.com/gaming/minecraft/java-edition/</link><pubDate>Thu, 27 Jan 2022 11:49:14 +0100</pubDate><guid>https://blog-dev.garrardkitchen.com/gaming/minecraft/java-edition/</guid><description>
-&lt;p>&lt;strong>TL;DR:&lt;/strong> £70 lighter, shared family learning and happiness (well, kinda)&lt;/p>
-&lt;p>TBC&amp;hellip;&lt;/p></description></item><item><title>Model Context Protocol</title><link>https://blog-dev.garrardkitchen.com/ai/mcp/mcp-intro/</link><pubDate>Thu, 27 Jan 2022 11:49:14 +0100</pubDate><guid>https://blog-dev.garrardkitchen.com/ai/mcp/mcp-intro/</guid><description>
+&lt;a href="#links" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2></description></item><item><title>Comparison to OpenAPI</title><link>https://blog-dev.garrardkitchen.com/ai/mcp/mcp-intro/</link><pubDate>Thu, 27 Jan 2022 11:49:14 +0100</pubDate><guid>https://blog-dev.garrardkitchen.com/ai/mcp/mcp-intro/</guid><description>
 &lt;p>When I first came across the Model Context Protocol (MCP), I couldn&amp;rsquo;t help but notice its parallels with OpenAPI. What follows is my attempt to connect the dots. While it&amp;rsquo;s not a perfect one-to-one comparison, it&amp;rsquo;s fascinating how concepts can feel similar simply by swapping a few key terms.&lt;/p>
 &lt;h1>Understanding MCP and Its Comparison to OpenAPI for LLMs&lt;/h1>&lt;p>In the world of APIs, OpenAPI has become the gold standard for describing RESTful APIs in a way that is machine-readable, consistent, and developer-friendly. Similarly, the &lt;strong>Model Communication Protocol (MCP)&lt;/strong> aims to provide a standardized framework for &lt;strong>Large Language Models (LLMs)&lt;/strong> to interact with applications, enabling interoperability, scalability, and ease of integration. This document explores how MCP is comparable to OpenAPI, introduces the concept of &lt;strong>Agent-to-Agent (A2A) communication&lt;/strong>, and examines the problems MCP solves in the LLM ecosystem.&lt;/p>
 &lt;hr>
@@ -497,7 +514,9 @@ title="Copy code"
 &lt;/ul>
 &lt;hr>
 &lt;h2>Conclusion&lt;span class="hx-absolute -hx-mt-20" id="conclusion">&lt;/span>
-&lt;a href="#conclusion" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>MCP is to LLMs what OpenAPI is to RESTful APIs—a standard for communication, interaction, and integration. By introducing features like Agent-to-Agent communication, MCP addresses key challenges in scalability, standardization, and interoperability. As the adoption of LLMs grows, MCP will play an essential role in shaping how these models interact with each other and the systems they serve.&lt;/p></description></item><item><title>Comments System</title><link>https://blog-dev.garrardkitchen.com/docs/advanced/comments/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://blog-dev.garrardkitchen.com/docs/advanced/comments/</guid><description>
+&lt;a href="#conclusion" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>MCP is to LLMs what OpenAPI is to RESTful APIs—a standard for communication, interaction, and integration. By introducing features like Agent-to-Agent communication, MCP addresses key challenges in scalability, standardization, and interoperability. As the adoption of LLMs grows, MCP will play an essential role in shaping how these models interact with each other and the systems they serve.&lt;/p></description></item><item><title>I am not Steve!</title><link>https://blog-dev.garrardkitchen.com/gaming/minecraft/java-edition/</link><pubDate>Thu, 27 Jan 2022 11:49:14 +0100</pubDate><guid>https://blog-dev.garrardkitchen.com/gaming/minecraft/java-edition/</guid><description>
+&lt;p>&lt;strong>TL;DR:&lt;/strong> £70 lighter, shared family learning and happiness (well, kinda)&lt;/p>
+&lt;p>TBC&amp;hellip;&lt;/p></description></item><item><title>Comments System</title><link>https://blog-dev.garrardkitchen.com/docs/advanced/comments/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://blog-dev.garrardkitchen.com/docs/advanced/comments/</guid><description>
 &lt;p>Hextra supports adding comments system to your site.
 Currently &lt;a href="https://giscus.app/" target="_blank" rel="noopener">giscus&lt;/a> is supported.&lt;/p>
 &lt;h2>giscus&lt;span class="hx-absolute -hx-mt-20" id="giscus">&lt;/span>
