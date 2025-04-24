@@ -16,7 +16,7 @@
 &lt;a href="#step-by-step-adding-an-mcp-server-in-vscode" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;ol>
 &lt;li>
 &lt;p>&lt;strong>Get the MCP Server Code&lt;/strong>&lt;/p>
-&lt;p>Download or clone the MCP server implementation from the &lt;a href="https://github.com/garrardkitchen/mcp-server-example" target="_blank" rel="noopener">official repository&lt;/a>.&lt;/p>
+&lt;p>Download or clone the MCP server implementation from the &lt;a href="https://github.com/garrardkitchen/mcp-server-example" target="_blank" rel="noopener">MCP Server repository&lt;/a>.&lt;/p>
 &lt;/li>
 &lt;li>
 &lt;p>&lt;strong>Open the Agent Pane in VSCode&lt;/strong>&lt;/p>
