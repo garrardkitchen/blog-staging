@@ -1,0 +1,121 @@
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Garrard Kitchen – Mcp</title><link>https://blog-dev.garrardkitchen.com/tags/mcp/</link><description>Recent content in Mcp on Garrard Kitchen</description><generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Wed, 23 Apr 2025 13:29:21 +0100</lastBuildDate><atom:link href="https://blog-dev.garrardkitchen.com/tags/mcp/index.xml" rel="self" type="application/rss+xml"/><item><title>Setting Up a Model Context Protocol (MCP) Remote Server in VSCode</title><link>https://blog-dev.garrardkitchen.com/blog/mcp-server-example/</link><pubDate>Wed, 23 Apr 2025 13:29:21 +0100</pubDate><guid>https://blog-dev.garrardkitchen.com/blog/mcp-server-example/</guid><description>
+&lt;h2>Summary&lt;span class="hx-absolute -hx-mt-20" id="summary">&lt;/span>
+&lt;a href="#summary" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>This guide walks you through the process of connecting a Model Context Protocol (MCP) remote server to Visual Studio Code (VSCode). You&amp;rsquo;ll learn what MCP is, why it&amp;rsquo;s useful, and how to set up and use an MCP server to provide richer, real-time context to AI-powered tools like GitHub Copilot.&lt;/p>
+&lt;hr>
+&lt;h2>What is Model Context Protocol (MCP)?&lt;span class="hx-absolute -hx-mt-20" id="what-is-model-context-protocol-mcp">&lt;/span>
+&lt;a href="#what-is-model-context-protocol-mcp" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>Model Context Protocol (MCP) is an open standard that enables editors, AI tools, and services to share and understand the context of your workspace or project. By providing a standardized way to communicate context (such as open files, project structure, or user actions), MCP improves the quality, privacy, and interoperability of AI-powered suggestions.&lt;/p>
+&lt;p>For more information, see the &lt;a href="https://modelcontext.org/" target="_blank" rel="noopener">Model Context Protocol website&lt;/a>.&lt;/p>
+&lt;h2>Why Use an MCP Server?&lt;span class="hx-absolute -hx-mt-20" id="why-use-an-mcp-server">&lt;/span>
+&lt;a href="#why-use-an-mcp-server" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>An MCP server acts as a bridge between your development environment and AI tools. It streams real-time context about your workspace, allowing AI assistants to provide more relevant and accurate suggestions. This is especially useful for:&lt;/p>
+&lt;ul>
+&lt;li>Keeping AI tools up-to-date with your latest changes&lt;/li>
+&lt;li>Improving privacy by standardizing what context is shared&lt;/li>
+&lt;li>Enabling interoperability between different editors and AI services&lt;/li>
+&lt;/ul>
+&lt;h2>Step-by-Step: Adding an MCP Server in VSCode&lt;span class="hx-absolute -hx-mt-20" id="step-by-step-adding-an-mcp-server-in-vscode">&lt;/span>
+&lt;a href="#step-by-step-adding-an-mcp-server-in-vscode" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;ol>
+&lt;li>
+&lt;p>&lt;strong>Get the MCP Server Code&lt;/strong>&lt;/p>
+&lt;p>Download or clone the MCP server implementation from the &lt;a href="https://github.com/garrardkitchen/mcp-server-example" target="_blank" rel="noopener">official repository&lt;/a>.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>Open the Agent Pane in VSCode&lt;/strong>&lt;/p>
+&lt;p>Move to the Agent pane and press the tools icon:&lt;/p>
+&lt;p>
+&lt;img src="../img/mcp-server-example.png" alt="Agent pane tools icon" loading="lazy" />&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>Add More Tools&lt;/strong>&lt;/p>
+&lt;p>This will open a list of available tools. Select the &lt;code>+ Add More Tools&lt;/code> option:&lt;/p>
+&lt;p>
+&lt;img src="../img/mcp-server-example-1.png" alt="Add More Tools" loading="lazy" />&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>Add MCP Server&lt;/strong>&lt;/p>
+&lt;p>Click on &lt;code>+ Add MCP Server...&lt;/code>:&lt;/p>
+&lt;p>
+&lt;img src="../img/mcp-server-example-2.png" alt="Add MCP Server" loading="lazy" />&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>Select Server Type&lt;/strong>&lt;/p>
+&lt;p>Since MCP servers uses HTTP to push real-time events, select the highlighted HTTP Server option:&lt;/p>
+&lt;p>
+&lt;img src="../img/mcp-server-example-3.png" alt="Select HTTP Server" loading="lazy" />&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>Enter Server Details&lt;/strong>&lt;/p>
+&lt;p>Enter your MCP server&amp;rsquo;s URL and a unique ID. After this, a new server entry will be created in your &lt;code>.vscode/mcp.json&lt;/code> file:&lt;/p>
+&lt;p>
+&lt;img src="../img/mcp-server-example-4.png" alt="mcp.json entry" loading="lazy" />&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>Start the MCP Server&lt;/strong>&lt;/p>
+&lt;p>Press the start button to activate the connection:&lt;/p>
+&lt;p>
+&lt;img src="../img/mcp-server-example-5.png" alt="Start MCP Server" loading="lazy" />&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>Interact with the Agent&lt;/strong>&lt;/p>
+&lt;p>Now, go to your Agent pane. For example, you might ask the agent to look up a person. The agent may prompt you for more information:&lt;/p>
+&lt;p>
+&lt;img src="../img/mcp-server-example-7.png" alt="Agent prompt" loading="lazy" />&lt;/p>
+&lt;p>After providing the requested input and clicking continue, you&amp;rsquo;ll see the agent&amp;rsquo;s response:&lt;/p>
+&lt;p>
+&lt;img src="../img/mcp-server-example-8.png" alt="Agent response" loading="lazy" />&lt;/p>
+&lt;/li>
+&lt;/ol>
+&lt;hr>
+&lt;h2>Troubleshooting&lt;span class="hx-absolute -hx-mt-20" id="troubleshooting">&lt;/span>
+&lt;a href="#troubleshooting" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>If you&amp;rsquo;re not receiving the responses you expect, or if you want to test and interact with your MCP server(s) outside of the VSCode environment, you can use the MCP Inspector. This tool provides a user-friendly interface for testing and debugging your MCP servers. &lt;a href="https://github.com/modelcontextprotocol/inspector" target="_blank" rel="noopener">Access the MCP Inspector source code here&lt;/a>.&lt;/p>
+&lt;p>To install the inspector, enter this into your terminal:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">npx @modelcontextprotocol/inspector dotnet run&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>This then starts the MCP Inspector. Click on the HTTP URL to access the Inspector:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">Starting MCP inspector...
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">⚙️ Proxy server listening on port &lt;span class="m">6277&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">🔍 MCP Inspector is up and running at http://127.0.0.1:6274 🚀
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">New SSE connection&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>This is how my MCP Remote Server looks in the Inspector. I have listed the tools to review WhoIs and have enter my name to get a response:&lt;/p>
+&lt;p>
+&lt;img src="../img/mcp-server-example-9.png" alt="alt text" loading="lazy" />&lt;/p>
+&lt;hr>
+&lt;h2>How Does This Help?&lt;span class="hx-absolute -hx-mt-20" id="how-does-this-help">&lt;/span>
+&lt;a href="#how-does-this-help" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>By connecting an MCP server, you enable VSCode and its AI-powered extensions (like Copilot) to access richer, real-time context about your project. This leads to smarter, more relevant suggestions and a more seamless development experience.&lt;/p>
+&lt;hr>
+&lt;h2>Terminology&lt;span class="hx-absolute -hx-mt-20" id="terminology">&lt;/span>
+&lt;a href="#terminology" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;ul>
+&lt;li>
+&lt;p>&lt;strong>Model Context Protocol (MCP):&lt;/strong> An open standard for sharing workspace and project context between editors, AI tools, and services. &lt;a href="https://modelcontextprotocol.io/introduction" target="_blank" rel="noopener">Learn more&lt;/a>.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>Server-Sent Events (SSE):&lt;/strong>&lt;/p>
+&lt;p>In relation to MCP, SSE is a way for an MCP server to push real-time updates or context information to connected clients (such as editors or AI tools) over HTTP. With SSE, the server can continuously stream data—like file changes, user actions, or other context—without the client needing to repeatedly poll for updates. This enables efficient, low-latency communication and ensures that AI tools always have the latest context from the user&amp;rsquo;s environment.&lt;/p>
+&lt;p>&lt;strong>In summary:&lt;/strong>&lt;/p>
+&lt;p>SSE allows an MCP server to broadcast context changes to clients in real time, improving the responsiveness and accuracy of AI-powered features in tools that support MCP.&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;h2>References&lt;span class="hx-absolute -hx-mt-20" id="references">&lt;/span>
+&lt;a href="#references" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;ul>
+&lt;li>&lt;a href="https://modelcontextprotocol.io/introduction" target="_blank" rel="noopener">Model Context Protocol (MCP) Website&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://github.com/modelcontextprotocol/" target="_blank" rel="noopener">MCP GitHub Organization&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events" target="_blank" rel="noopener">Server-Sent Events (MDN)&lt;/a>&lt;/li>
+&lt;/ul></description></item></channel></rss>
