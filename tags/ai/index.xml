@@ -98,10 +98,31 @@ title="Copy code"
 &lt;/div>
 &lt;/div>
 &lt;p>Now, Copilot Chat will automatically consider your code style instructions.&lt;/p>
+&lt;div class="hx-overflow-x-auto hx-mt-6 hx-flex hx-flex-col hx-rounded-lg hx-border hx-py-4 hx-px-4 contrast-more:hx-border-current contrast-more:dark:hx-border-current hx-border-green-200 hx-bg-green-100 hx-text-green-900 dark:hx-border-green-200/30 dark:hx-bg-green-900/30 dark:hx-text-green-200">
+&lt;p class="hx-flex hx-items-center hx-font-medium">&lt;svg height=16px class="hx-inline-block hx-align-middle hx-mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">&lt;path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>&lt;/svg>Tip&lt;/p>
+&lt;div class="hx-w-full hx-min-w-0 hx-leading-7">
+&lt;div class="hx-mt-6 hx-leading-7 first:hx-mt-0">&lt;p>To share instructions across multiple projects within a VS Code workspace, create a &lt;strong>&lt;code>.github/prompts/&lt;/code>&lt;/strong> folder at the workspace root and place your instruction markdown files in that folder.&lt;/p>&lt;/div>
+&lt;/div>
+&lt;/div>
+&lt;h2>Custom instructions settings&lt;span class="hx-absolute -hx-mt-20" id="custom-instructions-settings">&lt;/span>
+&lt;a href="#custom-instructions-settings" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;div class="hx-overflow-x-auto hx-mt-6 hx-flex hx-flex-col hx-rounded-lg hx-border hx-py-4 hx-px-4 contrast-more:hx-border-current contrast-more:dark:hx-border-current hx-border-blue-200 hx-bg-blue-100 hx-text-blue-900 dark:hx-border-blue-200/30 dark:hx-bg-blue-900/30 dark:hx-text-blue-200">
+&lt;p class="hx-flex hx-items-center hx-font-medium">&lt;svg height=16px class="hx-inline-block hx-align-middle hx-mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">&lt;path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>&lt;/svg>Note&lt;/p>
+&lt;div class="hx-w-full hx-min-w-0 hx-leading-7">
+&lt;div class="hx-mt-6 hx-leading-7 first:hx-mt-0">&lt;p>There are multiple custom instructions settings. These are listed below&lt;/p>&lt;/div>
+&lt;/div>
+&lt;/div>
+&lt;ul>
+&lt;li>&lt;strong>&lt;code>github.copilot.chat.codeGeneration.useInstructionFiles&lt;/code>&lt;/strong>: controls whether code instructions from .github/copilot-instructions.md are added to Copilot requests.&lt;/li>
+&lt;li>&lt;strong>&lt;code>github.copilot.chat.codeGeneration.instructions (Experimental)&lt;/code>&lt;/strong>: set of instructions that will be added to Copilot requests that generate code.&lt;/li>
+&lt;li>&lt;strong>&lt;code>github.copilot.chat.testGeneration.instructions (Experimental)&lt;/code>&lt;/strong>: set of instructions that will be added to Copilot requests that generate tests.&lt;/li>
+&lt;li>&lt;strong>&lt;code>github.copilot.chat.reviewSelection.instructions (Preview)&lt;/code>&lt;/strong>: set of instructions that will be added to Copilot requests for reviewing the current editor selection.&lt;/li>
+&lt;li>&lt;strong>&lt;code>github.copilot.chat.commitMessageGeneration.instructions (Experimental)&lt;/code>&lt;/strong>: set of instructions that will be added to Copilot requests that generate commit messages.&lt;/li>
+&lt;li>&lt;strong>&lt;code>github.copilot.chat.pullRequestDescriptionGeneration.instructions (Experimental)&lt;/code>&lt;/strong>: set of instructions that will be added to Copilot requests that generate pull request titles and descriptions.&lt;/li>
+&lt;/ul>
 &lt;h2>References&lt;span class="hx-absolute -hx-mt-20" id="references">&lt;/span>
 &lt;a href="#references" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;ul>
 &lt;li>&lt;a href="https://docs.github.com/en/copilot/copilot-chat-cookbook" target="_blank" rel="noopener">GitHub Copilot Chat Cookbook&lt;/a>&lt;/li>
-&lt;li>&lt;a href="https://docs.github.com/en/copilot/copilot-chat" target="_blank" rel="noopener">GitHub Copilot Chat Documentation&lt;/a>&lt;/li>
-&lt;li>&lt;a href="https://docs.github.com/en/copilot/copilot-chat/configuring-copilot-chat" target="_blank" rel="noopener">Configuring Copilot Chat&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://code.visualstudio.com/docs/copilot/copilot-tips-and-tricks" target="_blank" rel="noopener">GitHub Copilot Tips and Tricks&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://code.visualstudio.com/docs/copilot/copilot-customization" target="_blank" rel="noopener">Customise Copilot Chat&lt;/a>&lt;/li>
 &lt;li>&lt;a href="https://docs.github.com/en/copilot/using-github-copilot/best-practices-for-using-github-copilot" target="_blank" rel="noopener">Best Practices for Using GitHub Copilot&lt;/a>&lt;/li>
 &lt;/ul></description></item></channel></rss>
