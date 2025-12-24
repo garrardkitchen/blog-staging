@@ -1,0 +1,478 @@
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Garrard Kitchen – Entra-Id</title><link>https://blog-dev.garrardkitchen.com/tags/entra-id/</link><description>Recent content in Entra-Id on Garrard Kitchen</description><generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Thu, 18 Dec 2025 10:00:00 +0000</lastBuildDate><atom:link href="https://blog-dev.garrardkitchen.com/tags/entra-id/index.xml" rel="self" type="application/rss+xml"/><item><title>Building EntraTool - A Secure CLI for Microsoft Entra ID Token Management</title><link>https://blog-dev.garrardkitchen.com/blog/entra-token-cli-journey/</link><pubDate>Thu, 18 Dec 2025 10:00:00 +0000</pubDate><guid>https://blog-dev.garrardkitchen.com/blog/entra-token-cli-journey/</guid><description>
+&lt;h2>The Problem: Death by a Thousand Manual Token Requests&lt;span class="hx-absolute -hx-mt-20" id="the-problem-death-by-a-thousand-manual-token-requests">&lt;/span>
+&lt;a href="#the-problem-death-by-a-thousand-manual-token-requests" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>Picture this: You&amp;rsquo;re building a modern cloud application with proper security architecture. You&amp;rsquo;ve followed the principle of least privilege, creating dedicated app registrations for each API and client application. Your service principals are perfectly scoped with granular permissions. You&amp;rsquo;re doing everything right.&lt;/p>
+&lt;p>&lt;strong>Then reality hits.&lt;/strong>&lt;/p>
+&lt;p>Every time you need to test an API, debug an integration, or verify permissions, you&amp;rsquo;re stuck in a tedious workflow:&lt;/p>
+&lt;ul>
+&lt;li>Hunt down the tenant ID (again)&lt;/li>
+&lt;li>Find the client ID in the Azure portal&lt;/li>
+&lt;li>Copy that client secret you saved&amp;hellip; somewhere&lt;/li>
+&lt;li>Craft the OAuth2 token request manually or fiddle with Postman&lt;/li>
+&lt;li>Repeat this 5-10 times a day across dev, staging, and production environments&lt;/li>
+&lt;/ul>
+&lt;p>&lt;strong>But the real nightmare? The security risk.&lt;/strong>&lt;/p>
+&lt;p>After creating my third C# console app to generate tokens (the last one being a .NET 10 file-based utility), I realized I was one &lt;code>git commit&lt;/code> away from disaster. How long before I accidentally pushed a client secret into a repo? How many developers have made that mistake, triggering emergency credential rotations at 2 AM?&lt;/p>
+&lt;p>&lt;strong>There had to be a better way.&lt;/strong>&lt;/p>
+&lt;h2>The Solution: EntraTool - Secure Token Management Made Simple&lt;span class="hx-absolute -hx-mt-20" id="the-solution-entratool---secure-token-management-made-simple">&lt;/span>
+&lt;a href="#the-solution-entratool---secure-token-management-made-simple" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>I decided to build &lt;code>entratool&lt;/code>, a cross-platform CLI that eliminates both the frustration and the security risk. The elevator pitch:&lt;/p>
+&lt;blockquote>
+&lt;p>&lt;strong>Stop manually hunting for credentials across Azure portals. Stop risking accidental secret commits. Store your profiles once with platform-native encryption, and generate tokens with a single command—no matter which OS you&amp;rsquo;re on.&lt;/strong>&lt;/p>
+&lt;/blockquote>
+&lt;p>The goal was simple: &lt;strong>secure by default, fast by design, natural to use.&lt;/strong>&lt;/p>
+&lt;h2>The Journey: From Problem to Solution in 1 Hour&lt;span class="hx-absolute -hx-mt-20" id="the-journey-from-problem-to-solution-in-1-hour">&lt;/span>
+&lt;a href="#the-journey-from-problem-to-solution-in-1-hour" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>Here&amp;rsquo;s where it gets interesting—I built the entire initial version in just &lt;strong>1 hour&lt;/strong> using Claude Sonnet 4.5 and GitHub Copilot in VS Code.&lt;/p>
+&lt;h3>AI-Assisted Development Done Right&lt;span class="hx-absolute -hx-mt-20" id="ai-assisted-development-done-right">&lt;/span>
+&lt;a href="#ai-assisted-development-done-right" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>Rather than writing boilerplate from scratch, I focused on:&lt;/p>
+&lt;ul>
+&lt;li>&lt;strong>Architecture decisions&lt;/strong>: OAuth2 flows, secure storage patterns, command structure&lt;/li>
+&lt;li>&lt;strong>UX design&lt;/strong>: Making the CLI feel natural and intuitive&lt;/li>
+&lt;li>&lt;strong>Platform integration&lt;/strong>: macOS Keychain, Windows DPAPI, Linux fallbacks&lt;/li>
+&lt;/ul>
+&lt;p>The AI pair programming handled:&lt;/p>
+&lt;ul>
+&lt;li>Complex OAuth2 flow implementations with MSAL&lt;/li>
+&lt;li>Certificate authentication edge cases&lt;/li>
+&lt;li>Platform-specific secure storage integrations (especially the tricky macOS Keychain CLI interactions)&lt;/li>
+&lt;li>Rich console UI with Spectre.Console&lt;/li>
+&lt;/ul>
+&lt;p>&lt;strong>The biggest challenge?&lt;/strong> Getting the UX right. The tool needed to feel natural—profiles should be easy to create, secrets should be transparently handled, and common workflows should &amp;ldquo;just work&amp;rdquo; without reading documentation.&lt;/p>
+&lt;h2>Technical Deep Dive: How It Works&lt;span class="hx-absolute -hx-mt-20" id="technical-deep-dive-how-it-works">&lt;/span>
+&lt;a href="#technical-deep-dive-how-it-works" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;h3>Understanding Service Principals and API Permissions&lt;span class="hx-absolute -hx-mt-20" id="understanding-service-principals-and-api-permissions">&lt;/span>
+&lt;a href="#understanding-service-principals-and-api-permissions" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>When you create an &lt;strong>app registration&lt;/strong> in Microsoft Entra ID (formerly Azure AD), you&amp;rsquo;re defining an application identity. But here&amp;rsquo;s the key concept many developers miss:&lt;/p>
+&lt;p>&lt;strong>An app registration is just a blueprint.&lt;/strong> When your app registration gets permissions to access a resource (like Microsoft Graph or your custom API), Azure automatically creates a &lt;strong>service principal&lt;/strong> in your tenant.&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;pre>&lt;code>App Registration (Blueprint)
+↓ grants permission to
+Resource API (e.g., Microsoft Graph)
+↓ automatically creates
+Service Principal (Runtime Identity)&lt;/code>&lt;/pre>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>The service principal is what actually authenticates and gets tokens. This is why:&lt;/p>
+&lt;ul>
+&lt;li>You create app registrations in one place&lt;/li>
+&lt;li>But service principals exist per tenant&lt;/li>
+&lt;li>Multi-tenant apps have one app registration but many service principals&lt;/li>
+&lt;/ul>
+&lt;p>&lt;strong>EntraTool manages both sides:&lt;/strong> It stores your client credentials securely and handles the OAuth2 flows to get tokens from those service principals.&lt;/p>
+&lt;h3>Four OAuth2 Flows, One Command&lt;span class="hx-absolute -hx-mt-20" id="four-oauth2-flows-one-command">&lt;/span>
+&lt;a href="#four-oauth2-flows-one-command" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>EntratTool supports all the major OAuth2 flows:&lt;/p>
+&lt;p>&lt;strong>1. Client Credentials&lt;/strong> (Service-to-Service)&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">entratool get-token -p myapi&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>Perfect for service principals, API access, automation. No user interaction needed.&lt;/p>
+&lt;p>&lt;strong>2. Authorization Code with PKCE&lt;/strong> (User-Interactive)&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">entratool get-token -p myapp -f AuthorizationCode&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>Opens a browser, user logs in, token is cached. Great for delegated permissions.&lt;/p>
+&lt;p>&lt;strong>3. Device Code&lt;/strong> (Headless/SSH)&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">entratool get-token -p myapp -f DeviceCode&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>Displays a code to enter on another device. Perfect for SSH sessions or containers.&lt;/p>
+&lt;p>&lt;strong>4. Interactive Browser&lt;/strong> (Local Development)&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">entratool get-token -p myapp -f InteractiveBrowser&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>Full browser flow with automatic localhost callback handling.&lt;/p>
+&lt;h3>Secure Storage: Platform-Native Encryption&lt;span class="hx-absolute -hx-mt-20" id="secure-storage-platform-native-encryption">&lt;/span>
+&lt;a href="#secure-storage-platform-native-encryption" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>This is where security meets usability. Secrets are &lt;strong>never stored in plain text&lt;/strong>:&lt;/p>
+&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th>Platform&lt;/th>
+&lt;th>Storage Method&lt;/th>
+&lt;th>Location&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td>&lt;strong>Windows&lt;/strong>&lt;/td>
+&lt;td>DPAPI (Data Protection API)&lt;/td>
+&lt;td>&lt;code>%APPDATA%\entratool\secure\&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;strong>macOS&lt;/strong>&lt;/td>
+&lt;td>System Keychain&lt;/td>
+&lt;td>Keychain Access (search &amp;ldquo;entratool&amp;rdquo;)&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;strong>Linux&lt;/strong>&lt;/td>
+&lt;td>XOR Obfuscation*&lt;/td>
+&lt;td>&lt;code>~/.config/entratool/secure/&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;p>*Linux fallback is weak; proper libsecret integration planned for future versions.&lt;/p>
+&lt;p>The profile metadata (tenant IDs, client IDs, scopes) is stored separately in &lt;code>profiles.json&lt;/code>, but &lt;strong>zero secrets touch that file&lt;/strong>.&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-json" data-lang="json">&lt;span class="line">&lt;span class="cl">&lt;span class="c1">// profiles.json - safe to commit (no secrets!)
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;#34;name&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="s2">&amp;#34;production-api&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;#34;tenantId&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="s2">&amp;#34;f1a8cfe1-...&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;#34;clientId&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="s2">&amp;#34;2d1b44f8-...&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;#34;scopes&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="p">[&lt;/span>&lt;span class="s2">&amp;#34;api://myapi/.default&amp;#34;&lt;/span>&lt;span class="p">],&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;#34;authMethod&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="s2">&amp;#34;ClientSecret&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>The actual client secret? Encrypted in the OS keychain, accessible only to your user account.&lt;/p>
+&lt;h3>Smart Flow Inference&lt;span class="hx-absolute -hx-mt-20" id="smart-flow-inference">&lt;/span>
+&lt;a href="#smart-flow-inference" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>One of my favorite UX touches: &lt;strong>you don&amp;rsquo;t have to specify the OAuth2 flow every time.&lt;/strong>&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-csharp" data-lang="csharp">&lt;span class="line">&lt;span class="cl">&lt;span class="c1">// In GetTokenCommand.cs&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">OAuth2Flow&lt;/span> &lt;span class="n">flow&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">if&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">profile&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">AuthMethod&lt;/span> &lt;span class="p">==&lt;/span> &lt;span class="n">AuthenticationMethod&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">ClientSecret&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">flow&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="n">OAuth2Flow&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">ClientCredentials&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="c1">// Service principal? Use client credentials&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">else&lt;/span> &lt;span class="k">if&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">profile&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">AuthMethod&lt;/span> &lt;span class="p">==&lt;/span> &lt;span class="n">AuthenticationMethod&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">Certificate&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">flow&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="n">OAuth2Flow&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">ClientCredentials&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="c1">// Certificate auth? Same deal&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">else&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">flow&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="n">OAuth2Flow&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">InteractiveBrowser&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="c1">// Otherwise, interactive browser&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>&lt;strong>Result:&lt;/strong> Just type &lt;code>entratool get-token -p myprofile&lt;/code> and the tool picks the right flow based on your authentication method. No mental overhead.&lt;/p>
+&lt;h2>Key Features That Save Time and Prevent Disasters&lt;span class="hx-absolute -hx-mt-20" id="key-features-that-save-time-and-prevent-disasters">&lt;/span>
+&lt;a href="#key-features-that-save-time-and-prevent-disasters" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;h3>1. Profile Management&lt;span class="hx-absolute -hx-mt-20" id="1-profile-management">&lt;/span>
+&lt;a href="#1-profile-management" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>Create once, use everywhere:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># Interactive profile creation&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">entratool config create
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># List all profiles&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">entratool config list
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># Edit existing profiles&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">entratool config edit -p production-api&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;h3>2. Team Sharing (Without Exposing Secrets)&lt;span class="hx-absolute -hx-mt-20" id="2-team-sharing-without-exposing-secrets">&lt;/span>
+&lt;a href="#2-team-sharing-without-exposing-secrets" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>Export profiles with encryption for team distribution:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># Export with secrets (AES-256 + PBKDF2)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">entratool config &lt;span class="nb">export&lt;/span> -p myprofile --include-secrets -o team-profile.enc
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># Team member imports&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">entratool config import -i team-profile.enc&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;h3>3. Token Inspection&lt;span class="hx-absolute -hx-mt-20" id="3-token-inspection">&lt;/span>
+&lt;a href="#3-token-inspection" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>Decode JWTs instantly:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">entratool inspect eyJ0eXAiOiJKV1Qi...&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>Shows all claims, expiration, issuer—perfect for debugging permission issues.&lt;/p>
+&lt;h3>4. Clipboard Integration&lt;span class="hx-absolute -hx-mt-20" id="4-clipboard-integration">&lt;/span>
+&lt;a href="#4-clipboard-integration" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>Tokens auto-copy to clipboard (with smart fallback to file in headless environments):&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">entratool get-token -p myapi
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># Token in clipboard, ready to paste into Postman/curl&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;h3>5. Certificate Authentication&lt;span class="hx-absolute -hx-mt-20" id="5-certificate-authentication">&lt;/span>
+&lt;a href="#5-certificate-authentication" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>Full support for .pfx certificates with three password strategies:&lt;/p>
+&lt;ul>
+&lt;li>&lt;strong>Always prompt&lt;/strong> (maximum security)&lt;/li>
+&lt;li>&lt;strong>Cached password&lt;/strong> (convenience)&lt;/li>
+&lt;li>&lt;strong>Passwordless certificates&lt;/strong> (when possible)&lt;/li>
+&lt;/ul>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">entratool get-token -p cert-app --cache-cert-password&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;h3>6. App Registration Discovery&lt;span class="hx-absolute -hx-mt-20" id="6-app-registration-discovery">&lt;/span>
+&lt;a href="#6-app-registration-discovery" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>Search your tenant for app registrations without leaving the terminal:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">entratool discover -t contoso.onmicrosoft.com -s &lt;span class="s2">&amp;#34;MyApp*&amp;#34;&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>Uses Microsoft Graph API with keyboard search filtering and colored output.&lt;/p>
+&lt;h2>Best Practices and Architecture Decisions&lt;span class="hx-absolute -hx-mt-20" id="best-practices-and-architecture-decisions">&lt;/span>
+&lt;a href="#best-practices-and-architecture-decisions" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;h3>1. Separation of Concerns&lt;span class="hx-absolute -hx-mt-20" id="1-separation-of-concerns">&lt;/span>
+&lt;a href="#1-separation-of-concerns" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;ul>
+&lt;li>&lt;strong>Configuration layer&lt;/strong> (&lt;code>ConfigService&lt;/code>) handles profile CRUD&lt;/li>
+&lt;li>&lt;strong>Authentication layer&lt;/strong> (&lt;code>MsalAuthService&lt;/code>) handles OAuth2 flows&lt;/li>
+&lt;li>&lt;strong>Storage layer&lt;/strong> (&lt;code>ISecureStorage&lt;/code>) abstracts platform differences&lt;/li>
+&lt;li>&lt;strong>UI layer&lt;/strong> (&lt;code>ConsoleUi&lt;/code>) handles all Spectre.Console interactions&lt;/li>
+&lt;/ul>
+&lt;h3>2. Immutable Data Models&lt;span class="hx-absolute -hx-mt-20" id="2-immutable-data-models">&lt;/span>
+&lt;a href="#2-immutable-data-models" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>Using C# record types for profiles:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-csharp" data-lang="csharp">&lt;span class="line">&lt;span class="cl">&lt;span class="kd">public&lt;/span> &lt;span class="k">record&lt;/span> &lt;span class="nc">AuthProfile&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kt">string&lt;/span> &lt;span class="n">Name&lt;/span> &lt;span class="p">{&lt;/span> &lt;span class="k">get&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="k">init&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kt">string&lt;/span> &lt;span class="n">TenantId&lt;/span> &lt;span class="p">{&lt;/span> &lt;span class="k">get&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="k">init&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="n">OAuth2Flow&lt;/span>&lt;span class="p">?&lt;/span> &lt;span class="n">DefaultFlow&lt;/span> &lt;span class="p">{&lt;/span> &lt;span class="k">get&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="k">init&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">// ... with expressions for updates&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kt">var&lt;/span> &lt;span class="n">updated&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="n">profile&lt;/span> &lt;span class="n">with&lt;/span> &lt;span class="p">{&lt;/span> &lt;span class="n">TenantId&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="n">newTenantId&lt;/span> &lt;span class="p">};&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;h3>3. Explicit Over Implicit&lt;span class="hx-absolute -hx-mt-20" id="3-explicit-over-implicit">&lt;/span>
+&lt;a href="#3-explicit-over-implicit" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;ul>
+&lt;li>Token refresh is a separate command (&lt;code>refresh&lt;/code>), not automatic&lt;/li>
+&lt;li>Certificate password caching requires explicit flag (&lt;code>--cache-cert-password&lt;/code>)&lt;/li>
+&lt;li>Token expiration warnings enabled by default but configurable&lt;/li>
+&lt;/ul>
+&lt;h3>4. Platform Detection at Runtime&lt;span class="hx-absolute -hx-mt-20" id="4-platform-detection-at-runtime">&lt;/span>
+&lt;a href="#4-platform-detection-at-runtime" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-csharp" data-lang="csharp">&lt;span class="line">&lt;span class="cl">&lt;span class="kd">public&lt;/span> &lt;span class="kd">static&lt;/span> &lt;span class="n">ISecureStorage&lt;/span> &lt;span class="n">Create&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">if&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">RuntimeInformation&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">IsOSPlatform&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">OSPlatform&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">Windows&lt;/span>&lt;span class="p">))&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="k">new&lt;/span> &lt;span class="n">WindowsSecureStorage&lt;/span>&lt;span class="p">();&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">if&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">RuntimeInformation&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">IsOSPlatform&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">OSPlatform&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">OSX&lt;/span>&lt;span class="p">))&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="k">new&lt;/span> &lt;span class="n">MacOsSecureStorage&lt;/span>&lt;span class="p">();&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="k">new&lt;/span> &lt;span class="n">LinuxSecureStorage&lt;/span>&lt;span class="p">();&lt;/span> &lt;span class="c1">// fallback&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;h3>5. Async All the Way Down&lt;span class="hx-absolute -hx-mt-20" id="5-async-all-the-way-down">&lt;/span>
+&lt;a href="#5-async-all-the-way-down" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>Every I/O operation is async, keeping the CLI responsive even during network calls or certificate loading.&lt;/p>
+&lt;h2>Real-World Impact: Time Savings and Security Wins&lt;span class="hx-absolute -hx-mt-20" id="real-world-impact-time-savings-and-security-wins">&lt;/span>
+&lt;a href="#real-world-impact-time-savings-and-security-wins" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;h3>Time Savings&lt;span class="hx-absolute -hx-mt-20" id="time-savings">&lt;/span>
+&lt;a href="#time-savings" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>&lt;strong>Before EntraTool:&lt;/strong>&lt;/p>
+&lt;ul>
+&lt;li>Hunt for credentials in Azure Portal: &lt;strong>2-3 minutes&lt;/strong>&lt;/li>
+&lt;li>Craft token request manually: &lt;strong>1-2 minutes&lt;/strong>&lt;/li>
+&lt;li>Copy/paste credentials: &lt;strong>30 seconds&lt;/strong>&lt;/li>
+&lt;li>&lt;strong>Total: 4-5 minutes per token request&lt;/strong>&lt;/li>
+&lt;/ul>
+&lt;p>&lt;strong>With EntraTool:&lt;/strong>&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>entratool get-token -p myapi&lt;/code>: &lt;strong>3 seconds&lt;/strong>&lt;/li>
+&lt;/ul>
+&lt;p>&lt;strong>For a developer making 10 token requests per day:&lt;/strong>&lt;/p>
+&lt;ul>
+&lt;li>Daily savings: ~40 minutes&lt;/li>
+&lt;li>Monthly savings: &lt;strong>~13 hours&lt;/strong> (conservative estimate) 😬&lt;/li>
+&lt;li>&lt;strong>Plus:&lt;/strong> Zero risk of committing secrets&lt;/li>
+&lt;/ul>
+&lt;h3>Security Wins&lt;span class="hx-absolute -hx-mt-20" id="security-wins">&lt;/span>
+&lt;a href="#security-wins" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;ul>
+&lt;li>✅ &lt;strong>No secrets in code&lt;/strong> - Everything in OS-native secure storage&lt;/li>
+&lt;li>✅ &lt;strong>No secrets in version control&lt;/strong> - Profiles contain metadata only&lt;/li>
+&lt;li>✅ &lt;strong>Encrypted team sharing&lt;/strong> - AES-256 profile exports&lt;/li>
+&lt;li>✅ &lt;strong>Token caching&lt;/strong> - Reduces authentication frequency&lt;/li>
+&lt;li>✅ &lt;strong>Audit trail&lt;/strong> - Keychain entries visible for compliance&lt;/li>
+&lt;/ul>
+&lt;h2>Who Should Use This?&lt;span class="hx-absolute -hx-mt-20" id="who-should-use-this">&lt;/span>
+&lt;a href="#who-should-use-this" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>&lt;strong>DevOps Engineers:&lt;/strong>&lt;/p>
+&lt;ul>
+&lt;li>Managing multiple environments (dev/staging/prod)&lt;/li>
+&lt;li>Automating deployments with service principals&lt;/li>
+&lt;li>Testing infrastructure-as-code (Terraform, Bicep)&lt;/li>
+&lt;/ul>
+&lt;p>&lt;strong>Backend Developers:&lt;/strong>&lt;/p>
+&lt;ul>
+&lt;li>Testing APIs locally with proper authentication&lt;/li>
+&lt;li>Debugging permission issues with token inspection&lt;/li>
+&lt;li>Working with Microsoft Graph API&lt;/li>
+&lt;/ul>
+&lt;p>&lt;strong>Cloud Architects:&lt;/strong>&lt;/p>
+&lt;ul>
+&lt;li>Demonstrating authentication flows&lt;/li>
+&lt;li>Prototyping security architectures&lt;/li>
+&lt;li>Managing multiple tenant configurations&lt;/li>
+&lt;/ul>
+&lt;p>&lt;strong>Security Teams:&lt;/strong>&lt;/p>
+&lt;ul>
+&lt;li>Auditing service principal access&lt;/li>
+&lt;li>Rotating credentials without disruption&lt;/li>
+&lt;li>Ensuring least-privilege implementations&lt;/li>
+&lt;/ul>
+&lt;h2>The Tech Stack&lt;span class="hx-absolute -hx-mt-20" id="the-tech-stack">&lt;/span>
+&lt;a href="#the-tech-stack" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;ul>
+&lt;li>&lt;strong>.NET 10.0&lt;/strong> - Latest framework with modern C# features&lt;/li>
+&lt;li>&lt;strong>Spectre.Console&lt;/strong> - Rich, colored console UI&lt;/li>
+&lt;li>&lt;strong>MSAL.NET&lt;/strong> - Official Microsoft authentication library&lt;/li>
+&lt;li>&lt;strong>Microsoft.Graph SDK&lt;/strong> - For app registration discovery&lt;/li>
+&lt;li>&lt;strong>TextCopy&lt;/strong> - Cross-platform clipboard integration&lt;/li>
+&lt;li>&lt;strong>System.Security.Cryptography&lt;/strong> - DPAPI and encryption&lt;/li>
+&lt;/ul>
+&lt;h2>Get Started in 30 Seconds&lt;span class="hx-absolute -hx-mt-20" id="get-started-in-30-seconds">&lt;/span>
+&lt;a href="#get-started-in-30-seconds" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># Install globally&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">dotnet tool install -g EntraTokenCli
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># Or download executables from releases&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># https://github.com/garrardkitchen/entra-token-cli/releases&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># Create your first profile&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">entratool config create
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># Get a token&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">entratool get-token&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;h2>What&amp;rsquo;s Next?&lt;span class="hx-absolute -hx-mt-20" id="whats-next">&lt;/span>
+&lt;a href="#whats-next" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>&lt;strong>Planned features:&lt;/strong>&lt;/p>
+&lt;ul>
+&lt;li>Proper libsecret integration for Linux (replacing XOR obfuscation). This is currently only used with Linux and as a fallback mechanism&lt;/li>
+&lt;li>Managed identity support for Azure VMs&lt;/li>
+&lt;li>Shell completion scripts (bash, zsh, PowerShell)&lt;/li>
+&lt;li>Automated testing suite&lt;/li>
+&lt;li>Token validation with signature verification&lt;/li>
+&lt;/ul>
+&lt;h2>Lessons Learned&lt;span class="hx-absolute -hx-mt-20" id="lessons-learned">&lt;/span>
+&lt;a href="#lessons-learned" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;h3>1. AI Accelerates, Humans Guide&lt;span class="hx-absolute -hx-mt-20" id="1-ai-accelerates-humans-guide">&lt;/span>
+&lt;a href="#1-ai-accelerates-humans-guide" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>Claude and Copilot handled the heavy lifting, but the &lt;strong>architecture, UX decisions, and platform nuances&lt;/strong> required human judgment. AI is incredible for implementation, but you still need to know what you want to build.&lt;/p>
+&lt;h3>2. Security Should Be Invisible&lt;span class="hx-absolute -hx-mt-20" id="2-security-should-be-invisible">&lt;/span>
+&lt;a href="#2-security-should-be-invisible" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>The best security UX is when users don&amp;rsquo;t think about security. By using platform-native storage and making secrets transparent, users get security without friction.&lt;/p>
+&lt;h3>3. CLI Tools Need Love Too&lt;span class="hx-absolute -hx-mt-20" id="3-cli-tools-need-love-too">&lt;/span>
+&lt;a href="#3-cli-tools-need-love-too" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>Good CLI UX means:&lt;/p>
+&lt;ul>
+&lt;li>Colored output for scannability&lt;/li>
+&lt;li>Interactive prompts with sensible defaults&lt;/li>
+&lt;li>Smart inference (like automatic flow selection)&lt;/li>
+&lt;li>Comprehensive &lt;code>--help&lt;/code> text&lt;/li>
+&lt;li>Consistent command structure&lt;/li>
+&lt;/ul>
+&lt;h3>4. Cross-Platform Is Hard&lt;span class="hx-absolute -hx-mt-20" id="4-cross-platform-is-hard">&lt;/span>
+&lt;a href="#4-cross-platform-is-hard" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>What works on macOS doesn&amp;rsquo;t work on Windows. Testing on all three platforms revealed issues that wouldn&amp;rsquo;t surface otherwise (looking at you, Keychain CLI quirks).&lt;/p>
+&lt;h2>Conclusion: Stop Committing Secrets, Start Using EntraTool&lt;span class="hx-absolute -hx-mt-20" id="conclusion-stop-committing-secrets-start-using-entratool">&lt;/span>
+&lt;a href="#conclusion-stop-committing-secrets-start-using-entratool" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>I built &lt;code>entratool&lt;/code> because I was tired of:&lt;/p>
+&lt;ul>
+&lt;li>&lt;strong>The tedium&lt;/strong> of manually generating tokens&lt;/li>
+&lt;li>&lt;strong>The anxiety&lt;/strong> of potentially committing secrets&lt;/li>
+&lt;li>&lt;strong>The friction&lt;/strong> of context-switching to the Azure Portal&lt;/li>
+&lt;li>&lt;strong>The inconsistency&lt;/strong> across different operating systems&lt;/li>
+&lt;/ul>
+&lt;p>If you&amp;rsquo;ve ever:&lt;/p>
+&lt;ul>
+&lt;li>✅ Accidentally committed a secret (or feared doing so)&lt;/li>
+&lt;li>✅ Wasted time hunting for client IDs in Azure Portal&lt;/li>
+&lt;li>✅ Struggled with OAuth2 flows in Postman&lt;/li>
+&lt;li>✅ Needed tokens across multiple environments&lt;/li>
+&lt;li>✅ Wished for secure credential storage that &amp;ldquo;just works&amp;rdquo;&lt;/li>
+&lt;/ul>
+&lt;p>&lt;strong>Then &lt;code>entratool&lt;/code> is for you.&lt;/strong>&lt;/p>
+&lt;p>It took 1 hour to build with AI assistance, but it will save you &lt;strong>hours every month&lt;/strong> and eliminate a major security risk from your workflow.&lt;/p>
+&lt;h2>Resources&lt;span class="hx-absolute -hx-mt-20" id="resources">&lt;/span>
+&lt;a href="#resources" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;ul>
+&lt;li>&lt;strong>GitHub&lt;/strong>: &lt;a href="https://github.com/garrardkitchen/entra-token-cli" target="_blank" rel="noopener">github.com/garrardkitchen/entra-token-cli&lt;/a>&lt;/li>
+&lt;li>&lt;strong>Documentation&lt;/strong>: See README.md for full documentation&lt;/li>
+&lt;li>&lt;strong>Issues/Feedback&lt;/strong>: GitHub Issues welcome!&lt;/li>
+&lt;li>&lt;strong>License&lt;/strong>: MIT&lt;/li>
+&lt;/ul>
+&lt;hr>
+&lt;p>&lt;strong>Have you struggled with token management or accidentally committed secrets?&lt;/strong> Share your story in the comments below. Let&amp;rsquo;s build better, more secure developer experiences together.&lt;/p>
+&lt;p>&lt;em>Built with ☕ and Claude Sonnet 4.5 in 1 hour on December 18, 2025.&lt;/em>&lt;/p></description></item></channel></rss>
