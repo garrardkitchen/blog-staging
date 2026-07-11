@@ -1,0 +1,265 @@
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Garrard Kitchen – Azure-Ai-Foundry</title><link>https://blog-dev.garrardkitchen.com/tags/azure-ai-foundry/</link><description>Recent content in Azure-Ai-Foundry on Garrard Kitchen</description><generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Thu, 25 Jun 2026 20:56:29 +0100</lastBuildDate><atom:link href="https://blog-dev.garrardkitchen.com/tags/azure-ai-foundry/index.xml" rel="self" type="application/rss+xml"/><item><title>Azure Functions as Your Enterprise MCP Gateway</title><link>https://blog-dev.garrardkitchen.com/blog/azure-functions-enterprise-mcp-gateway/</link><pubDate>Thu, 25 Jun 2026 20:56:29 +0100</pubDate><guid>https://blog-dev.garrardkitchen.com/blog/azure-functions-enterprise-mcp-gateway/</guid><description>
+&lt;p>Your next agent tool might just be an Azure Function. 🚀&lt;/p>
+&lt;p>That sounds almost too ordinary, and that is exactly why it is interesting.&lt;/p>
+&lt;p>For Agentic Engineering and cloud native teams, the hard part of agentic engineering is rarely the demo. The hard part is exposing useful capabilities to agents without creating a sprawling, opaque tool surface that nobody can govern. Cloud native developers already understand Azure Functions, identity, serverless deployment, logging, and least-privilege design. The newer opportunity is to apply those familiar patterns to Model Context Protocol (MCP).&lt;/p>
+&lt;p>The practical thesis for this post is simple:&lt;/p>
+&lt;blockquote>
+&lt;p>Use Azure Functions to expose small, auditable, governed MCP capabilities to agents — not a giant enterprise tool belt.&lt;/p>
+&lt;/blockquote>
+&lt;div class="hx-overflow-x-auto hx-mt-6 hx-flex hx-flex-col hx-rounded-lg hx-border hx-py-4 hx-px-4 contrast-more:hx-border-current contrast-more:dark:hx-border-current hx-border-green-200 hx-bg-green-100 hx-text-green-900 dark:hx-border-green-200/30 dark:hx-bg-green-900/30 dark:hx-text-green-200">
+&lt;p class="hx-flex hx-items-center hx-font-medium">&lt;svg height=16px class="hx-inline-block hx-align-middle hx-mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">&lt;path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>&lt;/svg>Tip&lt;/p>
+&lt;div class="hx-w-full hx-min-w-0 hx-leading-7">
+&lt;div class="hx-mt-6 hx-leading-7 first:hx-mt-0">&lt;p>This post focuses on the enterprise pattern, not a step-by-step deployment walkthrough. Microsoft Learn already provides the detailed tutorials, and those are linked in the sources section.&lt;/p>&lt;/div>
+&lt;/div>
+&lt;/div>
+&lt;h2>Why this matters now&lt;span class="hx-absolute -hx-mt-20" id="why-this-matters-now">&lt;/span>
+&lt;a href="#why-this-matters-now" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>Microsoft’s Azure Functions MCP extension enables Functions apps to create remote MCP servers. In plain English, that means a function app can expose capabilities that MCP clients, language models, and agents can discover and call.&lt;/p>
+&lt;p>The extension supports three useful shapes:&lt;/p>
+&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th>MCP shape&lt;/th>
+&lt;th>What it means in a Functions-hosted server&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td>Tool&lt;/td>
+&lt;td>A function can be invoked from an MCP tool call request.&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>Resource&lt;/td>
+&lt;td>A function can expose data or content as an MCP resource.&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>Prompt&lt;/td>
+&lt;td>A function can expose a prompt template or prompt-like capability.&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;p>Microsoft’s Build 2026 update for the Azure Functions MCP extension also highlights richer capabilities such as tool, resource, and prompt triggers, MCP Apps, built-in MCP authentication, structured/rich content, and .NET fluent configuration APIs.&lt;/p>
+&lt;p>That is a useful direction for cloud native delivery teams because it maps agent tooling onto a platform many teams already operate.&lt;/p>
+&lt;p>Instead of asking, “Where should we host all these agent tools?”, a better first question is:&lt;/p>
+&lt;blockquote>
+&lt;p>Which one bounded application capability should we safely expose as an MCP tool?&lt;/p>
+&lt;/blockquote>
+&lt;h2>MCP in Functions in plain terms&lt;span class="hx-absolute -hx-mt-20" id="mcp-in-functions-in-plain-terms">&lt;/span>
+&lt;a href="#mcp-in-functions-in-plain-terms" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>MCP is a client-server protocol that helps agents and language models discover and use external tools and data sources. With Azure Functions, the server side can be a function app.&lt;/p>
+&lt;p>There are currently two Azure Functions hosting approaches to keep separate:&lt;/p>
+&lt;ol>
+&lt;li>
+&lt;p>MCP extension servers&lt;/p>
+&lt;ul>
+&lt;li>Use the Azure Functions MCP extension and the Functions triggers/bindings programming model.&lt;/li>
+&lt;li>Best when your team is already comfortable with Functions.&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>Self-hosted MCP SDK servers&lt;/p>
+&lt;ul>
+&lt;li>Host an MCP server built with official MCP SDKs on Azure Functions using custom handlers.&lt;/li>
+&lt;li>Microsoft Learn describes this as public preview.&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ol>
+&lt;p>That distinction matters. If you blur it, you will overstate what is generally available and what is still preview.&lt;/p>
+&lt;div class="hx-overflow-x-auto hx-mt-6 hx-flex hx-flex-col hx-rounded-lg hx-border hx-py-4 hx-px-4 contrast-more:hx-border-current contrast-more:dark:hx-border-current hx-border-blue-200 hx-bg-blue-100 hx-text-blue-900 dark:hx-border-blue-200/30 dark:hx-bg-blue-900/30 dark:hx-text-blue-200">
+&lt;p class="hx-flex hx-items-center hx-font-medium">&lt;svg height=16px class="hx-inline-block hx-align-middle hx-mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">&lt;path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>&lt;/svg>Note&lt;/p>
+&lt;div class="hx-w-full hx-min-w-0 hx-leading-7">
+&lt;div class="hx-mt-6 hx-leading-7 first:hx-mt-0">&lt;p>For C#, Microsoft Learn states that the Azure Functions MCP extension supports the isolated worker model. The same overview states that PowerShell apps are not currently supported by the MCP extension, and Go is not currently supported for this feature. Always re-check language/runtime support before making a delivery commitment.&lt;/p>&lt;/div>
+&lt;/div>
+&lt;/div>
+&lt;h2>The enterprise pattern: small, governed tool surfaces&lt;span class="hx-absolute -hx-mt-20" id="the-enterprise-pattern-small-governed-tool-surfaces">&lt;/span>
+&lt;a href="#the-enterprise-pattern-small-governed-tool-surfaces" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>The tempting mistake is to build a “company MCP server” with everything in it: project lookup, ticket updates, deployment triggers, database search, document access, incident actions, and a few mystery admin operations because they were easy to wire up.&lt;/p>
+&lt;p>Please do not start there.&lt;/p>
+&lt;p>A more defensible Agentic Engineering and cloud native pattern looks like this:&lt;/p>
+&lt;ol>
+&lt;li>Pick one narrow capability.&lt;/li>
+&lt;li>Express it as one or a few MCP tools/resources/prompts.&lt;/li>
+&lt;li>Define explicit input and output contracts.&lt;/li>
+&lt;li>Decide the identity model before production use.&lt;/li>
+&lt;li>Log tool calls and outcomes.&lt;/li>
+&lt;li>Review the tool descriptions and outputs as part of your threat model.&lt;/li>
+&lt;li>Register or catalogue the server where appropriate so it can be discovered and governed.&lt;/li>
+&lt;/ol>
+&lt;p>Examples of bounded first tools might include:&lt;/p>
+&lt;ul>
+&lt;li>Read-only product catalogue lookup for a support agent.&lt;/li>
+&lt;li>Retrieval of deployment metadata for a specific application/environment.&lt;/li>
+&lt;li>A controlled summarisation endpoint over approved operational knowledge.&lt;/li>
+&lt;li>A diagnostic helper that returns a small, redacted slice of build or runtime evidence.&lt;/li>
+&lt;/ul>
+&lt;p>The common thread is scope. The tool should do one useful thing, with a clear contract and boring operational behaviour.&lt;/p>
+&lt;div class="hx-overflow-x-auto hx-mt-6 hx-flex hx-flex-col hx-rounded-lg hx-border hx-py-4 hx-px-4 contrast-more:hx-border-current contrast-more:dark:hx-border-current hx-border-amber-200 hx-bg-amber-100 hx-text-amber-900 dark:hx-border-amber-200/30 dark:hx-bg-amber-900/30 dark:hx-text-amber-200">
+&lt;p class="hx-flex hx-items-center hx-font-medium">&lt;svg height=16px class="hx-inline-block hx-align-middle hx-mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">&lt;path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>&lt;/svg>Warning&lt;/p>
+&lt;div class="hx-w-full hx-min-w-0 hx-leading-7">
+&lt;div class="hx-mt-6 hx-leading-7 first:hx-mt-0">&lt;p>An MCP endpoint is not “safe” just because it is called by an AI assistant. Tool descriptions, arguments, outputs, logs, and downstream actions all become part of the security and governance boundary.&lt;/p>&lt;/div>
+&lt;/div>
+&lt;/div>
+&lt;h2>Transport and client choices&lt;span class="hx-absolute -hx-mt-20" id="transport-and-client-choices">&lt;/span>
+&lt;a href="#transport-and-client-choices" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>The Azure Functions MCP extension supports Streamable HTTP at:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-text" data-lang="text">&lt;span class="line">&lt;span class="cl">/runtime/webhooks/mcp&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>It also supports Server-Sent Events (SSE) at:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-text" data-lang="text">&lt;span class="line">&lt;span class="cl">/runtime/webhooks/mcp/sse&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>Microsoft Learn notes that newer protocol versions deprecate SSE, so you should use Streamable HTTP unless a client specifically requires SSE.&lt;/p>
+&lt;p>That is a good example of the sort of delivery detail that belongs in a team checklist. The protocol choice should not be an accidental copy/paste from the first sample somebody found.&lt;/p>
+&lt;h2>Identity is the architecture, not an afterthought&lt;span class="hx-absolute -hx-mt-20" id="identity-is-the-architecture-not-an-afterthought">&lt;/span>
+&lt;a href="#identity-is-the-architecture-not-an-afterthought" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>The most important production decision is not whether the demo works. It is who, or what, is allowed to call the tool — and under whose context.&lt;/p>
+&lt;p>Microsoft Learn describes several connection options when connecting Functions-hosted MCP servers to Microsoft Foundry Agent Service:&lt;/p>
+&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th>Option&lt;/th>
+&lt;th>Useful framing&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td>Key-based&lt;/td>
+&lt;td>Development-friendly and supported by default, but still a shared secret.&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>Microsoft Entra&lt;/td>
+&lt;td>Better for production-style identity, currently described for project managed identity in the Foundry connection guide.&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>OAuth identity passthrough&lt;/td>
+&lt;td>Useful when each user must authenticate and user context must persist.&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>Unauthenticated&lt;/td>
+&lt;td>Only for public read-only information or private development scenarios.&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;p>There is a subtle but important point here: key-based access can make an endpoint harder to call accidentally, but it is not the same as user-aware authorization. For enterprise use, prefer Microsoft Entra or OAuth identity passthrough patterns where they fit the scenario.&lt;/p>
+&lt;div class="hx-overflow-x-auto hx-mt-6 hx-flex hx-flex-col hx-rounded-lg hx-border hx-py-4 hx-px-4 contrast-more:hx-border-current contrast-more:dark:hx-border-current hx-border-amber-200 hx-bg-amber-100 hx-text-amber-900 dark:hx-border-amber-200/30 dark:hx-bg-amber-900/30 dark:hx-text-amber-200">
+&lt;p class="hx-flex hx-items-center hx-font-medium">&lt;svg height=16px class="hx-inline-block hx-align-middle hx-mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">&lt;path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>&lt;/svg>Warning&lt;/p>
+&lt;div class="hx-w-full hx-min-w-0 hx-leading-7">
+&lt;div class="hx-mt-6 hx-leading-7 first:hx-mt-0">&lt;p>Unauthenticated access should not be your production shortcut. Microsoft Learn describes it for development or MCP servers that access only public information. If a tool can see internal data, change state, or reveal operational context, design proper authentication and authorization from the start.&lt;/p>&lt;/div>
+&lt;/div>
+&lt;/div>
+&lt;h2>A practical checklist for Agentic Engineering and cloud native developers&lt;span class="hx-absolute -hx-mt-20" id="a-practical-checklist-for-agentic-engineering-and-cloud-native-developers">&lt;/span>
+&lt;a href="#a-practical-checklist-for-agentic-engineering-and-cloud-native-developers" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>Before you roll a Functions-hosted MCP server beyond a local experiment, ask these questions.&lt;/p>
+&lt;h3>1. What is the bounded use case?&lt;span class="hx-absolute -hx-mt-20" id="1-what-is-the-bounded-use-case">&lt;/span>
+&lt;a href="#1-what-is-the-bounded-use-case" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>If the tool cannot be explained in one sentence, it is probably too broad.&lt;/p>
+&lt;p>Good:&lt;/p>
+&lt;blockquote>
+&lt;p>“Given an application ID, return the current deployment version and owning team from approved metadata.”&lt;/p>
+&lt;/blockquote>
+&lt;p>Risky:&lt;/p>
+&lt;blockquote>
+&lt;p>“Let agents query our platform.”&lt;/p>
+&lt;/blockquote>
+&lt;h3>2. What are the tool contracts?&lt;span class="hx-absolute -hx-mt-20" id="2-what-are-the-tool-contracts">&lt;/span>
+&lt;a href="#2-what-are-the-tool-contracts" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>Define the inputs, outputs, validation rules, and error behaviour. Avoid returning huge blobs of internal context because it is convenient. Agents do better with structured, relevant, minimal evidence.&lt;/p>
+&lt;h3>3. What identity is being used?&lt;span class="hx-absolute -hx-mt-20" id="3-what-identity-is-being-used">&lt;/span>
+&lt;a href="#3-what-identity-is-being-used" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>Decide whether the call represents:&lt;/p>
+&lt;ul>
+&lt;li>The agent service.&lt;/li>
+&lt;li>The project or platform identity.&lt;/li>
+&lt;li>The end user via OAuth identity passthrough.&lt;/li>
+&lt;li>A development-only key.&lt;/li>
+&lt;/ul>
+&lt;p>This decision affects authorization, auditing, incident response, and user trust.&lt;/p>
+&lt;h3>4. What should never be returned?&lt;span class="hx-absolute -hx-mt-20" id="4-what-should-never-be-returned">&lt;/span>
+&lt;a href="#4-what-should-never-be-returned" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>Be explicit about redaction. Avoid returning secrets, tokens, unnecessary personal data, internal-only operational details, or broad environment dumps.&lt;/p>
+&lt;h3>5. How will calls be logged and reviewed?&lt;span class="hx-absolute -hx-mt-20" id="5-how-will-calls-be-logged-and-reviewed">&lt;/span>
+&lt;a href="#5-how-will-calls-be-logged-and-reviewed" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>At minimum, capture enough telemetry to answer:&lt;/p>
+&lt;ul>
+&lt;li>Which tool was called?&lt;/li>
+&lt;li>Who or what called it?&lt;/li>
+&lt;li>What high-level input was used?&lt;/li>
+&lt;li>What decision or response was produced?&lt;/li>
+&lt;li>Was anything blocked, redacted, or failed?&lt;/li>
+&lt;/ul>
+&lt;h3>6. Where is the server catalogued?&lt;span class="hx-absolute -hx-mt-20" id="6-where-is-the-server-catalogued">&lt;/span>
+&lt;a href="#6-where-is-the-server-catalogued" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>Microsoft Learn suggests registering MCP servers hosted in Azure Functions in Azure API Center to maintain a private organizational tool catalogue. For larger organisations, discoverability and inventory matter. A private endpoint passed around in chat is not a governance model.&lt;/p>
+&lt;h3>7. What is still preview or language-specific?&lt;span class="hx-absolute -hx-mt-20" id="7-what-is-still-preview-or-language-specific">&lt;/span>
+&lt;a href="#7-what-is-still-preview-or-language-specific" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>Call out preview status and language/runtime support in your design notes. The Functions MCP landscape is moving, and delivery teams should not accidentally promise production support based on a preview-only path.&lt;/p>
+&lt;h2>A simple starter architecture&lt;span class="hx-absolute -hx-mt-20" id="a-simple-starter-architecture">&lt;/span>
+&lt;a href="#a-simple-starter-architecture" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>A sensible first implementation might look like this:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-text" data-lang="text">&lt;span class="line">&lt;span class="cl">MCP client / Foundry agent / VS Code
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> |
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> | Streamable HTTP
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> v
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Azure Functions MCP endpoint
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> |
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> | Validated tool trigger
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> v
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Small application capability
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> |
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> | Least-privilege access
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> v
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Approved data source or service&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>Then wrap that with the boring things that make it enterprise-ready:&lt;/p>
+&lt;ul>
+&lt;li>Microsoft Entra or OAuth where appropriate.&lt;/li>
+&lt;li>Managed identity for downstream Azure access.&lt;/li>
+&lt;li>Application Insights or equivalent operational telemetry.&lt;/li>
+&lt;li>Secret-free client configuration.&lt;/li>
+&lt;li>Code review for tool descriptions and outputs.&lt;/li>
+&lt;li>Threat modelling for prompt/tool poisoning and data exfiltration paths.&lt;/li>
+&lt;/ul>
+&lt;p>It is not glamorous. That is the point. Good enterprise agent tooling should look a lot like good enterprise integration tooling.&lt;/p>
+&lt;h2>Caveats and trade-offs&lt;span class="hx-absolute -hx-mt-20" id="caveats-and-trade-offs">&lt;/span>
+&lt;a href="#caveats-and-trade-offs" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>There are several places to be careful.&lt;/p>
+&lt;p>First, do not treat MCP extension-based servers and self-hosted SDK-based servers as the same thing. They are related hosting options, but they have different mechanics and support statements.&lt;/p>
+&lt;p>Second, do not assume every feature applies equally across languages. The Azure Functions MCP documentation has language-specific notes, and some enhancements called out in blog updates may be .NET-focused.&lt;/p>
+&lt;p>Third, do not confuse “agent can call it” with “agent should call it.” Human approval, review gates, and normal engineering controls still matter — especially for tools that change state.&lt;/p>
+&lt;p>Fourth, do not put secrets into checked-in MCP client configuration. Microsoft’s example uses VS Code input prompts so secrets such as the Functions system key are not stored in the &lt;code>mcp.json&lt;/code> file.&lt;/p>
+&lt;p>Finally, remember that preview features can change. Treat them as candidates for pilots and learning, not as blanket production commitments.&lt;/p>
+&lt;h2>What I would pilot first&lt;span class="hx-absolute -hx-mt-20" id="what-i-would-pilot-first">&lt;/span>
+&lt;a href="#what-i-would-pilot-first" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>For an Agentic Engineering or cloud native team, I would start with a read-only tool.&lt;/p>
+&lt;p>Pick one service where developers regularly ask the same operational question, such as:&lt;/p>
+&lt;ul>
+&lt;li>“Which version is deployed to test?”&lt;/li>
+&lt;li>“Who owns this integration?”&lt;/li>
+&lt;li>“What approved runbook applies to this alert?”&lt;/li>
+&lt;li>“Which feature flags are enabled for this environment?”&lt;/li>
+&lt;/ul>
+&lt;p>Expose only that answer through a Functions-hosted MCP tool. Use Streamable HTTP. Avoid anonymous production access. Keep the output small. Log calls. Review the tool contract like you would review an API.&lt;/p>
+&lt;p>If that proves useful, add the next narrow tool. If it does not prove useful, you have learned cheaply without creating an enterprise-wide agent gateway nobody trusts.&lt;/p>
+&lt;h2>Conclusion&lt;span class="hx-absolute -hx-mt-20" id="conclusion">&lt;/span>
+&lt;a href="#conclusion" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>Azure Functions is not interesting here because it makes MCP magical. It is interesting because it makes MCP boring in the best possible way.&lt;/p>
+&lt;p>The winning enterprise pattern is not “agents everywhere.” It is safe, narrow, auditable capabilities exposed to agents through platforms and controls that application teams already understand.&lt;/p>
+&lt;p>For Agentic Engineering and cloud native developers, that is the real opportunity: take the serverless engineering habits you already trust, and use them to build agent tools that are useful enough to adopt and constrained enough to govern.&lt;/p>
+&lt;h2>Sources&lt;span class="hx-absolute -hx-mt-20" id="sources">&lt;/span>
+&lt;a href="#sources" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;ul>
+&lt;li>&lt;a href="https://devblogs.microsoft.com/azure-sdk/functions-mcp-updates-build-2026/" target="_blank" rel="noopener">Azure SDK Blog: Azure Functions MCP Extension: What’s New at Build 2026&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://learn.microsoft.com/en-us/azure/azure-functions/functions-bindings-mcp" target="_blank" rel="noopener">Microsoft Learn: Model Context Protocol bindings for Azure Functions overview&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://learn.microsoft.com/azure/azure-functions/functions-mcp-tutorial" target="_blank" rel="noopener">Microsoft Learn: Tutorial: Host an MCP server on Azure Functions&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://learn.microsoft.com/azure/azure-functions/self-hosted-mcp-servers" target="_blank" rel="noopener">Microsoft Learn: Self-hosted remote MCP server on Azure Functions (public preview)&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://learn.microsoft.com/azure/azure-functions/functions-mcp-foundry-tools" target="_blank" rel="noopener">Microsoft Learn: Connect an MCP server on Azure Functions to a Foundry Agent Service agent&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;p>Enjoy! Generated by AI Garrard (blogger) - google/gemma-4-e4b&lt;/p></description></item></channel></rss>

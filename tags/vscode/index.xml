@@ -1,4 +1,202 @@
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Garrard Kitchen – Vscode</title><link>https://blog-dev.garrardkitchen.com/tags/vscode/</link><description>Recent content in Vscode on Garrard Kitchen</description><generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Wed, 23 Apr 2025 13:29:21 +0100</lastBuildDate><atom:link href="https://blog-dev.garrardkitchen.com/tags/vscode/index.xml" rel="self" type="application/rss+xml"/><item><title>Setting Up a Model Context Protocol (MCP) Remote Server in VSCode</title><link>https://blog-dev.garrardkitchen.com/blog/mcp-server-example/</link><pubDate>Wed, 23 Apr 2025 13:29:21 +0100</pubDate><guid>https://blog-dev.garrardkitchen.com/blog/mcp-server-example/</guid><description>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Garrard Kitchen – Vscode</title><link>https://blog-dev.garrardkitchen.com/tags/vscode/</link><description>Recent content in Vscode on Garrard Kitchen</description><generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Wed, 08 Jul 2026 07:49:14 +0100</lastBuildDate><atom:link href="https://blog-dev.garrardkitchen.com/tags/vscode/index.xml" rel="self" type="application/rss+xml"/><item><title>A practical guide to .http files</title><link>https://blog-dev.garrardkitchen.com/blog/dot-http-files/</link><pubDate>Wed, 08 Jul 2026 07:49:14 +0100</pubDate><guid>https://blog-dev.garrardkitchen.com/blog/dot-http-files/</guid><description>
+&lt;p>&lt;em>A Practical Guide to .http Files - Ditch Postman, Keep Your API Calls in Source Control&lt;/em>&lt;/p>
+&lt;p>If you&amp;rsquo;ve spent any time bouncing between a browser tab, Postman, and your terminal just to test an endpoint, I&amp;rsquo;ve got good news: there&amp;rsquo;s a simpler way, and it lives right next to your code. &lt;code>.http&lt;/code> files let you write, save, and share HTTP requests as plain text — version-controlled, reviewable in a pull request, and runnable with a single click in VS Code, Visual Studio, JetBrains IDEs, or via CLI tools like &lt;code>httpyac&lt;/code>.&lt;/p>
+&lt;p>I use these on every project now, from quick API prototyping to full integration test suites. Here&amp;rsquo;s how to get the most out of them.&lt;/p>
+&lt;h2>What Is a .http File?&lt;span class="hx-absolute -hx-mt-20" id="what-is-a-http-file">&lt;/span>
+&lt;a href="#what-is-a-http-file" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>It&amp;rsquo;s exactly what it sounds like: a text file containing one or more HTTP requests, written in a readable, curl-like syntax. No JSON config, no proprietary export format — just a file you can open, edit, and diff like any other source file.&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;pre>&lt;code>GET https://api.github.com/users/octocat
+Accept: application/json&lt;/code>&lt;/pre>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>Save that as &lt;code>requests.http&lt;/code>, click &amp;ldquo;Send Request&amp;rdquo; (in VS Code with the REST Client extension, or natively in Visual Studio and Rider), and you get a response pane right there in your editor.&lt;/p>
+&lt;div class="hx-overflow-x-auto hx-mt-6 hx-flex hx-flex-col hx-rounded-lg hx-border hx-py-4 hx-px-4 contrast-more:hx-border-current contrast-more:dark:hx-border-current hx-border-green-200 hx-bg-green-100 hx-text-green-900 dark:hx-border-green-200/30 dark:hx-bg-green-900/30 dark:hx-text-green-200">
+&lt;p class="hx-flex hx-items-center hx-font-medium">&lt;svg height=16px class="hx-inline-block hx-align-middle hx-mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">&lt;path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>&lt;/svg>Tip&lt;/p>
+&lt;div class="hx-w-full hx-min-w-0 hx-leading-7">
+&lt;div class="hx-mt-6 hx-leading-7 first:hx-mt-0">&lt;p>Visual Studio and Rider support &lt;code>.http&lt;/code> files natively — no extension required. In VS Code, install the &lt;strong>REST Client&lt;/strong> extension by Huachao Mao.&lt;/p>&lt;/div>
+&lt;/div>
+&lt;/div>
+&lt;h2>Why Bother? The Strengths Are Real&lt;span class="hx-absolute -hx-mt-20" id="why-bother-the-strengths-are-real">&lt;/span>
+&lt;a href="#why-bother-the-strengths-are-real" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>&lt;strong>They live in your repo.&lt;/strong> Your API contract examples travel with the code that implements them. New team members can read &lt;code>auth.http&lt;/code> and immediately understand how login, token refresh, and logout work — no onboarding wiki required.&lt;/p>
+&lt;p>&lt;strong>They&amp;rsquo;re diffable and reviewable.&lt;/strong> When an endpoint changes, the &lt;code>.http&lt;/code> file change shows up in the pull request. That&amp;rsquo;s a huge win for API discoverability compared to a request buried in someone&amp;rsquo;s personal Postman workspace.&lt;/p>
+&lt;p>&lt;strong>No account, no sync, no vendor lock-in.&lt;/strong> Nothing to install beyond your editor (or a lightweight extension), nothing syncing to a third-party cloud.&lt;/p>
+&lt;div class="hx-overflow-x-auto hx-mt-6 hx-flex hx-flex-col hx-rounded-lg hx-border hx-py-4 hx-px-4 contrast-more:hx-border-current contrast-more:dark:hx-border-current hx-border-blue-200 hx-bg-blue-100 hx-text-blue-900 dark:hx-border-blue-200/30 dark:hx-bg-blue-900/30 dark:hx-text-blue-200">
+&lt;p class="hx-flex hx-items-center hx-font-medium">&lt;svg height=16px class="hx-inline-block hx-align-middle hx-mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">&lt;path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>&lt;/svg>Note&lt;/p>
+&lt;div class="hx-w-full hx-min-w-0 hx-leading-7">
+&lt;div class="hx-mt-6 hx-leading-7 first:hx-mt-0">&lt;p>The biggest win here isn&amp;rsquo;t the syntax — it&amp;rsquo;s the workflow shift. API examples become part of your codebase&amp;rsquo;s history instead of living in someone&amp;rsquo;s personal tooling, invisible to the rest of the team.&lt;/p>&lt;/div>
+&lt;/div>
+&lt;/div>
+&lt;h2>Core Syntax&lt;span class="hx-absolute -hx-mt-20" id="core-syntax">&lt;/span>
+&lt;a href="#core-syntax" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>Multiple requests in one file, separated by &lt;code>###&lt;/code>:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;pre>&lt;code>### Get a user
+GET https://api.github.com/users/octocat
+Accept: application/json
+### Create a widget
+POST https://api.example.com/widgets
+Content-Type: application/json
+{
+&amp;#34;name&amp;#34;: &amp;#34;Gizmo&amp;#34;,
+&amp;#34;quantity&amp;#34;: 10
+}&lt;/code>&lt;/pre>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>Each &lt;code>###&lt;/code> line starts a new named block. Add a comment above it for clarity — most tools display that as the request&amp;rsquo;s display name in a request list.&lt;/p>
+&lt;h2>Variables and Environments&lt;span class="hx-absolute -hx-mt-20" id="variables-and-environments">&lt;/span>
+&lt;a href="#variables-and-environments" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>This is where &lt;code>.http&lt;/code> files go from &amp;ldquo;handy&amp;rdquo; to &amp;ldquo;genuinely production-ready.&amp;rdquo; Define variables at the top of the file:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;pre>&lt;code>@baseUrl = https://api.example.com
+@token = {{$dotenv AUTH_TOKEN}}
+### Get widgets
+GET {{baseUrl}}/widgets
+Authorization: Bearer {{token}}&lt;/code>&lt;/pre>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>For multiple environments (dev, staging, prod), how you configure this depends on your editor — this trips people up because the two major tools don&amp;rsquo;t share a mechanism.&lt;/p>
+&lt;p>&lt;strong>VS Code (REST Client extension):&lt;/strong> environments are defined in your &lt;code>settings.json&lt;/code>, under the &lt;code>rest-client.environmentVariables&lt;/code> key:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-json" data-lang="json">&lt;span class="line">&lt;span class="cl">&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;#34;rest-client.environmentVariables&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;#34;dev&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;#34;baseUrl&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="s2">&amp;#34;https://dev-api.example.com&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">},&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;#34;prod&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;#34;baseUrl&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="s2">&amp;#34;https://api.example.com&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>You then pick the active environment from the status bar or via the command palette (&lt;code>Rest Client: Switch Environment&lt;/code>).&lt;/p>
+&lt;p>&lt;strong>Rider / IntelliJ-based IDEs:&lt;/strong> environments live in one or two JSON files sitting alongside your &lt;code>.http&lt;/code> files:&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>http-client.env.json&lt;/code> — the &lt;strong>public&lt;/strong> file, safe to commit, for non-sensitive values shared across the team (base URLs, non-secret config).&lt;/li>
+&lt;li>&lt;code>http-client.private.env.json&lt;/code> — the &lt;strong>private&lt;/strong> file, for anything sensitive (tokens, passwords). This one should be &lt;code>.gitignore&lt;/code>d.&lt;/li>
+&lt;/ul>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-json" data-lang="json">&lt;span class="line">&lt;span class="cl">&lt;span class="c1">// http-client.env.json (commit this)
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;#34;dev&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;#34;baseUrl&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="s2">&amp;#34;https://dev-api.example.com&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-json" data-lang="json">&lt;span class="line">&lt;span class="cl">&lt;span class="c1">// http-client.private.env.json (do NOT commit this)
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;#34;dev&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;#34;authToken&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="s2">&amp;#34;your-local-dev-token&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>Rider automatically merges both files for the selected environment, and you switch environments from a dropdown in the HTTP client gutter.&lt;/p>
+&lt;div class="hx-overflow-x-auto hx-mt-6 hx-flex hx-flex-col hx-rounded-lg hx-border hx-py-4 hx-px-4 contrast-more:hx-border-current contrast-more:dark:hx-border-current hx-border-blue-200 hx-bg-blue-100 hx-text-blue-900 dark:hx-border-blue-200/30 dark:hx-bg-blue-900/30 dark:hx-text-blue-200">
+&lt;p class="hx-flex hx-items-center hx-font-medium">&lt;svg height=16px class="hx-inline-block hx-align-middle hx-mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">&lt;path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>&lt;/svg>Note&lt;/p>
+&lt;div class="hx-w-full hx-min-w-0 hx-leading-7">
+&lt;div class="hx-mt-6 hx-leading-7 first:hx-mt-0">&lt;p>Neither &lt;code>settings.json&lt;/code> nor &lt;code>http-client.env.json&lt;/code>/&lt;code>http-client.private.env.json&lt;/code> are interchangeable between VS Code and Rider — they&amp;rsquo;re editor-specific mechanisms. If your team uses a mix of editors, you&amp;rsquo;ll need to maintain both, or standardise on one tool for shared &lt;code>.http&lt;/code> workflows.&lt;/p>&lt;/div>
+&lt;/div>
+&lt;/div>
+&lt;p>Whichever mechanism you use, the payoff is the same: switch environments in one place, and every request in the file re-targets automatically. That&amp;rsquo;s a much safer pattern than hardcoding URLs — you eliminate the classic &amp;ldquo;oops, I just hit prod&amp;rdquo; mistake.&lt;/p>
+&lt;h2>Chaining Requests&lt;span class="hx-absolute -hx-mt-20" id="chaining-requests">&lt;/span>
+&lt;a href="#chaining-requests" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>You can capture a response and reuse it in a later request — genuinely useful for auth flows:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;pre>&lt;code>### Login
+# @name login
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+{
+&amp;#34;username&amp;#34;: &amp;#34;demo&amp;#34;,
+&amp;#34;password&amp;#34;: &amp;#34;{{$dotenv DEMO_PASSWORD}}&amp;#34;
+}
+### Use the token from login
+GET {{baseUrl}}/profile
+Authorization: Bearer {{login.response.body.$.token}}&lt;/code>&lt;/pre>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>The &lt;code># @name&lt;/code> comment labels a request so you can reference its response body, headers, or status elsewhere in the file.&lt;/p>
+&lt;h2>A Word on Security&lt;span class="hx-absolute -hx-mt-20" id="a-word-on-security">&lt;/span>
+&lt;a href="#a-word-on-security" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>A few habits worth building in from day one:&lt;/p>
+&lt;ul>
+&lt;li>&lt;strong>Never commit secrets.&lt;/strong> In VS Code, keep tokens out of &lt;code>settings.json&lt;/code> if that file is shared/synced, and prefer &lt;code>{{$dotenv VAR_NAME}}&lt;/code> with a &lt;code>.gitignore&lt;/code>d &lt;code>.env&lt;/code> file instead. In Rider, put secrets only in &lt;code>http-client.private.env.json&lt;/code>, never in the public &lt;code>http-client.env.json&lt;/code>.&lt;/li>
+&lt;li>&lt;strong>Keep prod credentials out of shared, committed files.&lt;/strong> The public &lt;code>http-client.env.json&lt;/code> (Rider) or a team-shared &lt;code>settings.json&lt;/code> snippet (VS Code) should never carry real production tokens — only non-sensitive config like base URLs.&lt;/li>
+&lt;li>&lt;strong>Treat these files like any other test artifact in code review.&lt;/strong> If a request block hits a destructive endpoint (&lt;code>DELETE&lt;/code>, bulk operations), flag it the same way you&amp;rsquo;d flag any other risky test code.&lt;/li>
+&lt;/ul>
+&lt;div class="hx-overflow-x-auto hx-mt-6 hx-flex hx-flex-col hx-rounded-lg hx-border hx-py-4 hx-px-4 contrast-more:hx-border-current contrast-more:dark:hx-border-current hx-border-amber-200 hx-bg-amber-100 hx-text-amber-900 dark:hx-border-amber-200/30 dark:hx-bg-amber-900/30 dark:hx-text-amber-200">
+&lt;p class="hx-flex hx-items-center hx-font-medium">&lt;svg height=16px class="hx-inline-block hx-align-middle hx-mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">&lt;path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>&lt;/svg>Warning&lt;/p>
+&lt;div class="hx-w-full hx-min-w-0 hx-leading-7">
+&lt;div class="hx-mt-6 hx-leading-7 first:hx-mt-0">&lt;p>A leaked token in a &lt;code>.http&lt;/code> file is just as exposed as one hardcoded in application code. Git history doesn&amp;rsquo;t forget — if a secret does slip into a commit, rotate it immediately rather than just removing it in a follow-up commit.&lt;/p>&lt;/div>
+&lt;/div>
+&lt;/div>
+&lt;div class="hx-overflow-x-auto hx-mt-6 hx-flex hx-flex-col hx-rounded-lg hx-border hx-py-4 hx-px-4 contrast-more:hx-border-current contrast-more:dark:hx-border-current hx-border-indigo-200 hx-bg-indigo-100 hx-text-indigo-900 dark:hx-border-indigo-200/30 dark:hx-bg-indigo-900/30 dark:hx-text-indigo-200">
+&lt;p class="hx-flex hx-items-center hx-font-medium">&lt;svg height=16px class="hx-inline-block hx-align-middle hx-mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">&lt;path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>&lt;/svg>Important&lt;/p>
+&lt;div class="hx-w-full hx-min-w-0 hx-leading-7">
+&lt;div class="hx-mt-6 hx-leading-7 first:hx-mt-0">&lt;p>Add &lt;code>.env&lt;/code> (VS Code) and &lt;code>http-client.private.env.json&lt;/code> (Rider) to &lt;code>.gitignore&lt;/code> &lt;em>before&lt;/em> your first commit in a new repo, not after. It&amp;rsquo;s a two-second habit that prevents an incident-response afternoon.&lt;/p>&lt;/div>
+&lt;/div>
+&lt;/div>
+&lt;h2>Where They Fit Best&lt;span class="hx-absolute -hx-mt-20" id="where-they-fit-best">&lt;/span>
+&lt;a href="#where-they-fit-best" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;ul>
+&lt;li>&lt;strong>API exploration&lt;/strong> during development — faster feedback loop than Swagger UI for anything beyond trivial requests.&lt;/li>
+&lt;li>&lt;strong>Living documentation&lt;/strong> for your team&amp;rsquo;s internal APIs, sitting in the same repo as the service.&lt;/li>
+&lt;li>&lt;strong>Smoke-testing deployed environments&lt;/strong> after a release, using the environment-switching feature to hit dev, staging, and prod in turn.&lt;/li>
+&lt;/ul>
+&lt;div class="hx-overflow-x-auto hx-mt-6 hx-flex hx-flex-col hx-rounded-lg hx-border hx-py-4 hx-px-4 contrast-more:hx-border-current contrast-more:dark:hx-border-current hx-border-red-200 hx-bg-red-100 hx-text-red-900 dark:hx-border-red-200/30 dark:hx-bg-red-900/30 dark:hx-text-red-200">
+&lt;p class="hx-flex hx-items-center hx-font-medium">&lt;svg height=16px class="hx-inline-block hx-align-middle hx-mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">&lt;path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>&lt;/svg>Caution&lt;/p>
+&lt;div class="hx-w-full hx-min-w-0 hx-leading-7">
+&lt;div class="hx-mt-6 hx-leading-7 first:hx-mt-0">&lt;p>Don&amp;rsquo;t reach for &lt;code>.http&lt;/code> files as a substitute for real integration or contract tests. They&amp;rsquo;re excellent for exploration and documentation, but they won&amp;rsquo;t catch regressions on their own — keep your automated test suite as the source of truth for correctness.&lt;/p>&lt;/div>
+&lt;/div>
+&lt;/div>
+&lt;p>They&amp;rsquo;re not a full replacement for a proper automated test suite or a tool like Postman/Insomnia when you need elaborate scripting, mocking, or team collaboration features at scale. But for the day-to-day of &amp;ldquo;let me just check this endpoint,&amp;rdquo; they&amp;rsquo;ve earned a permanent place in my toolkit — and I&amp;rsquo;d encourage you to give them a real trial on your next project.&lt;/p></description></item><item><title>Setting Up a Model Context Protocol (MCP) Remote Server in VSCode</title><link>https://blog-dev.garrardkitchen.com/blog/mcp-server-example/</link><pubDate>Wed, 23 Apr 2025 13:29:21 +0100</pubDate><guid>https://blog-dev.garrardkitchen.com/blog/mcp-server-example/</guid><description>
 &lt;h2>Summary&lt;span class="hx-absolute -hx-mt-20" id="summary">&lt;/span>
 &lt;a href="#summary" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>This guide walks you through the process of connecting a Model Context Protocol (MCP) remote server to Visual Studio Code (VSCode). You&amp;rsquo;ll learn what MCP is, why it&amp;rsquo;s useful, and how to set up and use an MCP server to provide richer, real-time context to AI-powered tools like GitHub Copilot.&lt;/p>
 &lt;hr>
