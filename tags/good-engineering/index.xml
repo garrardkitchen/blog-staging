@@ -1,4 +1,460 @@
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Garrard Kitchen – Good Engineering</title><link>https://blog-dev.garrardkitchen.com/tags/good-engineering/</link><description>Recent content in Good Engineering on Garrard Kitchen</description><generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Wed, 08 Jul 2026 07:49:14 +0100</lastBuildDate><atom:link href="https://blog-dev.garrardkitchen.com/tags/good-engineering/index.xml" rel="self" type="application/rss+xml"/><item><title>A practical guide to .http files</title><link>https://blog-dev.garrardkitchen.com/blog/dot-http-files/</link><pubDate>Wed, 08 Jul 2026 07:49:14 +0100</pubDate><guid>https://blog-dev.garrardkitchen.com/blog/dot-http-files/</guid><description>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Garrard Kitchen – Good Engineering</title><link>https://blog-dev.garrardkitchen.com/tags/good-engineering/</link><description>Recent content in Good Engineering on Garrard Kitchen</description><generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Mon, 13 Jul 2026 00:00:00 +0000</lastBuildDate><atom:link href="https://blog-dev.garrardkitchen.com/tags/good-engineering/index.xml" rel="self" type="application/rss+xml"/><item><title>Building Your Personal AI Software Factory</title><link>https://blog-dev.garrardkitchen.com/blog/hermes-agent-build-your-software-factory/</link><pubDate>Mon, 13 Jul 2026 00:00:00 +0000</pubDate><guid>https://blog-dev.garrardkitchen.com/blog/hermes-agent-build-your-software-factory/</guid><description>
+&lt;h1>Hermes Agent on Windows: Building Your Personal AI Software Factory&lt;/h1>&lt;div class="hx-overflow-x-auto hx-mt-6 hx-flex hx-flex-col hx-rounded-lg hx-border hx-py-4 hx-px-4 contrast-more:hx-border-current contrast-more:dark:hx-border-current hx-border-orange-100 hx-bg-orange-50 hx-text-orange-800 dark:hx-border-orange-400/30 dark:hx-bg-orange-400/20 dark:hx-text-orange-300">
+&lt;p class="hx-flex hx-items-center hx-font-medium">Abstract&lt;/p>
+&lt;div class="hx-w-full hx-min-w-0 hx-leading-7">
+&lt;div class="hx-mt-6 hx-leading-7 first:hx-mt-0">&lt;p>Most AI assistants answer questions. &lt;strong>Hermes Agent&lt;/strong> goes much further—it remembers, learns, automates, connects to tools, and continuously improves the way it helps you. When combined with Model Context Protocol (MCP) servers, long-running gateways and automation loops, it starts to resemble a &lt;strong>personal software factory&lt;/strong> rather than a chatbot.&lt;/p>&lt;/div>
+&lt;/div>
+&lt;/div>
+&lt;hr>
+&lt;h1>From Assistant to Autonomous Collaborator&lt;/h1>&lt;p>We&amp;rsquo;ve spent the last few years interacting with AI by asking questions and waiting for answers.&lt;/p>
+&lt;p>Hermes Agent represents the next step.&lt;/p>
+&lt;p>Rather than being a stateless assistant, Hermes is an &lt;strong>AI agent runtime&lt;/strong> capable of maintaining long-term context, connecting to external tools, interacting with MCP servers, executing tasks and building persistent knowledge over time.&lt;/p>
+&lt;p>Instead of asking:&lt;/p>
+&lt;blockquote>
+&lt;p>&amp;ldquo;Write me some code.&amp;rdquo;&lt;/p>
+&lt;/blockquote>
+&lt;p>You move towards:&lt;/p>
+&lt;blockquote>
+&lt;p>&amp;ldquo;Understand my engineering standards, monitor my repositories, propose improvements, execute approved workflows and continually learn how I work.&amp;rdquo;&lt;/p>
+&lt;/blockquote>
+&lt;p>That is a fundamental shift.&lt;/p>
+&lt;hr>
+&lt;div class="hx-overflow-x-auto hx-mt-6 hx-flex hx-flex-col hx-rounded-lg hx-border hx-py-4 hx-px-4 contrast-more:hx-border-current contrast-more:dark:hx-border-current hx-border-orange-100 hx-bg-orange-50 hx-text-orange-800 dark:hx-border-orange-400/30 dark:hx-bg-orange-400/20 dark:hx-text-orange-300">
+&lt;p class="hx-flex hx-items-center hx-font-medium">Info&lt;/p>
+&lt;div class="hx-w-full hx-min-w-0 hx-leading-7">
+&lt;div class="hx-mt-6 hx-leading-7 first:hx-mt-0">&lt;p>&lt;strong>Think of Hermes as an operating system for AI agents.&lt;/strong>&lt;/p>
+&lt;p>It combines:&lt;/p>
+&lt;ul>
+&lt;li>Persistent memory&lt;/li>
+&lt;li>Tool execution&lt;/li>
+&lt;li>MCP integration&lt;/li>
+&lt;li>Long-running gateways&lt;/li>
+&lt;li>Profiles&lt;/li>
+&lt;li>Automation&lt;/li>
+&lt;li>Continuous learning&lt;/li>
+&lt;li>Workflow orchestration&lt;/li>
+&lt;/ul>&lt;/div>
+&lt;/div>
+&lt;/div>
+&lt;hr>
+&lt;h1>Why This Matters&lt;/h1>&lt;p>Traditional AI sessions disappear when the conversation ends.&lt;/p>
+&lt;p>Hermes allows your agent to accumulate knowledge over time.&lt;/p>
+&lt;p>It can remember:&lt;/p>
+&lt;ul>
+&lt;li>Coding standards&lt;/li>
+&lt;li>Architectural decisions&lt;/li>
+&lt;li>Project context&lt;/li>
+&lt;li>Engineering conventions&lt;/li>
+&lt;li>Documentation&lt;/li>
+&lt;li>Preferred workflows&lt;/li>
+&lt;li>Domain knowledge&lt;/li>
+&lt;/ul>
+&lt;p>The result is less repetition and more intelligent collaboration.&lt;/p>
+&lt;hr>
+&lt;h1>Beyond Memory: Self-Improving Systems&lt;/h1>&lt;p>The real breakthrough isn&amp;rsquo;t simply memory.&lt;/p>
+&lt;p>It&amp;rsquo;s &lt;strong>feedback loops&lt;/strong>.&lt;/p>
+&lt;p>Imagine an agent that:&lt;/p>
+&lt;ol>
+&lt;li>Writes code&lt;/li>
+&lt;li>Executes tests&lt;/li>
+&lt;li>Reviews failures&lt;/li>
+&lt;li>Improves prompts&lt;/li>
+&lt;li>Updates documentation&lt;/li>
+&lt;li>Learns what worked&lt;/li>
+&lt;li>Performs better next time&lt;/li>
+&lt;/ol>
+&lt;p>Every completed task becomes another learning opportunity.&lt;/p>
+&lt;p>Instead of repeatedly solving the same problems, the system becomes progressively more capable.&lt;/p>
+&lt;p>This is where &lt;strong>adaptive intelligence&lt;/strong> begins to emerge.&lt;/p>
+&lt;div class="hx-overflow-x-auto hx-mt-6 hx-flex hx-flex-col hx-rounded-lg hx-border hx-py-4 hx-px-4 contrast-more:hx-border-current contrast-more:dark:hx-border-current hx-border-green-200 hx-bg-green-100 hx-text-green-900 dark:hx-border-green-200/30 dark:hx-bg-green-900/30 dark:hx-text-green-200">
+&lt;p class="hx-flex hx-items-center hx-font-medium">&lt;svg height=16px class="hx-inline-block hx-align-middle hx-mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">&lt;path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>&lt;/svg>Tip&lt;/p>
+&lt;div class="hx-w-full hx-min-w-0 hx-leading-7">
+&lt;div class="hx-mt-6 hx-leading-7 first:hx-mt-0">&lt;p>Don&amp;rsquo;t think in terms of &lt;strong>prompts&lt;/strong>.&lt;/p>
+&lt;p>Think in terms of &lt;strong>feedback loops&lt;/strong>.&lt;/p>
+&lt;p>Loops create improvement.
+Improvement creates capability.
+Capability creates leverage.&lt;/p>&lt;/div>
+&lt;/div>
+&lt;/div>
+&lt;hr>
+&lt;h1>Your Personal Software Factory&lt;/h1>&lt;p>Most developers already possess the ingredients.&lt;/p>
+&lt;ul>
+&lt;li>Git&lt;/li>
+&lt;li>VS Code&lt;/li>
+&lt;li>Azure CLI&lt;/li>
+&lt;li>Docker&lt;/li>
+&lt;li>Local LLMs&lt;/li>
+&lt;li>MCP Servers&lt;/li>
+&lt;li>CI/CD&lt;/li>
+&lt;li>Documentation&lt;/li>
+&lt;li>Knowledge bases&lt;/li>
+&lt;/ul>
+&lt;p>Hermes provides the runtime that coordinates them into a single engineering system.&lt;/p>
+&lt;p>Instead of isolated tools, you gain an intelligent software factory capable of:&lt;/p>
+&lt;ul>
+&lt;li>Generating code&lt;/li>
+&lt;li>Reviewing pull requests&lt;/li>
+&lt;li>Producing documentation&lt;/li>
+&lt;li>Querying architectural knowledge&lt;/li>
+&lt;li>Running tests&lt;/li>
+&lt;li>Creating diagrams&lt;/li>
+&lt;li>Managing cloud resources&lt;/li>
+&lt;li>Automating repetitive engineering work&lt;/li>
+&lt;/ul>
+&lt;hr>
+&lt;h2>A Personal Software Factory&lt;span class="hx-absolute -hx-mt-20" id="a-personal-software-factory">&lt;/span>
+&lt;a href="#a-personal-software-factory" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;pre class="mermaid hx-mt-6">
+flowchart LR
+Developer --&amp;gt; Hermes[&amp;#34;Hermes Agent&amp;#34;]
+Hermes --&amp;gt; Memory[&amp;#34;Persistent Memory&amp;#34;]
+Hermes --&amp;gt; Gateway[&amp;#34;Gateway&amp;#34;]
+Hermes --&amp;gt; MCP[&amp;#34;MCP Servers&amp;#34;]
+Hermes --&amp;gt; Tools[&amp;#34;Developer Tools&amp;#34;]
+Hermes --&amp;gt; Automation[&amp;#34;Automation&amp;#34;]
+Tools --&amp;gt; VSCode[&amp;#34;VS Code&amp;#34;]
+Tools --&amp;gt; Git[&amp;#34;Git&amp;#34;]
+Tools --&amp;gt; Azure[&amp;#34;Azure CLI&amp;#34;]
+Tools --&amp;gt; Docker[&amp;#34;Docker&amp;#34;]
+Automation --&amp;gt; Factory[&amp;#34;Personal Software Factory&amp;#34;]
+Memory --&amp;gt; Factory
+Gateway --&amp;gt; Factory
+MCP --&amp;gt; Factory
+classDef agent fill:#2563EB,stroke:#1D4ED8,color:#FFFFFF
+classDef capability fill:#E0F2FE,stroke:#0284C7,color:#0C4A6E
+classDef tool fill:#DCFCE7,stroke:#16A34A,color:#14532D
+classDef outcome fill:#FEF3C7,stroke:#D97706,color:#78350F
+class Hermes agent
+class Memory,Gateway,MCP,Automation capability
+class VSCode,Git,Azure,Docker tool
+class Factory outcome
+&lt;/pre>&lt;hr>
+&lt;h1>The Importance of Profiles&lt;/h1>&lt;p>One mistake people often make is creating too many profiles.&lt;/p>
+&lt;p>Profiles are &lt;strong>not folders&lt;/strong>.&lt;/p>
+&lt;p>They are isolated execution environments containing their own:&lt;/p>
+&lt;ul>
+&lt;li>Memory&lt;/li>
+&lt;li>Configuration&lt;/li>
+&lt;li>Authentication&lt;/li>
+&lt;li>MCP Servers&lt;/li>
+&lt;li>Tools&lt;/li>
+&lt;li>SOUL&lt;/li>
+&lt;li>Gateway&lt;/li>
+&lt;/ul>
+&lt;p>A profile should represent a distinct &lt;strong>identity&lt;/strong>, &lt;strong>trust boundary&lt;/strong> or &lt;strong>working context&lt;/strong>.&lt;/p>
+&lt;h2>Recommended Layout&lt;span class="hx-absolute -hx-mt-20" id="recommended-layout">&lt;/span>
+&lt;a href="#recommended-layout" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;pre class="mermaid hx-mt-6">
+mindmap
+root((Hermes Profiles))
+Work
+Azure
+GitHub Enterprise
+Corporate MCPs
+Engineering Memory
+Personal
+Gmail
+Calendar
+Home Assistant
+Personal Projects
+Lab
+Experimental Models
+New MCP Servers
+Prompt Engineering
+Research
+Blog Writing
+&lt;/pre>&lt;div class="hx-overflow-x-auto hx-mt-6 hx-flex hx-flex-col hx-rounded-lg hx-border hx-py-4 hx-px-4 contrast-more:hx-border-current contrast-more:dark:hx-border-current hx-border-orange-100 hx-bg-orange-50 hx-text-orange-800 dark:hx-border-orange-400/30 dark:hx-bg-orange-400/20 dark:hx-text-orange-300">
+&lt;p class="hx-flex hx-items-center hx-font-medium">Success&lt;/p>
+&lt;div class="hx-w-full hx-min-w-0 hx-leading-7">
+&lt;div class="hx-mt-6 hx-leading-7 first:hx-mt-0">&lt;p>Create a new profile only when one or more of these changes:&lt;/p>
+&lt;ul>
+&lt;li>Identity&lt;/li>
+&lt;li>Security boundary&lt;/li>
+&lt;li>Domain knowledge&lt;/li>
+&lt;li>Tooling&lt;/li>
+&lt;li>Risk level&lt;/li>
+&lt;/ul>&lt;/div>
+&lt;/div>
+&lt;/div>
+&lt;hr>
+&lt;h1>Running Hermes on Windows&lt;/h1>&lt;p>Hermes works extremely well as a native Windows application.&lt;/p>
+&lt;p>Rather than manually launching the gateway each time you sign in, install the gateway for each profile and let Windows start it automatically.&lt;/p>
+&lt;p>Benefits include:&lt;/p>
+&lt;ul>
+&lt;li>Automatic startup&lt;/li>
+&lt;li>Long-running availability&lt;/li>
+&lt;li>Persistent memory&lt;/li>
+&lt;li>Immediate connectivity from VS Code and other clients&lt;/li>
+&lt;li>No manual intervention&lt;/li>
+&lt;/ul>
+&lt;div class="hx-overflow-x-auto hx-mt-6 hx-flex hx-flex-col hx-rounded-lg hx-border hx-py-4 hx-px-4 contrast-more:hx-border-current contrast-more:dark:hx-border-current hx-border-green-200 hx-bg-green-100 hx-text-green-900 dark:hx-border-green-200/30 dark:hx-bg-green-900/30 dark:hx-text-green-200">
+&lt;p class="hx-flex hx-items-center hx-font-medium">&lt;svg height=16px class="hx-inline-block hx-align-middle hx-mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">&lt;path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>&lt;/svg>Tip&lt;/p>
+&lt;div class="hx-w-full hx-min-w-0 hx-leading-7">
+&lt;div class="hx-mt-6 hx-leading-7 first:hx-mt-0">&lt;p>For a developer workstation, a &lt;strong>per-user gateway&lt;/strong> is generally preferable to running Hermes as a Windows Service.&lt;/p>
+&lt;p>It naturally inherits your user credentials, Azure CLI login, Git authentication and local environment.&lt;/p>&lt;/div>
+&lt;/div>
+&lt;/div>
+&lt;hr>
+&lt;h1>Getting Started on Windows&lt;/h1>&lt;p>The following PowerShell commands create a native Windows installation, three isolated profiles, and a gateway for each profile. Open a new PowerShell or Windows Terminal tab after installation so the updated user &lt;code>PATH&lt;/code> is available.&lt;/p>
+&lt;div class="hx-overflow-x-auto hx-mt-6 hx-flex hx-flex-col hx-rounded-lg hx-border hx-py-4 hx-px-4 contrast-more:hx-border-current contrast-more:dark:hx-border-current hx-border-amber-200 hx-bg-amber-100 hx-text-amber-900 dark:hx-border-amber-200/30 dark:hx-bg-amber-900/30 dark:hx-text-amber-200">
+&lt;p class="hx-flex hx-items-center hx-font-medium">&lt;svg height=16px class="hx-inline-block hx-align-middle hx-mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">&lt;path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>&lt;/svg>Warning&lt;/p>
+&lt;div class="hx-w-full hx-min-w-0 hx-leading-7">
+&lt;div class="hx-mt-6 hx-leading-7 first:hx-mt-0">&lt;p>Treat each profile as a security boundary. Keep API keys and messaging tokens in that profile&amp;rsquo;s &lt;code>.env&lt;/code> file, never commit them to source control, and use distinct bot tokens for gateways that run at the same time.&lt;/p>&lt;/div>
+&lt;/div>
+&lt;/div>
+&lt;h2>Install and Verify&lt;span class="hx-absolute -hx-mt-20" id="install-and-verify">&lt;/span>
+&lt;a href="#install-and-verify" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-powershell" data-lang="powershell">&lt;span class="line">&lt;span class="cl">&lt;span class="c"># Install Hermes Agent for the current Windows user.&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">iex &lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nb">irm &lt;/span>&lt;span class="n">https&lt;/span>&lt;span class="err">:&lt;/span>&lt;span class="p">//&lt;/span>&lt;span class="n">raw&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="py">githubusercontent&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">com&lt;/span>&lt;span class="p">/&lt;/span>&lt;span class="n">NousResearch&lt;/span>&lt;span class="p">/&lt;/span>&lt;span class="nb">hermes-agent&lt;/span>&lt;span class="p">/&lt;/span>&lt;span class="n">main&lt;/span>&lt;span class="p">/&lt;/span>&lt;span class="n">scripts&lt;/span>&lt;span class="p">/&lt;/span>&lt;span class="n">install&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">ps1&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c"># Run these in a new PowerShell window after the installer completes.&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">Get-Command&lt;/span> &lt;span class="n">hermes&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">hermes&lt;/span> &lt;span class="p">-&lt;/span>&lt;span class="n">-version&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;h2>Create and Configure Profiles&lt;span class="hx-absolute -hx-mt-20" id="create-and-configure-profiles">&lt;/span>
+&lt;a href="#create-and-configure-profiles" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-powershell" data-lang="powershell">&lt;span class="line">&lt;span class="cl">&lt;span class="c"># Create isolated profiles. Use --clone only when the source profile contains&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c"># configuration you deliberately want to reuse.&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">hermes&lt;/span> &lt;span class="n">profile&lt;/span> &lt;span class="n">create&lt;/span> &lt;span class="n">work&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">hermes&lt;/span> &lt;span class="n">profile&lt;/span> &lt;span class="n">create&lt;/span> &lt;span class="n">personal&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">hermes&lt;/span> &lt;span class="n">profile&lt;/span> &lt;span class="n">create&lt;/span> &lt;span class="n">lab&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c"># Configure each profile independently. --portal is optional; use it when&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c"># you have a Nous Portal subscription.&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">hermes&lt;/span> &lt;span class="n">-p&lt;/span> &lt;span class="n">work&lt;/span> &lt;span class="n">setup&lt;/span> &lt;span class="p">-&lt;/span>&lt;span class="n">-portal&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">hermes&lt;/span> &lt;span class="n">-p&lt;/span> &lt;span class="n">personal&lt;/span> &lt;span class="n">setup&lt;/span> &lt;span class="p">-&lt;/span>&lt;span class="n">-portal&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">hermes&lt;/span> &lt;span class="n">-p&lt;/span> &lt;span class="n">lab&lt;/span> &lt;span class="n">setup&lt;/span> &lt;span class="p">-&lt;/span>&lt;span class="n">-portal&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c"># Optional: make work the default profile for future Hermes commands.&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">hermes&lt;/span> &lt;span class="n">profile&lt;/span> &lt;span class="n">use&lt;/span> &lt;span class="n">work&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;h2>Start Gateways Automatically at Sign-in&lt;span class="hx-absolute -hx-mt-20" id="start-gateways-automatically-at-sign-in">&lt;/span>
+&lt;a href="#start-gateways-automatically-at-sign-in" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-powershell" data-lang="powershell">&lt;span class="line">&lt;span class="cl">&lt;span class="c"># Install a per-profile Windows Scheduled Task for each gateway.&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">hermes&lt;/span> &lt;span class="n">-p&lt;/span> &lt;span class="n">work&lt;/span> &lt;span class="n">gateway&lt;/span> &lt;span class="n">install&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">hermes&lt;/span> &lt;span class="n">-p&lt;/span> &lt;span class="n">personal&lt;/span> &lt;span class="n">gateway&lt;/span> &lt;span class="n">install&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">hermes&lt;/span> &lt;span class="n">-p&lt;/span> &lt;span class="n">lab&lt;/span> &lt;span class="n">gateway&lt;/span> &lt;span class="n">install&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c"># Start each installed gateway now; it will also start automatically when you sign in.&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">hermes&lt;/span> &lt;span class="n">-p&lt;/span> &lt;span class="n">work&lt;/span> &lt;span class="n">gateway&lt;/span> &lt;span class="nb">start
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">&lt;/span>&lt;span class="n">hermes&lt;/span> &lt;span class="n">-p&lt;/span> &lt;span class="n">personal&lt;/span> &lt;span class="n">gateway&lt;/span> &lt;span class="nb">start
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">&lt;/span>&lt;span class="n">hermes&lt;/span> &lt;span class="n">-p&lt;/span> &lt;span class="n">lab&lt;/span> &lt;span class="n">gateway&lt;/span> &lt;span class="n">start&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;h2>Use and Monitor Profiles&lt;span class="hx-absolute -hx-mt-20" id="use-and-monitor-profiles">&lt;/span>
+&lt;a href="#use-and-monitor-profiles" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-powershell" data-lang="powershell">&lt;span class="line">&lt;span class="cl">&lt;span class="c"># Start an interactive session in a specific profile.&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">hermes&lt;/span> &lt;span class="n">-p&lt;/span> &lt;span class="n">work&lt;/span> &lt;span class="n">chat&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">hermes&lt;/span> &lt;span class="n">-p&lt;/span> &lt;span class="n">personal&lt;/span> &lt;span class="n">chat&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">hermes&lt;/span> &lt;span class="n">-p&lt;/span> &lt;span class="n">lab&lt;/span> &lt;span class="n">chat&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c"># Review the active profile, or every profile gateway in one view.&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">hermes&lt;/span> &lt;span class="n">-p&lt;/span> &lt;span class="n">work&lt;/span> &lt;span class="n">gateway&lt;/span> &lt;span class="n">status&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">hermes&lt;/span> &lt;span class="n">gateway&lt;/span> &lt;span class="n">list&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c"># Restart every installed gateway after an update, if required.&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">hermes&lt;/span> &lt;span class="n">update&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">hermes&lt;/span> &lt;span class="n">gateway&lt;/span> &lt;span class="n">restart&lt;/span> &lt;span class="p">-&lt;/span>&lt;span class="n">-all&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;div class="hx-overflow-x-auto hx-mt-6 hx-flex hx-flex-col hx-rounded-lg hx-border hx-py-4 hx-px-4 contrast-more:hx-border-current contrast-more:dark:hx-border-current hx-border-green-200 hx-bg-green-100 hx-text-green-900 dark:hx-border-green-200/30 dark:hx-bg-green-900/30 dark:hx-text-green-200">
+&lt;p class="hx-flex hx-items-center hx-font-medium">&lt;svg height=16px class="hx-inline-block hx-align-middle hx-mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">&lt;path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>&lt;/svg>Tip&lt;/p>
+&lt;div class="hx-w-full hx-min-w-0 hx-leading-7">
+&lt;div class="hx-mt-6 hx-leading-7 first:hx-mt-0">&lt;p>Each created profile also has a command alias, so &lt;code>work chat&lt;/code> and &lt;code>work gateway start&lt;/code> are equivalent to using &lt;code>hermes -p work&lt;/code>.&lt;/p>&lt;/div>
+&lt;/div>
+&lt;/div>
+&lt;hr>
+&lt;h1>Updating Hermes Across Profiles and Gateways&lt;/h1>&lt;p>Hermes has one shared installation but maintains configuration, memories, sessions, skills and gateway state per profile. Update the shared runtime once; Hermes then synchronises bundled skills to all profiles while preserving user-modified skills.&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-powershell" data-lang="powershell">&lt;span class="line">&lt;span class="cl">&lt;span class="c"># Review whether an update is available before changing the installation.&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">hermes&lt;/span> &lt;span class="n">update&lt;/span> &lt;span class="p">-&lt;/span>&lt;span class="n">-check&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c"># Take a Hermes-home snapshot, then update the shared runtime.&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">hermes&lt;/span> &lt;span class="n">update&lt;/span> &lt;span class="p">-&lt;/span>&lt;span class="n">-backup&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c"># Restart every installed profile gateway so each uses the updated runtime.&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">hermes&lt;/span> &lt;span class="n">gateway&lt;/span> &lt;span class="n">restart&lt;/span> &lt;span class="p">-&lt;/span>&lt;span class="n">-all&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c"># Confirm that all profile gateways are healthy.&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">hermes&lt;/span> &lt;span class="n">gateway&lt;/span> &lt;span class="n">list&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;div class="hx-overflow-x-auto hx-mt-6 hx-flex hx-flex-col hx-rounded-lg hx-border hx-py-4 hx-px-4 contrast-more:hx-border-current contrast-more:dark:hx-border-current hx-border-green-200 hx-bg-green-100 hx-text-green-900 dark:hx-border-green-200/30 dark:hx-bg-green-900/30 dark:hx-text-green-200">
+&lt;p class="hx-flex hx-items-center hx-font-medium">&lt;svg height=16px class="hx-inline-block hx-align-middle hx-mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">&lt;path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>&lt;/svg>Tip&lt;/p>
+&lt;div class="hx-w-full hx-min-w-0 hx-leading-7">
+&lt;div class="hx-mt-6 hx-leading-7 first:hx-mt-0">&lt;p>Update first in the &lt;strong>lab&lt;/strong> profile workflow, validate the integrations you rely on, then roll the update into your regular work and personal use. For a work profile, follow your organisation&amp;rsquo;s software-update and change-control policy.&lt;/p>&lt;/div>
+&lt;/div>
+&lt;/div>
+&lt;div class="hx-overflow-x-auto hx-mt-6 hx-flex hx-flex-col hx-rounded-lg hx-border hx-py-4 hx-px-4 contrast-more:hx-border-current contrast-more:dark:hx-border-current hx-border-amber-200 hx-bg-amber-100 hx-text-amber-900 dark:hx-border-amber-200/30 dark:hx-bg-amber-900/30 dark:hx-text-amber-200">
+&lt;p class="hx-flex hx-items-center hx-font-medium">&lt;svg height=16px class="hx-inline-block hx-align-middle hx-mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">&lt;path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>&lt;/svg>Warning&lt;/p>
+&lt;div class="hx-w-full hx-min-w-0 hx-leading-7">
+&lt;div class="hx-mt-6 hx-leading-7 first:hx-mt-0">&lt;p>An update preserves profile data, but it can change runtime behaviour or bundled skills. Keep exportable backups of important profiles and review release notes before upgrading production or corporate configurations.&lt;/p>&lt;/div>
+&lt;/div>
+&lt;/div>
+&lt;hr>
+&lt;h1>Corporate Laptops: Keep the Work Boundary Intact&lt;/h1>&lt;p>On a managed corporate laptop, treat Hermes like any other developer platform: install it once for the signed-in user, run a &lt;strong>work&lt;/strong> profile through its own auto-starting gateway, and connect it only to tools approved by your organisation.&lt;/p>
+&lt;div class="hx-overflow-x-auto hx-mt-6 hx-flex hx-flex-col hx-rounded-lg hx-border hx-py-4 hx-px-4 contrast-more:hx-border-current contrast-more:dark:hx-border-current hx-border-indigo-200 hx-bg-indigo-100 hx-text-indigo-900 dark:hx-border-indigo-200/30 dark:hx-bg-indigo-900/30 dark:hx-text-indigo-200">
+&lt;p class="hx-flex hx-items-center hx-font-medium">&lt;svg height=16px class="hx-inline-block hx-align-middle hx-mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">&lt;path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>&lt;/svg>Important&lt;/p>
+&lt;div class="hx-w-full hx-min-w-0 hx-leading-7">
+&lt;div class="hx-mt-6 hx-leading-7 first:hx-mt-0">&lt;p>Obtain approval from your security, privacy and IT teams before connecting Hermes to corporate repositories, tenants, MCP servers, or data. A profile is an isolation mechanism, not a substitute for organisational controls such as least privilege, data classification, endpoint management, audit logging, and acceptable-use policies.&lt;/p>&lt;/div>
+&lt;/div>
+&lt;/div>
+&lt;pre class="mermaid hx-mt-6">
+flowchart TB
+Work[&amp;#34;Work Profile&amp;#34;] --&amp;gt; Gateway[&amp;#34;Per-Profile Gateway&amp;#34;]
+Gateway --&amp;gt; Approved[&amp;#34;Approved Tooling Only&amp;#34;]
+Approved --&amp;gt; Azure[&amp;#34;Azure CLI&amp;#34;]
+Approved --&amp;gt; Git[&amp;#34;Git&amp;#34;]
+Approved --&amp;gt; VSCode[&amp;#34;VS Code&amp;#34;]
+Approved --&amp;gt; GHE[&amp;#34;GitHub Enterprise&amp;#34;]
+Approved --&amp;gt; MCP[&amp;#34;Approved MCP Servers&amp;#34;]
+classDef profile fill:#2563EB,stroke:#1D4ED8,color:#FFFFFF
+classDef gateway fill:#E0F2FE,stroke:#0284C7,color:#0C4A6E
+classDef approved fill:#DCFCE7,stroke:#16A34A,color:#14532D
+class Work profile
+class Gateway gateway
+class Approved,Azure,Git,VSCode,GHE,MCP approved
+&lt;/pre>&lt;p>Keep personal services out of the work profile, including personal email, home automation, personal source-control accounts, and consumer API credentials. Place those in a separate &lt;strong>personal&lt;/strong> profile—or do not configure them on the corporate device if policy prohibits it.&lt;/p>
+&lt;h2>Why a Per-User Scheduled Task Is Usually Better Than a Windows Service&lt;span class="hx-absolute -hx-mt-20" id="why-a-per-user-scheduled-task-is-usually-better-than-a-windows-service">&lt;/span>
+&lt;a href="#why-a-per-user-scheduled-task-is-usually-better-than-a-windows-service" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>For a developer workstation, use Hermes&amp;rsquo; per-user gateway installation rather than wrapping it with &lt;code>NSSM&lt;/code>, &lt;code>WinSW&lt;/code>, or &lt;code>sc.exe&lt;/code>. On Windows, Hermes uses a Scheduled Task and can fall back to the Startup folder when Scheduled Tasks are blocked. This lets the gateway start at sign-in under the user&amp;rsquo;s normal identity, retaining access to approved developer credentials and tools without adding administrator-level service management.&lt;/p>
+&lt;p>Reserve a Windows Service for server-style scenarios: a dedicated machine that must run while nobody is signed in, or a deliberately designed shared service with appropriate identity, secret-management, network, monitoring, and operational controls.&lt;/p>
+&lt;div class="hx-overflow-x-auto hx-mt-6 hx-flex hx-flex-col hx-rounded-lg hx-border hx-py-4 hx-px-4 contrast-more:hx-border-current contrast-more:dark:hx-border-current hx-border-green-200 hx-bg-green-100 hx-text-green-900 dark:hx-border-green-200/30 dark:hx-bg-green-900/30 dark:hx-text-green-200">
+&lt;p class="hx-flex hx-items-center hx-font-medium">&lt;svg height=16px class="hx-inline-block hx-align-middle hx-mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">&lt;path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>&lt;/svg>Tip&lt;/p>
+&lt;div class="hx-w-full hx-min-w-0 hx-leading-7">
+&lt;div class="hx-mt-6 hx-leading-7 first:hx-mt-0">&lt;p>Use a separate &lt;strong>lab&lt;/strong> profile for new MCP servers, models, and prompt experiments. Promote only reviewed, approved integrations into the work profile.&lt;/p>&lt;/div>
+&lt;/div>
+&lt;/div>
+&lt;hr>
+&lt;h1>Building Intelligent Feedback Loops&lt;/h1>&lt;p>Once your gateway is always running, interesting possibilities emerge.&lt;/p>
+&lt;pre class="mermaid hx-mt-6">
+flowchart TD
+Commit[&amp;#34;Developer Commits Code&amp;#34;]
+Review[&amp;#34;Hermes Reviews Changes&amp;#34;]
+Verify[&amp;#34;Run Verification&amp;#34;]
+Docs[&amp;#34;Update Documentation&amp;#34;]
+Knowledge[&amp;#34;Search Organisational Knowledge&amp;#34;]
+Improve[&amp;#34;Suggest Improvements&amp;#34;]
+Learn[&amp;#34;Learn from Accepted Feedback&amp;#34;]
+Commit --&amp;gt; Review
+Review --&amp;gt; Verify
+Verify --&amp;gt; Docs
+Docs --&amp;gt; Knowledge
+Knowledge --&amp;gt; Improve
+Improve --&amp;gt; Learn
+Learn -. Continuous Improvement .-&amp;gt; Review
+classDef trigger fill:#2563EB,stroke:#1D4ED8,color:#FFFFFF
+classDef action fill:#E0F2FE,stroke:#0284C7,color:#0C4A6E
+classDef feedback fill:#DCFCE7,stroke:#16A34A,color:#14532D
+class Commit trigger
+class Review,Verify,Docs,Knowledge,Improve action
+class Learn feedback
+&lt;/pre>&lt;p>Now extend that across:&lt;/p>
+&lt;ul>
+&lt;li>Multiple repositories&lt;/li>
+&lt;li>Multiple teams&lt;/li>
+&lt;li>Multiple business units&lt;/li>
+&lt;/ul>
+&lt;p>You&amp;rsquo;re no longer automating individual tasks.&lt;/p>
+&lt;p>You&amp;rsquo;re automating engineering itself.&lt;/p>
+&lt;hr>
+&lt;h1>The Emerging Pattern&lt;/h1>&lt;p>Across the industry, a clear evolution is taking shape.&lt;/p>
+&lt;pre class="mermaid hx-mt-6">
+flowchart LR
+GenAI[&amp;#34;Generative AI&amp;#34;]
+Assistants[&amp;#34;AI Assistants&amp;#34;]
+Agents[&amp;#34;AI Agents&amp;#34;]
+Engineering[&amp;#34;Agentic Engineering&amp;#34;]
+Integrated[&amp;#34;Integrated Intelligence&amp;#34;]
+Adaptive[&amp;#34;Adaptive Intelligence&amp;#34;]
+Enterprise[&amp;#34;Autonomous Enterprise&amp;#34;]
+GenAI --&amp;gt; Assistants
+Assistants --&amp;gt; Agents
+Agents --&amp;gt; Engineering
+Engineering --&amp;gt; Integrated
+Integrated --&amp;gt; Adaptive
+Adaptive --&amp;gt; Enterprise
+classDef foundation fill:#E0F2FE,stroke:#0284C7,color:#0C4A6E
+classDef evolution fill:#DBEAFE,stroke:#2563EB,color:#1E3A8A
+classDef destination fill:#F3E8FF,stroke:#9333EA,color:#581C87
+class GenAI,Assistants foundation
+class Agents,Engineering,Integrated,Adaptive evolution
+class Enterprise destination
+&lt;/pre>&lt;p>Each stage introduces:&lt;/p>
+&lt;ul>
+&lt;li>Richer context&lt;/li>
+&lt;li>Greater autonomy&lt;/li>
+&lt;li>Better orchestration&lt;/li>
+&lt;li>Stronger feedback loops&lt;/li>
+&lt;li>Higher-quality decision making&lt;/li>
+&lt;/ul>
+&lt;p>Hermes fits squarely into the transition from &lt;strong>AI Agents&lt;/strong> towards &lt;strong>Integrated Intelligence&lt;/strong>, where people, tools, memory, workflows and automation operate as a coordinated system.&lt;/p>
+&lt;hr>
+&lt;div class="hx-overflow-x-auto hx-mt-6 hx-flex hx-flex-col hx-rounded-lg hx-border hx-py-4 hx-px-4 contrast-more:hx-border-current contrast-more:dark:hx-border-current hx-border-indigo-200 hx-bg-indigo-100 hx-text-indigo-900 dark:hx-border-indigo-200/30 dark:hx-bg-indigo-900/30 dark:hx-text-indigo-200">
+&lt;p class="hx-flex hx-items-center hx-font-medium">&lt;svg height=16px class="hx-inline-block hx-align-middle hx-mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">&lt;path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>&lt;/svg>Important&lt;/p>
+&lt;div class="hx-w-full hx-min-w-0 hx-leading-7">
+&lt;div class="hx-mt-6 hx-leading-7 first:hx-mt-0">&lt;p>The competitive advantage isn&amp;rsquo;t simply using AI.&lt;/p>
+&lt;p>It&amp;rsquo;s building systems that continuously &lt;strong>learn&lt;/strong>, &lt;strong>adapt&lt;/strong> and &lt;strong>improve&lt;/strong>.&lt;/p>&lt;/div>
+&lt;/div>
+&lt;/div>
+&lt;hr>
+&lt;h1>Looking Ahead&lt;/h1>&lt;p>Hermes is much more than another AI client.&lt;/p>
+&lt;p>It provides the foundation for building an intelligent engineering ecosystem.&lt;/p>
+&lt;p>Treat your agent like another member of the engineering team:&lt;/p>
+&lt;ul>
+&lt;li>Give it persistent memory&lt;/li>
+&lt;li>Connect it to trusted tools&lt;/li>
+&lt;li>Build automation loops&lt;/li>
+&lt;li>Capture engineering knowledge&lt;/li>
+&lt;li>Continuously refine its behaviour&lt;/li>
+&lt;li>Allow it to learn from outcomes&lt;/li>
+&lt;/ul>
+&lt;p>Eventually something subtle happens.&lt;/p>
+&lt;p>You&amp;rsquo;re no longer asking an AI for help.&lt;/p>
+&lt;p>You&amp;rsquo;re collaborating with a system that has been learning alongside your team for months.&lt;/p>
+&lt;p>That is the transition from &lt;strong>AI assistance&lt;/strong> to &lt;strong>engineering intelligence&lt;/strong>.&lt;/p>
+&lt;hr>
+&lt;div class="hx-overflow-x-auto hx-mt-6 hx-flex hx-flex-col hx-rounded-lg hx-border hx-py-4 hx-px-4 contrast-more:hx-border-current contrast-more:dark:hx-border-current hx-border-orange-100 hx-bg-orange-50 hx-text-orange-800 dark:hx-border-orange-400/30 dark:hx-bg-orange-400/20 dark:hx-text-orange-300">
+&lt;p class="hx-flex hx-items-center hx-font-medium">Quote&lt;/p>
+&lt;div class="hx-w-full hx-min-w-0 hx-leading-7">
+&lt;div class="hx-mt-6 hx-leading-7 first:hx-mt-0">&lt;p>&lt;strong>The future won&amp;rsquo;t belong to the organisations with the biggest models.&lt;/strong>&lt;/p>
+&lt;p>&lt;strong>It will belong to those that build the best learning systems around them.&lt;/strong>&lt;/p>&lt;/div>
+&lt;/div>
+&lt;/div></description></item><item><title>A practical guide to .http files</title><link>https://blog-dev.garrardkitchen.com/blog/dot-http-files/</link><pubDate>Wed, 08 Jul 2026 07:49:14 +0100</pubDate><guid>https://blog-dev.garrardkitchen.com/blog/dot-http-files/</guid><description>
 &lt;p>&lt;em>A Practical Guide to .http Files - Ditch Postman, Keep Your API Calls in Source Control&lt;/em>&lt;/p>
 &lt;p>If you&amp;rsquo;ve spent any time bouncing between a browser tab, Postman, and your terminal just to test an endpoint, I&amp;rsquo;ve got good news: there&amp;rsquo;s a simpler way, and it lives right next to your code. &lt;code>.http&lt;/code> files let you write, save, and share HTTP requests as plain text — version-controlled, reviewable in a pull request, and runnable with a single click in VS Code, Visual Studio, JetBrains IDEs, or via CLI tools like &lt;code>httpyac&lt;/code>.&lt;/p>
 &lt;p>I use these on every project now, from quick API prototyping to full integration test suites. Here&amp;rsquo;s how to get the most out of them.&lt;/p>
