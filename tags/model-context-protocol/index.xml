@@ -1,4 +1,5 @@
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Garrard Kitchen – Model Context Protocol</title><link>https://blog-dev.garrardkitchen.com/tags/model-context-protocol/</link><description>Recent content in Model Context Protocol on Garrard Kitchen</description><generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Wed, 23 Apr 2025 13:29:21 +0100</lastBuildDate><atom:link href="https://blog-dev.garrardkitchen.com/tags/model-context-protocol/index.xml" rel="self" type="application/rss+xml"/><item><title>Setting Up a Model Context Protocol (MCP) Remote Server in VSCode</title><link>https://blog-dev.garrardkitchen.com/blog/mcp-server-example/</link><pubDate>Wed, 23 Apr 2025 13:29:21 +0100</pubDate><guid>https://blog-dev.garrardkitchen.com/blog/mcp-server-example/</guid><description>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Garrard Kitchen – Model-Context-Protocol</title><link>https://blog-dev.garrardkitchen.com/tags/model-context-protocol/</link><description>Recent content in Model-Context-Protocol on Garrard Kitchen</description><generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Wed, 23 Apr 2025 13:29:21 +0100</lastBuildDate><atom:link href="https://blog-dev.garrardkitchen.com/tags/model-context-protocol/index.xml" rel="self" type="application/rss+xml"/><item><title>Setting Up a Model Context Protocol (MCP) Remote Server in VSCode</title><link>https://blog-dev.garrardkitchen.com/blog/mcp-server-example/</link><pubDate>Wed, 23 Apr 2025 13:29:21 +0100</pubDate><guid>https://blog-dev.garrardkitchen.com/blog/mcp-server-example/</guid><description>
+&lt;p>In this article, you&amp;rsquo;ll learn how VS Code connects to a remote MCP server, where trust boundaries sit, and how to troubleshoot the transport. That matters because useful AI integration depends as much on explicit trust and verification as it does on model capability.&lt;/p>
 &lt;h2>Summary&lt;span class="hx-absolute -hx-mt-20" id="summary">&lt;/span>
 &lt;a href="#summary" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>This guide walks you through the process of connecting a Model Context Protocol (MCP) remote server to Visual Studio Code (VSCode). You&amp;rsquo;ll learn what MCP is, why it&amp;rsquo;s useful, and how to set up and use an MCP server to provide richer, real-time context to AI-powered tools like GitHub Copilot.&lt;/p>
 &lt;hr>
@@ -113,9 +114,195 @@ title="Copy code"
 &lt;p>SSE allows an MCP server to broadcast context changes to clients in real time, improving the responsiveness and accuracy of AI-powered features in tools that support MCP.&lt;/p>
 &lt;/li>
 &lt;/ul>
+&lt;h2>2026 technical review&lt;span class="hx-absolute -hx-mt-20" id="2026-technical-review">&lt;/span>
+&lt;a href="#2026-technical-review" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;h2>2026 update: use Streamable HTTP&lt;span class="hx-absolute -hx-mt-20" id="2026-update-use-streamable-http">&lt;/span>
+&lt;a href="#2026-update-use-streamable-http" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>The screenshots capture VS Code&amp;rsquo;s earlier remote-server flow. Current MCP uses Streamable HTTP for remote transport. The older HTTP+SSE transport is retained only for backwards compatibility in clients that support it; describing MCP as “HTTP pushing real-time events” is incomplete. The client sends JSON-RPC over HTTP POST, and the server may respond with JSON or an SSE stream. A standalone SSE endpoint is part of the legacy transport.&lt;/p>
+&lt;p>A remote endpoint must validate authentication and authorisation, not just accept a URL from mcp.json. Use HTTPS, current OAuth guidance, least-privilege scopes, and per-resource tenant checks. Validate Origin where relevant and do not use a session ID as an authentication token.&lt;/p>
+&lt;p>The Inspector is a development tool. Run it only from a trusted package source, keep its proxy bound to a safe interface, and avoid testing with production credentials. Successful tool discovery proves protocol compatibility; it does not prove that tool descriptions, argument validation, side effects, or access control are safe.&lt;/p>
 &lt;h2>References&lt;span class="hx-absolute -hx-mt-20" id="references">&lt;/span>
 &lt;a href="#references" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;ul>
 &lt;li>&lt;a href="https://modelcontextprotocol.io/introduction" target="_blank" rel="noopener">Model Context Protocol (MCP) Website&lt;/a>&lt;/li>
 &lt;li>&lt;a href="https://github.com/modelcontextprotocol/" target="_blank" rel="noopener">MCP GitHub Organization&lt;/a>&lt;/li>
 &lt;li>&lt;a href="https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events" target="_blank" rel="noopener">Server-Sent Events (MDN)&lt;/a>&lt;/li>
-&lt;/ul></description></item></channel></rss>
+&lt;li>&lt;a href="https://modelcontextprotocol.io/specification/2025-06-18" target="_blank" rel="noopener">Model Context Protocol specification&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://code.visualstudio.com/docs/copilot/chat/mcp-servers" target="_blank" rel="noopener">VS Code: MCP servers&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;h2>Closing thought&lt;span class="hx-absolute -hx-mt-20" id="closing-thought">&lt;/span>
+&lt;a href="#closing-thought" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>A green connection in VS Code proves that MCP messages can travel; trust begins only when the server&amp;rsquo;s tools, identities, side effects, and failure modes have also been examined.&lt;/p></description></item><item><title>Building a Local MCP Server</title><link>https://blog-dev.garrardkitchen.com/ai/mcp/mcp-local/</link><pubDate>Thu, 17 Apr 2025 00:00:00 +0000</pubDate><guid>https://blog-dev.garrardkitchen.com/ai/mcp/mcp-local/</guid><description>
+&lt;p>In this article, you&amp;rsquo;ll learn where the local MCP example lives, how standard input/output transport works, and what trust decisions remain with the user. That matters because a local server inherits the permissions of the process that launches it.&lt;/p>
+&lt;p>A local MCP server is commonly started by the host as a child process. Protocol messages travel over standard input and standard output. This is convenient—there is no listening port or separate service deployment—but it is not a sandbox.&lt;/p>
+&lt;h2>Example and operating model&lt;span class="hx-absolute -hx-mt-20" id="example-and-operating-model">&lt;/span>
+&lt;a href="#example-and-operating-model" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>The &lt;a href="https://github.com/garrardkitchen/mcp-example" target="_blank" rel="noopener">local MCP example&lt;/a> explores a small server and its host configuration. When adapting it:&lt;/p>
+&lt;ul>
+&lt;li>keep protocol messages on standard output and send diagnostics to standard error;&lt;/li>
+&lt;li>use absolute executable and working-directory paths where host configuration may vary;&lt;/li>
+&lt;li>pin dependencies and review the command before enabling it;&lt;/li>
+&lt;li>request the narrowest filesystem, network, and credential access possible; and&lt;/li>
+&lt;li>validate every tool argument even when the caller is local.&lt;/li>
+&lt;/ul>
+&lt;p>Environment variables passed by the host become available to the child process. Do not pass broad cloud credentials merely because the process is on your workstation. Prefer a short-lived or workload-scoped identity and keep consequential tool calls behind user confirmation.&lt;/p>
+&lt;h2>When local is the right choice&lt;span class="hx-absolute -hx-mt-20" id="when-local-is-the-right-choice">&lt;/span>
+&lt;a href="#when-local-is-the-right-choice" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>Local transport is well suited to development tools, access to a checked-out repository, and experiments that should not expose a network service. A remote server is more appropriate when capabilities must be shared, centrally maintained, or separated from the user&amp;rsquo;s machine. That move introduces authentication, authorisation, tenant isolation, and network failure; it is an architectural change, not only a transport setting.&lt;/p>
+&lt;h2>References&lt;span class="hx-absolute -hx-mt-20" id="references">&lt;/span>
+&lt;a href="#references" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;ul>
+&lt;li>&lt;a href="https://modelcontextprotocol.io/docs/learn/architecture" target="_blank" rel="noopener">MCP architecture&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://modelcontextprotocol.io/specification/2025-06-18/basic/transports" target="_blank" rel="noopener">MCP transports&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://code.visualstudio.com/docs/copilot/chat/mcp-servers" target="_blank" rel="noopener">VS Code MCP servers&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;h2>Closing thought&lt;span class="hx-absolute -hx-mt-20" id="closing-thought">&lt;/span>
+&lt;a href="#closing-thought" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>A local MCP server may be one process away, but every tool it exposes is still a decision about how much of the user&amp;rsquo;s machine an AI interaction should be allowed to reach.&lt;/p></description></item><item><title>Building a Remote MCP Server</title><link>https://blog-dev.garrardkitchen.com/ai/mcp/mcp-remote/</link><pubDate>Thu, 17 Apr 2025 00:00:00 +0000</pubDate><guid>https://blog-dev.garrardkitchen.com/ai/mcp/mcp-remote/</guid><description>
+&lt;p>In this article, you&amp;rsquo;ll learn where the remote MCP example lives, how remote transport changes the threat model, and what to verify first. That matters because centralising a capability also centralises the consequences of weak identity and tenant isolation.&lt;/p>
+&lt;p>The &lt;a href="https://github.com/garrardkitchen/mcp-server-example" target="_blank" rel="noopener">sample code&lt;/a> and &lt;a href="https://blog-dev.garrardkitchen.com/blog/mcp-server-example/" >walk-through&lt;/a> show the mechanics of connecting a host to a remote MCP server. Treat the example as a learning scaffold; production readiness begins where the happy-path connection ends.&lt;/p>
+&lt;h2>What changes when the server is remote&lt;span class="hx-absolute -hx-mt-20" id="what-changes-when-the-server-is-remote">&lt;/span>
+&lt;a href="#what-changes-when-the-server-is-remote" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>A remote server normally uses Streamable HTTP. The client must validate the endpoint and certificate, and the server must validate the caller. Authentication proves an identity; authorisation decides which tools and resources that identity can use. Apply both at the operation and data boundary.&lt;/p>
+&lt;p>For a shared service:&lt;/p>
+&lt;ul>
+&lt;li>use HTTPS and a supported OAuth flow rather than long-lived tokens in editor settings;&lt;/li>
+&lt;li>validate token issuer, audience, signature, lifetime, and scopes;&lt;/li>
+&lt;li>bind every resource lookup to the authenticated tenant or subject;&lt;/li>
+&lt;li>protect state-changing tools against replay and duplicate invocation;&lt;/li>
+&lt;li>rate-limit expensive operations and cap response sizes;&lt;/li>
+&lt;li>treat tool output and resource content as untrusted data; and&lt;/li>
+&lt;li>record security-relevant calls without logging secrets or sensitive payloads.&lt;/li>
+&lt;/ul>
+&lt;p>Do not use session identifiers as authentication. Validate Origin where browser-based clients are possible, and avoid binding a development server to all network interfaces by default.&lt;/p>
+&lt;h2>Design for failure&lt;span class="hx-absolute -hx-mt-20" id="design-for-failure">&lt;/span>
+&lt;a href="#design-for-failure" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>Remote calls can time out after the server has completed the work. Give mutating tools idempotency semantics or a way to query status. Return structured errors that distinguish invalid input, denied access, transient dependency failure, and an internal fault. A model may choose a different next step based on that distinction, but the server remains responsible for enforcing policy.&lt;/p>
+&lt;h2>References&lt;span class="hx-absolute -hx-mt-20" id="references">&lt;/span>
+&lt;a href="#references" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;ul>
+&lt;li>&lt;a href="https://modelcontextprotocol.io/specification/2025-06-18/basic/transports" target="_blank" rel="noopener">MCP transports&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://modelcontextprotocol.io/specification/2025-06-18/basic/authorization" target="_blank" rel="noopener">MCP authorisation&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://code.visualstudio.com/docs/copilot/chat/mcp-servers" target="_blank" rel="noopener">VS Code MCP servers&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;h2>Closing thought&lt;span class="hx-absolute -hx-mt-20" id="closing-thought">&lt;/span>
+&lt;a href="#closing-thought" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>Remote MCP succeeds when a shared capability is easier to reach without making identity, authority, and failure harder to see.&lt;/p></description></item><item><title>Local MCP Checklist</title><link>https://blog-dev.garrardkitchen.com/nuggets/mcp/mcp-local/</link><pubDate>Thu, 17 Apr 2025 00:00:00 +0000</pubDate><guid>https://blog-dev.garrardkitchen.com/nuggets/mcp/mcp-local/</guid><description>
+&lt;p>This checklist helps you review a local MCP server&amp;rsquo;s command, permissions, transport, and failure behavior before enabling it. That matters because the process can often act with the same filesystem and credential access as its host.&lt;/p>
+&lt;h2>Checklist&lt;span class="hx-absolute -hx-mt-20" id="checklist">&lt;/span>
+&lt;a href="#checklist" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;ul>
+&lt;li>Read the configured command, arguments, and working directory.&lt;/li>
+&lt;li>Pin or verify the package or executable you are launching.&lt;/li>
+&lt;li>Keep JSON-RPC messages on standard output; route diagnostics to standard error.&lt;/li>
+&lt;li>Pass only the environment variables the server needs.&lt;/li>
+&lt;li>Prefer read-only tools and narrow path allow-lists.&lt;/li>
+&lt;li>Validate tool arguments and cap output size.&lt;/li>
+&lt;li>Require confirmation for writes, commands, or external side effects.&lt;/li>
+&lt;li>Confirm how the host stops orphaned or unresponsive processes.&lt;/li>
+&lt;li>Inspect logs for secrets before sharing diagnostics.&lt;/li>
+&lt;/ul>
+&lt;h2>Links&lt;span class="hx-absolute -hx-mt-20" id="links">&lt;/span>
+&lt;a href="#links" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;ul>
+&lt;li>&lt;a href="https://github.com/garrardkitchen/mcp-example" target="_blank" rel="noopener">Local example&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://modelcontextprotocol.io/specification/2025-06-18/basic/transports" target="_blank" rel="noopener">MCP transports&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://code.visualstudio.com/docs/copilot/chat/mcp-servers" target="_blank" rel="noopener">VS Code MCP servers&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;h2>Closing thought&lt;span class="hx-absolute -hx-mt-20" id="closing-thought">&lt;/span>
+&lt;a href="#closing-thought" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>A short local MCP configuration can launch a highly capable process, so its review should be proportional to the capability—not to the number of lines.&lt;/p></description></item><item><title>Remote MCP Checklist</title><link>https://blog-dev.garrardkitchen.com/nuggets/mcp/mcp-remote/</link><pubDate>Thu, 17 Apr 2025 00:00:00 +0000</pubDate><guid>https://blog-dev.garrardkitchen.com/nuggets/mcp/mcp-remote/</guid><description>
+&lt;p>This checklist helps you review a remote MCP endpoint&amp;rsquo;s identity, authority, transport, and data handling. That matters because a convenient shared server can otherwise become a shared escalation path.&lt;/p>
+&lt;h2>Checklist&lt;span class="hx-absolute -hx-mt-20" id="checklist">&lt;/span>
+&lt;a href="#checklist" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;ul>
+&lt;li>Verify the HTTPS endpoint and who operates it.&lt;/li>
+&lt;li>Use OAuth or another approved short-lived credential mechanism.&lt;/li>
+&lt;li>Confirm issuer, audience, scopes, and token expiry are validated.&lt;/li>
+&lt;li>Separate authentication from per-tool and per-resource authorisation.&lt;/li>
+&lt;li>Test tenant isolation with deliberately cross-tenant identifiers.&lt;/li>
+&lt;li>Set timeouts, request limits, and rate limits.&lt;/li>
+&lt;li>Make mutating operations idempotent where retries are possible.&lt;/li>
+&lt;li>Redact secrets and personal data from logs and traces.&lt;/li>
+&lt;li>Treat server-supplied text as untrusted content.&lt;/li>
+&lt;li>Define how access is revoked and how incidents are audited.&lt;/li>
+&lt;/ul>
+&lt;h2>Links&lt;span class="hx-absolute -hx-mt-20" id="links">&lt;/span>
+&lt;a href="#links" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;ul>
+&lt;li>&lt;a href="https://github.com/garrardkitchen/mcp-server-example" target="_blank" rel="noopener">Remote example&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://blog-dev.garrardkitchen.com/blog/mcp-server-example/" >Remote server walk-through&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://modelcontextprotocol.io/specification/2025-06-18/basic/authorization" target="_blank" rel="noopener">MCP authorisation&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;h2>Closing thought&lt;span class="hx-absolute -hx-mt-20" id="closing-thought">&lt;/span>
+&lt;a href="#closing-thought" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>Connectivity answers whether a host can call a remote MCP server; identity and authorisation answer whether it should.&lt;/p></description></item><item><title>VS Code MCP Checklist</title><link>https://blog-dev.garrardkitchen.com/nuggets/mcp/mcp-vscode/</link><pubDate>Thu, 17 Apr 2025 00:00:00 +0000</pubDate><guid>https://blog-dev.garrardkitchen.com/nuggets/mcp/mcp-vscode/</guid><description>
+&lt;p>This checklist shows what to inspect before enabling an MCP server in VS Code and how to keep tool use observable. That matters because a server can turn a chat interaction into a real operation on local or remote systems.&lt;/p>
+&lt;h2>Checklist&lt;span class="hx-absolute -hx-mt-20" id="checklist">&lt;/span>
+&lt;a href="#checklist" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;ul>
+&lt;li>Review the server definition committed to the workspace.&lt;/li>
+&lt;li>Do not approve a command merely because the repository is trusted.&lt;/li>
+&lt;li>Check executable paths, arguments, environment input, and endpoint ownership.&lt;/li>
+&lt;li>Prefer input variables or approved secret storage over literal credentials.&lt;/li>
+&lt;li>Inspect the server&amp;rsquo;s discovered tools and disable capabilities you do not need.&lt;/li>
+&lt;li>Read tool arguments before approving consequential calls.&lt;/li>
+&lt;li>Keep workspace trust, extension trust, and MCP server trust as separate decisions.&lt;/li>
+&lt;li>Re-check configuration changes during code review.&lt;/li>
+&lt;li>Stop or remove servers that are no longer needed.&lt;/li>
+&lt;/ul>
+&lt;h2>Links&lt;span class="hx-absolute -hx-mt-20" id="links">&lt;/span>
+&lt;a href="#links" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;ul>
+&lt;li>&lt;a href="https://code.visualstudio.com/docs/copilot/chat/mcp-servers" target="_blank" rel="noopener">VS Code MCP server documentation&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://modelcontextprotocol.io/docs/learn/architecture" target="_blank" rel="noopener">MCP architecture&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;h2>Closing thought&lt;span class="hx-absolute -hx-mt-20" id="closing-thought">&lt;/span>
+&lt;a href="#closing-thought" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>The most important action in a tool-enabled editor is often the pause before deciding what has earned permission to run.&lt;/p></description></item><item><title>MCP and OpenAPI: Similar Shape, Different Job</title><link>https://blog-dev.garrardkitchen.com/ai/mcp/mcp-intro/</link><pubDate>Thu, 27 Jan 2022 11:49:14 +0100</pubDate><guid>https://blog-dev.garrardkitchen.com/ai/mcp/mcp-intro/</guid><description>
+&lt;p>In this article, you&amp;rsquo;ll learn what the Model Context Protocol (MCP) standardises, how it differs from OpenAPI, and why agent-to-agent communication is a separate concern. That matters because useful AI integration depends as much on explicit trust and verification as it does on model capability.&lt;/p>
+&lt;p>MCP and OpenAPI feel related because both replace bespoke integration code with machine-readable contracts. The resemblance is useful, but only if we stop before claiming they solve the same problem.&lt;/p>
+&lt;h2>What MCP actually describes&lt;span class="hx-absolute -hx-mt-20" id="what-mcp-actually-describes">&lt;/span>
+&lt;a href="#what-mcp-actually-describes" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>MCP is a client-server protocol for connecting an AI host to context and capabilities supplied by a server. A server can expose three principal primitives:&lt;/p>
+&lt;ul>
+&lt;li>&lt;strong>Tools&lt;/strong> are operations the model may ask to invoke. They can have side effects, so the host should keep the user in control of sensitive actions.&lt;/li>
+&lt;li>&lt;strong>Resources&lt;/strong> are addressable context, such as files, records, or application state.&lt;/li>
+&lt;li>&lt;strong>Prompts&lt;/strong> are reusable message templates offered by the server.&lt;/li>
+&lt;/ul>
+&lt;p>The protocol defines lifecycle, capability negotiation, and JSON-RPC messages. It does not define the intelligence of the model, guarantee that a tool is safe, or remove the need for authentication and authorisation. Local process transport and remote HTTP transport also create different trust boundaries.&lt;/p>
+&lt;h2>Where the OpenAPI comparison helps&lt;span class="hx-absolute -hx-mt-20" id="where-the-openapi-comparison-helps">&lt;/span>
+&lt;a href="#where-the-openapi-comparison-helps" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>OpenAPI describes the surface of an HTTP API: paths, operations, parameters, request bodies, responses, and security schemes. Tool definitions in MCP also use names, descriptions, and schemas, so both specifications can help software discover how to call an operation.&lt;/p>
+&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th>Question&lt;/th>
+&lt;th>OpenAPI&lt;/th>
+&lt;th>MCP&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td>Primary concern&lt;/td>
+&lt;td>Describing HTTP APIs&lt;/td>
+&lt;td>Connecting AI hosts to tools and context&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>Typical transport&lt;/td>
+&lt;td>HTTP&lt;/td>
+&lt;td>Standard I/O or Streamable HTTP&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>Core contract&lt;/td>
+&lt;td>Paths, methods, payloads, responses&lt;/td>
+&lt;td>Tools, resources, prompts, capabilities&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>Intended caller&lt;/td>
+&lt;td>Any API consumer&lt;/td>
+&lt;td>An MCP client inside an AI host&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>Side-effect control&lt;/td>
+&lt;td>Defined by the API and client&lt;/td>
+&lt;td>Tool invocation plus host/user consent policy&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;p>An MCP server may wrap an API that already has an OpenAPI description. In that design, OpenAPI remains the service contract while MCP supplies an AI-oriented adapter: curated operations, model-facing descriptions, contextual resources, and a consent boundary. Generating MCP tools mechanically from a large API can work, but curation matters because a model needs a small, unambiguous capability surface more than it needs every endpoint.&lt;/p>
+&lt;h2>MCP is not an agent-to-agent protocol&lt;span class="hx-absolute -hx-mt-20" id="mcp-is-not-an-agent-to-agent-protocol">&lt;/span>
+&lt;a href="#mcp-is-not-an-agent-to-agent-protocol" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>MCP does not standardise autonomous agents delegating tasks to one another. A host can orchestrate several MCP servers, and an application can build multi-agent behavior above the protocol, but that orchestration is application logic. Dedicated agent-to-agent protocols address concerns such as agent discovery, task hand-off, status, and result exchange.&lt;/p>
+&lt;p>Keeping those layers separate makes architectures easier to reason about:&lt;/p>
+&lt;ol>
+&lt;li>Use OpenAPI when you need a contract for an HTTP service.&lt;/li>
+&lt;li>Use MCP when an AI host needs governed access to tools and context.&lt;/li>
+&lt;li>Use an orchestration or agent-to-agent layer when independent agents must coordinate work.&lt;/li>
+&lt;/ol>
+&lt;h2>The security boundary&lt;span class="hx-absolute -hx-mt-20" id="the-security-boundary">&lt;/span>
+&lt;a href="#the-security-boundary" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>Descriptions and schemas improve interoperability; they do not establish trust. Before enabling a server, consider who operates it, which data it can read, which actions it can perform, where credentials live, and whether outputs can contain untrusted instructions. Apply least privilege, validate tool inputs, log consequential calls, and require confirmation where an operation can change external state.&lt;/p>
+&lt;h2>References&lt;span class="hx-absolute -hx-mt-20" id="references">&lt;/span>
+&lt;a href="#references" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;ul>
+&lt;li>&lt;a href="https://modelcontextprotocol.io/specification/2025-06-18" target="_blank" rel="noopener">Model Context Protocol specification&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://modelcontextprotocol.io/docs/learn/architecture" target="_blank" rel="noopener">MCP architecture&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://spec.openapis.org/oas/latest.html" target="_blank" rel="noopener">OpenAPI Specification&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;h2>Closing thought&lt;span class="hx-absolute -hx-mt-20" id="closing-thought">&lt;/span>
+&lt;a href="#closing-thought" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>OpenAPI and MCP become more useful together when each is allowed to describe its own boundary instead of being stretched into a universal integration language.&lt;/p></description></item></channel></rss>

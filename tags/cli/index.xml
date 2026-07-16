@@ -1,4 +1,5 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Garrard Kitchen – Cli</title><link>https://blog-dev.garrardkitchen.com/tags/cli/</link><description>Recent content in Cli on Garrard Kitchen</description><generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Thu, 18 Dec 2025 10:00:00 +0000</lastBuildDate><atom:link href="https://blog-dev.garrardkitchen.com/tags/cli/index.xml" rel="self" type="application/rss+xml"/><item><title>Building EntraTool - A Secure CLI for Microsoft Entra ID Token Management</title><link>https://blog-dev.garrardkitchen.com/blog/entra-token-cli-journey/</link><pubDate>Thu, 18 Dec 2025 10:00:00 +0000</pubDate><guid>https://blog-dev.garrardkitchen.com/blog/entra-token-cli-journey/</guid><description>
+&lt;p>In this article, you&amp;rsquo;ll learn how a token-management CLI can make OAuth flows repeatable while keeping credentials out of source control. That matters because useful AI integration depends as much on explicit trust and verification as it does on model capability.&lt;/p>
 &lt;h2>The Problem: Death by a Thousand Manual Token Requests&lt;span class="hx-absolute -hx-mt-20" id="the-problem-death-by-a-thousand-manual-token-requests">&lt;/span>
 &lt;a href="#the-problem-death-by-a-thousand-manual-token-requests" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>Picture this: You&amp;rsquo;re building a modern cloud application with proper security architecture. You&amp;rsquo;ve followed the principle of least privilege, creating dedicated app registrations for each API and client application. Your service principals are perfectly scoped with granular permissions. You&amp;rsquo;re doing everything right.&lt;/p>
 &lt;p>&lt;strong>Then reality hits.&lt;/strong>&lt;/p>
@@ -475,4 +476,11 @@ title="Copy code"
 &lt;/ul>
 &lt;hr>
 &lt;p>&lt;strong>Have you struggled with token management or accidentally committed secrets?&lt;/strong> Share your story in the comments below. Let&amp;rsquo;s build better, more secure developer experiences together.&lt;/p>
-&lt;p>&lt;em>Built with ☕ and Claude Sonnet 4.5 in 1 hour on December 18, 2025.&lt;/em>&lt;/p></description></item></channel></rss>
+&lt;p>&lt;em>Built with ☕ and Claude Sonnet 4.5 in 1 hour on December 18, 2025.&lt;/em>&lt;/p>
+&lt;h2>References&lt;span class="hx-absolute -hx-mt-20" id="references">&lt;/span>
+&lt;a href="#references" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;ul>
+&lt;li>&lt;a href="https://learn.microsoft.com/azure/" target="_blank" rel="noopener">Microsoft Azure documentation&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://learn.microsoft.com/entra/identity-platform/" target="_blank" rel="noopener">Microsoft identity platform documentation&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;h2>Closing thought&lt;span class="hx-absolute -hx-mt-20" id="closing-thought">&lt;/span>
+&lt;a href="#closing-thought" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>A token tool earns trust not by making credentials invisible, but by making the lifetime, audience, authority, and storage of every credential difficult to misunderstand.&lt;/p></description></item></channel></rss>

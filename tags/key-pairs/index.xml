@@ -1,4 +1,5 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Garrard Kitchen – Key Pairs</title><link>https://blog-dev.garrardkitchen.com/tags/key-pairs/</link><description>Recent content in Key Pairs on Garrard Kitchen</description><generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Mon, 08 Jun 2020 12:57:32 +0100</lastBuildDate><atom:link href="https://blog-dev.garrardkitchen.com/tags/key-pairs/index.xml" rel="self" type="application/rss+xml"/><item><title>Digital Certificates</title><link>https://blog-dev.garrardkitchen.com/blog/digital-certificates/</link><pubDate>Mon, 08 Jun 2020 12:57:32 +0100</pubDate><guid>https://blog-dev.garrardkitchen.com/blog/digital-certificates/</guid><description>
+&lt;p>In this article, you&amp;rsquo;ll learn how hashing, signatures, encryption, certificates, and JWT verification fit together without conflating their purposes. That matters because durable engineering comes from understanding trade-offs, not merely reproducing a command or pattern.&lt;/p>
 &lt;p>I&amp;rsquo;ve been wanting to put some notes down on digital certificates, signing and JWT for some time now. I find there are plenty of confusing terms involved in this area, plus a few nuances that have added to my personal confusion. I feel it now important to document these before I forget and move on [to another project].&lt;/p>
 &lt;p>So, what&amp;rsquo;s triggered this post? Well, one of many tasks I&amp;rsquo;m involved in [juggling] evolves SSO (single sign on). Albeit, mainly focused on the architecture on this task, I have compiled a few PoCs where I&amp;rsquo;m using digital certificates for authentication. In particular, SSOing into Twilio Flex and using an &lt;code>identity&lt;/code> field returned from their I.AM service, to seamlessly log into our internal CRM, securely using a digital certificate.&lt;/p>
 &lt;h1>Terms&lt;/h1>&lt;p>Ok, let&amp;rsquo;s start with a few terms. I&amp;rsquo;ll slowly integrate these terms in the following examples.&lt;/p>
@@ -54,7 +55,7 @@
 &lt;/ul>
 &lt;p>Of course, if this [digital signature] is new to you, the above won&amp;rsquo;t (yet) make much sense.&lt;/p>
 &lt;p>I&amp;rsquo;m going to walk you through an example, well 2 actually. One that used a phrase as a key(aka keyphrase), and the other that used a public/private key found in a digital certificate (albeit, self-signed). I am going to use a tool call &lt;code>openssl&lt;/code>, not may have heard of it?&lt;/p>
-&lt;h1>Symmetric encyrption&lt;/h1>&lt;p>&lt;strong>&lt;em>Encryption using a keyphrase&lt;/em>&lt;/strong>&lt;/p>
+&lt;h1>Symmetric encryption&lt;/h1>&lt;p>&lt;strong>&lt;em>Encryption using a keyphrase&lt;/em>&lt;/strong>&lt;/p>
 &lt;p>In this first example, I&amp;rsquo;m going to encrypt a message with a &lt;code>keyphrase&lt;/code>.&lt;/p>
 &lt;p>Before I begin, I&amp;rsquo;m going to write the content of &lt;code>my secret message&lt;/code> to a file called &lt;code>msg.txt&lt;/code>.&lt;/p>
 &lt;p>Next, I&amp;rsquo;m going to encrypt this file it using a keyphrase of &lt;code>abc123&lt;/code> and output the encrypted file to &lt;code>msg.txt.enc&lt;/code>:&lt;/p>
@@ -299,7 +300,7 @@ title="Copy code"
 &lt;p>So far, we&amp;rsquo;ve covered hashes, key pairs, digital signatures and encryption and decryption. This section is where I cover, briefly, digital certificates. I&amp;rsquo;m using a digital certificate to replace the key pair as covered above and to give the capability of using additional information to verify that the identity of the entity presenting this message.&lt;/p>
 &lt;p>Let&amp;rsquo;s start by creating a self-signed certificate. Type:&lt;/p>
 &lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
-&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># create self-signed certificate &lt;/span>
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># create self-signed certificate&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">openssl req -x509 -sha256 -nodes -days &lt;span class="m">365&lt;/span> -newkey rsa:4096 -keyout myserver.pem -out myserver.crt -subj &lt;span class="s2">&amp;#34;/C=UK/OU=IT/CN=myserver.com&amp;#34;&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
 &lt;button
 class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
@@ -336,7 +337,7 @@ title="Copy code"
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># decrypt my encrypted message&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">openssl rsautl -decrypt -inkey myserver.pem -in msg.enc2 -out msg.dec2
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># vertify signature&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># verify signature&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">openssl dgst -sha256 -verify server-public.pem -signature msg.server-signature msg&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
 &lt;button
 class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
@@ -446,10 +447,20 @@ title="Copy code"
 &lt;/div>
 &lt;p>As soon as I paste in my public and private keys, it correctly verifies the digital signature:&lt;/p>
 &lt;p>&lt;img src="../img/2020-06-16-09-02-20.png" alt="" loading="lazy" />&lt;/p>
-&lt;h1>References&lt;/h1>&lt;ul>
+&lt;h2>2026 technical review&lt;span class="hx-absolute -hx-mt-20" id="2026-technical-review">&lt;/span>
+&lt;a href="#2026-technical-review" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;h2>Technical review: modern cryptographic practice&lt;span class="hx-absolute -hx-mt-20" id="technical-review-modern-cryptographic-practice">&lt;/span>
+&lt;a href="#technical-review-modern-cryptographic-practice" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>Several commands below are useful demonstrations of primitives, but they are not a production protocol. The OpenSSL rsautl command is deprecated; use pkeyutl for low-level RSA operations. More importantly, do not design an application that encrypts arbitrary messages directly with RSA. Real systems normally use authenticated symmetric encryption for the data and a reviewed key-encapsulation or hybrid scheme for the symmetric key.&lt;/p>
+&lt;p>A signature provides integrity and evidence that the holder of a private key signed particular bytes. It does not encrypt the message. A certificate binds a public key to names and other assertions through a signature from an issuer; trust also depends on path validation, name constraints, validity, revocation policy, and the relying party&amp;rsquo;s trust store.&lt;/p>
+&lt;p>For new application designs, use a high-level, reviewed protocol such as TLS and platform cryptography APIs. Prefer authenticated encryption modes, protect private keys in an appropriate key store, rotate them, and define what happens after compromise. With JWTs, restrict accepted algorithms, validate signature, issuer, audience, and time claims, and never choose the verification algorithm solely from untrusted token input.&lt;/p>
+&lt;h2>References&lt;span class="hx-absolute -hx-mt-20" id="references">&lt;/span>
+&lt;a href="#references" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;ul>
 &lt;li>&lt;a href="https://www.openssl.org/docs/man1.0.2/man1/genrsa.html" target="_blank" rel="noopener">openssl genrsa&lt;/a>&lt;/li>
 &lt;li>&lt;a href="https://www.openssl.org/docs/man1.0.2/man1/rsautl.html" target="_blank" rel="noopener">openssl rsautl&lt;/a>&lt;/li>
 &lt;li>&lt;a href="https://jumpnowtek.com/security/Code-signing-with-openssl.html" target="_blank" rel="noopener">openssl examples&lt;/a>&lt;/li>
 &lt;li>&lt;a href="https://stackoverflow.com/questions/9951559/difference-between-openssl-rsautl-and-dgst#:~:text=The%20simple%20answer%20is%20that,only%20a%20signature%20as%20output." target="_blank" rel="noopener">the difference rsautl -sign AND dgst -sign&lt;/a>&lt;/li>
 &lt;li>&lt;a href="https://www.openssl.org/docs/man1.0.2/man1/" target="_blank" rel="noopener">openssl&lt;/a>&lt;/li>
-&lt;/ul></description></item></channel></rss>
+&lt;li>&lt;a href="https://docs.openssl.org/master/man1/" target="_blank" rel="noopener">OpenSSL command documentation&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://www.rfc-editor.org/rfc/rfc7519" target="_blank" rel="noopener">RFC 7519: JSON Web Token&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;h2>Closing thought&lt;span class="hx-absolute -hx-mt-20" id="closing-thought">&lt;/span>
+&lt;a href="#closing-thought" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>Certificates do not eliminate the need for trust decisions; they make those decisions portable enough that software can enforce them at scale.&lt;/p></description></item></channel></rss>

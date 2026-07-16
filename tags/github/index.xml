@@ -1,0 +1,664 @@
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Garrard Kitchen – Github</title><link>https://blog-dev.garrardkitchen.com/tags/github/</link><description>Recent content in Github on Garrard Kitchen</description><generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Thu, 16 Jul 2026 07:49:14 +0100</lastBuildDate><atom:link href="https://blog-dev.garrardkitchen.com/tags/github/index.xml" rel="self" type="application/rss+xml"/><item><title>From Dockerfile to Durable Service: How Containers Are Created, Scheduled, Scaled, and Recovered</title><link>https://blog-dev.garrardkitchen.com/blog/how-containers-live/</link><pubDate>Thu, 16 Jul 2026 07:49:14 +0100</pubDate><guid>https://blog-dev.garrardkitchen.com/blog/how-containers-live/</guid><description>
+&lt;p>Containers are often introduced as “a lightweight way to package an application.” That is true, but incomplete. The interesting engineering question begins after the image has been built:&lt;/p>
+&lt;p>&lt;strong>Who decides where the container runs, who notices when it dies, who replaces it, and who adds capacity when demand rises?&lt;/strong>&lt;/p>
+&lt;p>This article follows a container through its whole life—from source code and Dockerfile, to image, to runtime process, to scheduled workload, to recovery and scale. We will compare Docker Desktop, Podman, Kubernetes, and Azure Kubernetes Service (AKS); map their capabilities; build secure images; and finish with GitHub Actions and GitLab CI/CD examples.&lt;/p>
+&lt;div class="hx-overflow-x-auto hx-mt-6 hx-flex hx-flex-col hx-rounded-lg hx-border hx-py-4 hx-px-4 contrast-more:hx-border-current contrast-more:dark:hx-border-current hx-border-green-200 hx-bg-green-100 hx-text-green-900 dark:hx-border-green-200/30 dark:hx-bg-green-900/30 dark:hx-text-green-200">
+&lt;p class="hx-flex hx-items-center hx-font-medium">&lt;svg height=16px class="hx-inline-block hx-align-middle hx-mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">&lt;path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>&lt;/svg>Tip&lt;/p>
+&lt;div class="hx-w-full hx-min-w-0 hx-leading-7">
+&lt;div class="hx-mt-6 hx-leading-7 first:hx-mt-0">&lt;p>Keep this mental model: &lt;strong>an image is a package, a container is a process, and an orchestrator is a control loop that continually compares desired state with reality.&lt;/strong>&lt;/p>&lt;/div>
+&lt;/div>
+&lt;/div>
+&lt;h2>Why this matters&lt;span class="hx-absolute -hx-mt-20" id="why-this-matters">&lt;/span>
+&lt;a href="#why-this-matters" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>A container can start successfully and still fail as a service. It may have no health check, no restart policy, no replica controller, no resource request, no graceful shutdown path, or no safe image promotion process. Those omissions only become visible under failure or traffic—usually when the system is already under pressure.&lt;/p>
+&lt;p>Understanding the layers helps you choose the simplest platform that meets the reliability requirement:&lt;/p>
+&lt;ul>
+&lt;li>A developer laptop needs fast feedback and convenient local networking.&lt;/li>
+&lt;li>A single server may need rootless containers and a host-level service manager.&lt;/li>
+&lt;li>A production cluster needs scheduling, rollouts, replica management, disruption handling, and observability.&lt;/li>
+&lt;li>A managed service such as AKS adds Azure-managed control-plane operations and integrations, but does not remove workload responsibility.&lt;/li>
+&lt;/ul>
+&lt;h2>The container lifecycle in one picture&lt;span class="hx-absolute -hx-mt-20" id="the-container-lifecycle-in-one-picture">&lt;/span>
+&lt;a href="#the-container-lifecycle-in-one-picture" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;pre class="mermaid hx-mt-6">
+flowchart LR
+A[Source code] --&amp;gt; B[Dockerfile]
+B --&amp;gt; C[Build engine]
+C --&amp;gt; D[OCI image]
+D --&amp;gt; E[Registry]
+E --&amp;gt; F[Runtime pulls image]
+F --&amp;gt; G[Container process]
+G --&amp;gt; H{Healthy?}
+H -- yes --&amp;gt; I[Serve traffic]
+H -- no --&amp;gt; J[Restart or replace]
+I --&amp;gt; K{Demand changes?}
+K -- up --&amp;gt; L[Add replicas or nodes]
+K -- down --&amp;gt; M[Remove excess capacity]
+L --&amp;gt; I
+M --&amp;gt; I
+J --&amp;gt; I
+&lt;/pre>&lt;p>For readers who prefer a visual map of responsibility, this SVG separates the four layers that are often mistakenly treated as one thing:&lt;/p>
+&lt;svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 250" role="img" aria-labelledby="container-layer-title container-layer-desc">
+&lt;title id="container-layer-title">Container platform responsibility layers&lt;/title>
+&lt;desc id="container-layer-desc">Four connected layers: image, runtime, orchestrator, and cloud platform.&lt;/desc>
+&lt;defs>
+&lt;linearGradient id="g1" x1="0" x2="1">&lt;stop offset="0" stop-color="#0f766e"/>&lt;stop offset="1" stop-color="#14b8a6"/>&lt;/linearGradient>
+&lt;linearGradient id="g2" x1="0" x2="1">&lt;stop offset="0" stop-color="#1d4ed8"/>&lt;stop offset="1" stop-color="#60a5fa"/>&lt;/linearGradient>
+&lt;linearGradient id="g3" x1="0" x2="1">&lt;stop offset="0" stop-color="#7c3aed"/>&lt;stop offset="1" stop-color="#a78bfa"/>&lt;/linearGradient>
+&lt;linearGradient id="g4" x1="0" x2="1">&lt;stop offset="0" stop-color="#b45309"/>&lt;stop offset="1" stop-color="#f59e0b"/>&lt;/linearGradient>
+&lt;marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">&lt;path d="M0,0 L0,6 L9,3 z" fill="#475569"/>&lt;/marker>
+&lt;/defs>
+&lt;rect width="900" height="250" rx="18" fill="#f8fafc"/>
+&lt;g font-family="system-ui, sans-serif" text-anchor="middle">
+&lt;rect x="35" y="75" width="175" height="100" rx="14" fill="url(#g1)"/>
+&lt;rect x="245" y="75" width="175" height="100" rx="14" fill="url(#g2)"/>
+&lt;rect x="455" y="75" width="175" height="100" rx="14" fill="url(#g3)"/>
+&lt;rect x="665" y="75" width="200" height="100" rx="14" fill="url(#g4)"/>
+&lt;g fill="white">
+&lt;text x="122" y="108" font-size="20" font-weight="700">Image&lt;/text>&lt;text x="122" y="135" font-size="14">package + metadata&lt;/text>&lt;text x="122" y="157" font-size="13">Dockerfile / OCI&lt;/text>
+&lt;text x="332" y="108" font-size="20" font-weight="700">Runtime&lt;/text>&lt;text x="332" y="135" font-size="14">process + isolation&lt;/text>&lt;text x="332" y="157" font-size="13">Docker / Podman&lt;/text>
+&lt;text x="542" y="108" font-size="20" font-weight="700">Orchestrator&lt;/text>&lt;text x="542" y="135" font-size="14">placement + repair&lt;/text>&lt;text x="542" y="157" font-size="13">Kubernetes&lt;/text>
+&lt;text x="765" y="108" font-size="20" font-weight="700">Cloud platform&lt;/text>&lt;text x="765" y="135" font-size="14">nodes + managed ops&lt;/text>&lt;text x="765" y="157" font-size="13">AKS / Azure&lt;/text>
+&lt;/g>
+&lt;g stroke="#475569" stroke-width="3" marker-end="url(#arrow)">&lt;line x1="215" y1="125" x2="238" y2="125"/>&lt;line x1="425" y1="125" x2="448" y2="125"/>&lt;line x1="635" y1="125" x2="658" y2="125"/>&lt;/g>
+&lt;text x="450" y="38" font-size="17" fill="#0f172a" font-weight="700">Each layer owns a different promise&lt;/text>
+&lt;/g>
+&lt;/svg>
+&lt;p>There are three different operations hidden in this diagram:&lt;/p>
+&lt;ol>
+&lt;li>&lt;strong>Creation&lt;/strong> turns a Dockerfile and build context into an immutable image.&lt;/li>
+&lt;li>&lt;strong>Execution&lt;/strong> turns an image into one or more isolated processes.&lt;/li>
+&lt;li>&lt;strong>Orchestration&lt;/strong> keeps a declared number of healthy processes available on suitable machines.&lt;/li>
+&lt;/ol>
+&lt;h2>1. How containers are created&lt;span class="hx-absolute -hx-mt-20" id="1-how-containers-are-created">&lt;/span>
+&lt;a href="#1-how-containers-are-created" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;h3>The image is a filesystem plus metadata&lt;span class="hx-absolute -hx-mt-20" id="the-image-is-a-filesystem-plus-metadata">&lt;/span>
+&lt;a href="#the-image-is-a-filesystem-plus-metadata" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>A container image is normally an OCI-compatible bundle of read-only filesystem layers and configuration metadata. A &lt;code>RUN&lt;/code> instruction may create a layer; &lt;code>COPY&lt;/code> adds application files; &lt;code>ENTRYPOINT&lt;/code> and &lt;code>CMD&lt;/code> describe the process to start; environment, user, working directory, and exposed ports become runtime metadata.&lt;/p>
+&lt;p>The build engine does not “copy a running computer.” It assembles a reproducible artifact. At runtime, the engine adds a thin writable layer and starts a process with Linux namespaces and control groups (or the corresponding virtualized mechanism on a desktop host).&lt;/p>
+&lt;pre class="mermaid hx-mt-6">
+flowchart TB
+subgraph Build[Build time]
+S[Source + build context] --&amp;gt; P[Dockerfile instructions]
+P --&amp;gt; L1[Base image layers]
+P --&amp;gt; L2[Application layers]
+L1 --&amp;gt; IMG[OCI image digest]
+L2 --&amp;gt; IMG
+end
+subgraph Run[Run time]
+IMG --&amp;gt; R[Runtime snapshotter]
+R --&amp;gt; NS[Namespaces]
+R --&amp;gt; CG[Control groups]
+NS --&amp;gt; PROC[Application process]
+CG --&amp;gt; PROC
+end
+&lt;/pre>&lt;h3>Build context is part of the product&lt;span class="hx-absolute -hx-mt-20" id="build-context-is-part-of-the-product">&lt;/span>
+&lt;a href="#build-context-is-part-of-the-product" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>The build context is everything sent to the build engine. A careless context can include &lt;code>.git&lt;/code>, secrets, test output, credentials, and large dependency caches. A &lt;code>.dockerignore&lt;/code> file is therefore both a performance control and a security boundary.&lt;/p>
+&lt;h3>Tags are labels; digests are identities&lt;span class="hx-absolute -hx-mt-20" id="tags-are-labels-digests-are-identities">&lt;/span>
+&lt;a href="#tags-are-labels-digests-are-identities" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>&lt;code>my-app:1.4.0&lt;/code> is a human-friendly tag that can move. &lt;code>my-app@sha256:...&lt;/code> identifies exact image content. Build pipelines should produce useful tags for humans but deploy immutable digests whenever the platform supports it.&lt;/p>
+&lt;h2>2. How containers are scheduled&lt;span class="hx-absolute -hx-mt-20" id="2-how-containers-are-scheduled">&lt;/span>
+&lt;a href="#2-how-containers-are-scheduled" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>Scheduling means selecting a host for a workload. The answer depends entirely on the platform.&lt;/p>
+&lt;h3>Docker Desktop&lt;span class="hx-absolute -hx-mt-20" id="docker-desktop">&lt;/span>
+&lt;a href="#docker-desktop" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>Docker Desktop runs a Linux VM on macOS and Windows, while Linux can use the native engine. A local &lt;code>docker run&lt;/code> starts a container through the Docker Engine; there is no cluster-wide scheduler deciding among many worker nodes unless Docker Desktop Kubernetes is explicitly enabled.&lt;/p>
+&lt;p>Compose adds application-level coordination: services, networks, volumes, dependencies, and replica-style commands. It is excellent for a repeatable local stack, but it is not a substitute for production orchestration. A Compose restart policy can restart a process on the same local engine; it does not provide Kubernetes-style placement across failure domains.&lt;/p>
+&lt;h3>Podman&lt;span class="hx-absolute -hx-mt-20" id="podman">&lt;/span>
+&lt;a href="#podman" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>Podman is a daemonless, OCI-oriented container engine with a Docker-compatible command style. It is especially attractive for rootless development and single-host operation. A Podman pod groups containers that share a network namespace, much like the pod concept Kubernetes popularised.&lt;/p>
+&lt;p>Podman can be paired with systemd/Quadlet for boot-time startup, restart, dependency ordering, and host-level service management. That is a strong single-node pattern, but the scheduling domain remains the host unless Podman is integrated with a broader orchestrator.&lt;/p>
+&lt;h3>Kubernetes&lt;span class="hx-absolute -hx-mt-20" id="kubernetes">&lt;/span>
+&lt;a href="#kubernetes" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>Kubernetes schedules Pods, not raw containers. A Deployment expresses a desired number of interchangeable Pods; the scheduler filters and scores nodes using resource requests, selectors, taints, affinity, topology constraints, and available capacity. The kubelet on the chosen node then asks the container runtime to pull the image and create the containers.&lt;/p>
+&lt;p>The scheduler makes a placement decision, but the controllers keep making corrections. If a Pod disappears, the Deployment/ReplicaSet creates a replacement. If a node fails, the control plane eventually reschedules eligible workload replicas elsewhere.&lt;/p>
+&lt;h3>AKS&lt;span class="hx-absolute -hx-mt-20" id="aks">&lt;/span>
+&lt;a href="#aks" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>AKS is managed Kubernetes. Azure manages the Kubernetes control plane and provides Azure-specific integrations, while customer-managed agent nodes run workloads. The Kubernetes scheduler and controllers still define workload behavior; AKS adds managed node-pool operations, Azure identity/networking/storage options, monitoring integrations, upgrade channels, and autoscaling choices.&lt;/p>
+&lt;div class="hx-overflow-x-auto hx-mt-6 hx-flex hx-flex-col hx-rounded-lg hx-border hx-py-4 hx-px-4 contrast-more:hx-border-current contrast-more:dark:hx-border-current hx-border-blue-200 hx-bg-blue-100 hx-text-blue-900 dark:hx-border-blue-200/30 dark:hx-bg-blue-900/30 dark:hx-text-blue-200">
+&lt;p class="hx-flex hx-items-center hx-font-medium">&lt;svg height=16px class="hx-inline-block hx-align-middle hx-mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">&lt;path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>&lt;/svg>Note&lt;/p>
+&lt;div class="hx-w-full hx-min-w-0 hx-leading-7">
+&lt;div class="hx-mt-6 hx-leading-7 first:hx-mt-0">&lt;p>AKS reduces control-plane and platform toil; it does not make an application stateless, highly available, observable, or correctly sized by default.&lt;/p>&lt;/div>
+&lt;/div>
+&lt;/div>
+&lt;h2>3. How containers are kept running&lt;span class="hx-absolute -hx-mt-20" id="3-how-containers-are-kept-running">&lt;/span>
+&lt;a href="#3-how-containers-are-kept-running" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>“Keep it running” has several meanings:&lt;/p>
+&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th>Layer&lt;/th>
+&lt;th>What is monitored&lt;/th>
+&lt;th>Typical response&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td>Process&lt;/td>
+&lt;td>Exit code, signal, runtime state&lt;/td>
+&lt;td>Restart the same container&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>Container&lt;/td>
+&lt;td>Liveness/readiness health&lt;/td>
+&lt;td>Restart, remove from traffic, or replace&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>Pod/workload&lt;/td>
+&lt;td>Replica count and rollout state&lt;/td>
+&lt;td>Create replacement Pods&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>Node&lt;/td>
+&lt;td>Kubelet/node health and capacity&lt;/td>
+&lt;td>Drain, repair, or reschedule&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>Cluster&lt;/td>
+&lt;td>Pending workloads and capacity&lt;/td>
+&lt;td>Add nodes or change placement&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;p>In Docker, &lt;code>--restart=unless-stopped&lt;/code> can restart an exited container. In Podman, systemd or Quadlet can provide a durable service unit. In Kubernetes, a container restart is usually the kubelet’s job, while a missing Pod is the controller’s job. In AKS, node and control-plane operations add another managed reliability layer.&lt;/p>
+&lt;h3>Health checks are contracts, not decoration&lt;span class="hx-absolute -hx-mt-20" id="health-checks-are-contracts-not-decoration">&lt;/span>
+&lt;a href="#health-checks-are-contracts-not-decoration" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>A liveness probe answers: “Should this process be restarted?” A readiness probe answers: “Should this instance receive traffic?” A startup probe answers: “Has this slow-starting process finished booting?”&lt;/p>
+&lt;p>Do not use a deep dependency check as liveness unless restarting the application is genuinely the right response. A temporary database outage should often make the application unready—not cause every replica to restart in a loop.&lt;/p>
+&lt;h3>Graceful termination matters&lt;span class="hx-absolute -hx-mt-20" id="graceful-termination-matters">&lt;/span>
+&lt;a href="#graceful-termination-matters" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>When a container is stopped, the runtime sends a signal and eventually forces termination after a grace period. Applications should stop accepting new work, finish or cancel in-flight requests, flush important telemetry, and exit. Kubernetes termination hooks and &lt;code>terminationGracePeriodSeconds&lt;/code> help, but they cannot compensate for an application that ignores signals.&lt;/p>
+&lt;h2>4. How containers are scaled&lt;span class="hx-absolute -hx-mt-20" id="4-how-containers-are-scaled">&lt;/span>
+&lt;a href="#4-how-containers-are-scaled" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;h3>Scale out the application&lt;span class="hx-absolute -hx-mt-20" id="scale-out-the-application">&lt;/span>
+&lt;a href="#scale-out-the-application" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>Horizontal scaling creates more replicas. It is usually the safest first response for stateless HTTP workloads, provided that sessions, files, queues, and caches are externalised or deliberately partitioned.&lt;/p>
+&lt;h3>Scale up the container&lt;span class="hx-absolute -hx-mt-20" id="scale-up-the-container">&lt;/span>
+&lt;a href="#scale-up-the-container" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>Vertical scaling gives a replica more CPU or memory. It can help workloads that cannot split easily, but it may require a restart and can hide an inefficient application.&lt;/p>
+&lt;h3>Scale the cluster&lt;span class="hx-absolute -hx-mt-20" id="scale-the-cluster">&lt;/span>
+&lt;a href="#scale-the-cluster" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>If there is no room for a new Pod, adding replicas alone does nothing. A node autoscaler watches for unschedulable Pods and adds nodes; it can later remove underutilised nodes when workloads can be safely moved.&lt;/p>
+&lt;pre class="mermaid hx-mt-6">
+sequenceDiagram
+participant U as Users
+participant H as HPA or KEDA
+participant D as Deployment
+participant S as Scheduler
+participant C as Cluster autoscaler
+participant N as Node pool
+U-&amp;gt;&amp;gt;H: Traffic or event demand rises
+H-&amp;gt;&amp;gt;D: Scale target from 3 to 8 replicas
+D-&amp;gt;&amp;gt;S: Schedule five new Pods
+S--&amp;gt;&amp;gt;D: Three placed, two pending
+S-&amp;gt;&amp;gt;C: Pending Pods need capacity
+C-&amp;gt;&amp;gt;N: Add worker nodes
+N--&amp;gt;&amp;gt;S: Nodes become Ready
+S-&amp;gt;&amp;gt;D: Place remaining Pods
+&lt;/pre>&lt;p>Kubernetes HPA adjusts a workload’s replica count from metrics such as CPU, memory, or custom metrics. KEDA can scale from external events such as queue depth. AKS can combine Pod autoscaling with cluster autoscaling or node autoprovisioning. Resource requests are crucial: the scheduler and node autoscaler reason about requested capacity, not merely what the process happens to consume at a moment in time.&lt;/p>
+&lt;h2>5. How containers recover&lt;span class="hx-absolute -hx-mt-20" id="5-how-containers-recover">&lt;/span>
+&lt;a href="#5-how-containers-recover" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>Recovery is a chain of increasingly broad control loops:&lt;/p>
+&lt;ol>
+&lt;li>&lt;strong>Process recovery:&lt;/strong> restart an exited process.&lt;/li>
+&lt;li>&lt;strong>Instance recovery:&lt;/strong> replace a failed or unready container/Pod.&lt;/li>
+&lt;li>&lt;strong>Node recovery:&lt;/strong> move workloads away from an unhealthy node.&lt;/li>
+&lt;li>&lt;strong>Capacity recovery:&lt;/strong> add nodes when replicas cannot be placed.&lt;/li>
+&lt;li>&lt;strong>Data recovery:&lt;/strong> restore state from durable storage, replication, or backups.&lt;/li>
+&lt;/ol>
+&lt;p>The last step is often forgotten. Kubernetes can recreate a Pod, but it cannot reconstruct data that was only stored in an ephemeral filesystem. Databases, uploaded files, queues, and encryption keys need explicit durability and recovery designs.&lt;/p>
+&lt;div class="hx-overflow-x-auto hx-mt-6 hx-flex hx-flex-col hx-rounded-lg hx-border hx-py-4 hx-px-4 contrast-more:hx-border-current contrast-more:dark:hx-border-current hx-border-amber-200 hx-bg-amber-100 hx-text-amber-900 dark:hx-border-amber-200/30 dark:hx-bg-amber-900/30 dark:hx-text-amber-200">
+&lt;p class="hx-flex hx-items-center hx-font-medium">&lt;svg height=16px class="hx-inline-block hx-align-middle hx-mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">&lt;path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>&lt;/svg>Warning&lt;/p>
+&lt;div class="hx-w-full hx-min-w-0 hx-leading-7">
+&lt;div class="hx-mt-6 hx-leading-7 first:hx-mt-0">&lt;p>Replica recovery is not disaster recovery. Three replicas on one failed node, zone, or region are still one failure domain.&lt;/p>&lt;/div>
+&lt;/div>
+&lt;/div>
+&lt;p>Use PodDisruptionBudgets, topology spread constraints, multiple availability zones, rolling-update limits, and application-level timeouts to make recovery survivable rather than merely automatic.&lt;/p>
+&lt;h2>6. Feature-alignment matrix&lt;span class="hx-absolute -hx-mt-20" id="6-feature-alignment-matrix">&lt;/span>
+&lt;a href="#6-feature-alignment-matrix" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>The table below describes the normal shape of each platform. “Native” means the platform provides the primitive directly; “add-on” means another component or service is commonly required.&lt;/p>
+&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th>Capability&lt;/th>
+&lt;th>Docker Desktop&lt;/th>
+&lt;th>Podman&lt;/th>
+&lt;th>Kubernetes&lt;/th>
+&lt;th>AKS&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td>Build OCI/Docker images&lt;/td>
+&lt;td>Native&lt;/td>
+&lt;td>Native&lt;/td>
+&lt;td>Usually external build system&lt;/td>
+&lt;td>Usually external build system&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>Run one container&lt;/td>
+&lt;td>Native&lt;/td>
+&lt;td>Native&lt;/td>
+&lt;td>Via Pod/ workload object&lt;/td>
+&lt;td>Via Pod/ workload object&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>Multi-container local app&lt;/td>
+&lt;td>Compose&lt;/td>
+&lt;td>Pods/Compose compatibility&lt;/td>
+&lt;td>Native Pods, Services&lt;/td>
+&lt;td>Native Pods, Services&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>Multi-node scheduling&lt;/td>
+&lt;td>Optional local Kubernetes&lt;/td>
+&lt;td>Not a core single-host feature&lt;/td>
+&lt;td>Native scheduler&lt;/td>
+&lt;td>Native scheduler, Azure-managed control plane&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>Restart failed process&lt;/td>
+&lt;td>Restart policy&lt;/td>
+&lt;td>systemd/Quadlet or restart policy&lt;/td>
+&lt;td>Kubelet&lt;/td>
+&lt;td>Kubelet plus AKS node operations&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>Replace missing replicas&lt;/td>
+&lt;td>Limited&lt;/td>
+&lt;td>Host-level automation&lt;/td>
+&lt;td>Deployment/StatefulSet/Job controllers&lt;/td>
+&lt;td>Kubernetes controllers&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>Service discovery&lt;/td>
+&lt;td>Compose network/DNS&lt;/td>
+&lt;td>Network/DNS configuration&lt;/td>
+&lt;td>Services/CoreDNS&lt;/td>
+&lt;td>Services/CoreDNS plus Azure networking options&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>Rolling deployment&lt;/td>
+&lt;td>Compose workflows or external tooling&lt;/td>
+&lt;td>External tooling/systemd patterns&lt;/td>
+&lt;td>Deployment controller&lt;/td>
+&lt;td>Kubernetes Deployment plus AKS integrations&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>Horizontal Pod/container scaling&lt;/td>
+&lt;td>Compose scale/manual&lt;/td>
+&lt;td>Manual or external tooling&lt;/td>
+&lt;td>HPA/KEDA add-ons&lt;/td>
+&lt;td>HPA/KEDA supported; AKS options simplify operations&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>Node autoscaling&lt;/td>
+&lt;td>Not normally&lt;/td>
+&lt;td>Not normally&lt;/td>
+&lt;td>Add cluster autoscaler&lt;/td>
+&lt;td>Cluster autoscaler and optional node autoprovisioning&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>Rootless operation&lt;/td>
+&lt;td>Desktop VM isolation; engine depends on host&lt;/td>
+&lt;td>Strong native workflow&lt;/td>
+&lt;td>Pod security and runtime configuration&lt;/td>
+&lt;td>Pod security, Azure identity, policy&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>Persistent storage&lt;/td>
+&lt;td>Bind mounts/volumes&lt;/td>
+&lt;td>Volumes and mounts&lt;/td>
+&lt;td>PV/PVC/storage classes&lt;/td>
+&lt;td>Azure Disk, Azure Files, CSI drivers, and more&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>Secrets&lt;/td>
+&lt;td>Local secret mechanisms vary&lt;/td>
+&lt;td>Secret objects/local integrations&lt;/td>
+&lt;td>Secrets, external secret systems&lt;/td>
+&lt;td>Kubernetes Secrets plus Key Vault integrations&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>Self-healing scope&lt;/td>
+&lt;td>Container/process&lt;/td>
+&lt;td>Container/process/host service&lt;/td>
+&lt;td>Workload, Pod, and node-aware controllers&lt;/td>
+&lt;td>Kubernetes plus managed Azure operations&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>Best fit&lt;/td>
+&lt;td>Local development and demos&lt;/td>
+&lt;td>Rootless local or single-host services&lt;/td>
+&lt;td>Portable production orchestration&lt;/td>
+&lt;td>Production Kubernetes on Azure&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;p>The matrix is a decision aid, not a promise that every desktop edition, runtime, or add-on has identical behavior. Pin versions and verify the exact platform profile before treating an optional feature as a baseline.&lt;/p>
+&lt;h2>7. Dockerfile best practices&lt;span class="hx-absolute -hx-mt-20" id="7-dockerfile-best-practices">&lt;/span>
+&lt;a href="#7-dockerfile-best-practices" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;h3>Use a small, intentional build&lt;span class="hx-absolute -hx-mt-20" id="use-a-small-intentional-build">&lt;/span>
+&lt;a href="#use-a-small-intentional-build" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-dockerfile" data-lang="dockerfile">&lt;span class="line">&lt;span class="cl">&lt;span class="c"># syntax=docker/dockerfile:1&lt;/span>&lt;span class="err">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">&lt;/span>&lt;span class="k">FROM&lt;/span>&lt;span class="s"> mcr.microsoft.com/dotnet/sdk:10.0 AS build&lt;/span>&lt;span class="err">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">&lt;/span>&lt;span class="k">WORKDIR&lt;/span>&lt;span class="s"> /src&lt;/span>&lt;span class="err">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">&lt;/span>&lt;span class="c"># Copy dependency manifests first to improve cache reuse.&lt;/span>&lt;span class="err">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">&lt;/span>&lt;span class="k">COPY&lt;/span> src/Example.Api/Example.Api.csproj src/Example.Api/&lt;span class="err">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">&lt;/span>&lt;span class="k">RUN&lt;/span> dotnet restore src/Example.Api/Example.Api.csproj&lt;span class="err">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">&lt;/span>&lt;span class="k">COPY&lt;/span> . .&lt;span class="err">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">&lt;/span>&lt;span class="k">RUN&lt;/span> dotnet publish src/Example.Api/Example.Api.csproj &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> --configuration Release &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> --output /out &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> --no-restore &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> --no-self-contained&lt;span class="err">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">&lt;/span>&lt;span class="k">FROM&lt;/span>&lt;span class="s"> mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime&lt;/span>&lt;span class="err">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">&lt;/span>&lt;span class="k">WORKDIR&lt;/span>&lt;span class="s"> /app&lt;/span>&lt;span class="err">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">&lt;/span>&lt;span class="k">RUN&lt;/span> useradd --create-home --uid &lt;span class="m">10001&lt;/span> appuser&lt;span class="err">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">&lt;/span>&lt;span class="k">COPY&lt;/span> --from&lt;span class="o">=&lt;/span>build --chown&lt;span class="o">=&lt;/span>appuser:appuser /out ./&lt;span class="err">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">&lt;/span>&lt;span class="k">USER&lt;/span>&lt;span class="s"> appuser&lt;/span>&lt;span class="err">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">&lt;/span>&lt;span class="k">ENV&lt;/span> &lt;span class="nv">ASPNETCORE_HTTP_PORTS&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="m">8080&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">EXPOSE&lt;/span>&lt;span class="s"> 8080&lt;/span>&lt;span class="err">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">&lt;/span>&lt;span class="k">ENTRYPOINT&lt;/span> &lt;span class="p">[&lt;/span>&lt;span class="s2">&amp;#34;dotnet&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s2">&amp;#34;Example.Api.dll&amp;#34;&lt;/span>&lt;span class="p">]&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>The exact base image should match the application’s supported runtime. Pin a tested version or digest, update it deliberately, and scan it. Do not copy compilers, package managers, source code, test data, or credentials into the runtime stage.&lt;/p>
+&lt;h3>A practical checklist&lt;span class="hx-absolute -hx-mt-20" id="a-practical-checklist">&lt;/span>
+&lt;a href="#a-practical-checklist" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;ul>
+&lt;li>Use multi-stage builds so the runtime image contains only runtime assets.&lt;/li>
+&lt;li>Choose a supported, minimal base image; document why it is appropriate.&lt;/li>
+&lt;li>Add a &lt;code>.dockerignore&lt;/code> that excludes source-control metadata, secrets, build output, and local caches.&lt;/li>
+&lt;li>Order layers from least frequently changing to most frequently changing.&lt;/li>
+&lt;li>Combine related package installation and cleanup in one layer.&lt;/li>
+&lt;li>Run as a non-root user whenever the application permits it.&lt;/li>
+&lt;li>Prefer &lt;code>COPY&lt;/code> over &lt;code>ADD&lt;/code> unless archive extraction or remote-source semantics are intentional.&lt;/li>
+&lt;li>Use exec-form &lt;code>ENTRYPOINT&lt;/code>/&lt;code>CMD&lt;/code> so signals reach the application.&lt;/li>
+&lt;li>Do not bake secrets into layers; inject them at runtime through a secret manager.&lt;/li>
+&lt;li>Add OCI labels such as source, revision, version, licenses, and creation time.&lt;/li>
+&lt;li>Build with &lt;code>--pull&lt;/code>, test the resulting image, and scan both the image and its dependencies.&lt;/li>
+&lt;li>Publish by immutable digest and retain provenance/attestation where available.&lt;/li>
+&lt;/ul>
+&lt;p>Docker’s own guidance emphasises multi-stage builds, sensible base images, &lt;code>.dockerignore&lt;/code>, cache use, non-root execution, and CI image testing. These are portable OCI practices even when the final runtime is Podman or Kubernetes.&lt;/p>
+&lt;h2>8. Container security: make compromise harder&lt;span class="hx-absolute -hx-mt-20" id="8-container-security-make-compromise-harder">&lt;/span>
+&lt;a href="#8-container-security-make-compromise-harder" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>Container isolation is useful, but it is not a security boundary that should be trusted blindly. Containers share the host kernel, and a container process may become a serious host or supply-chain risk when it runs with excessive privileges, has access to the Docker socket, contains secrets, or uses an untrusted and outdated base image.&lt;/p>
+&lt;p>OWASP’s Docker Security Cheat Sheet and Kubernetes Security Cheat Sheet point to the same core principle: &lt;strong>least privilege must apply to the image, the process, the runtime, and the platform configuration.&lt;/strong>&lt;/p>
+&lt;h3>Never make root the default application user&lt;span class="hx-absolute -hx-mt-20" id="never-make-root-the-default-application-user">&lt;/span>
+&lt;a href="#never-make-root-the-default-application-user" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>The Dockerfile should perform privileged build operations—such as installing OS packages—as &lt;code>root&lt;/code> only when necessary, then switch permanently to an unprivileged runtime user. Do not add &lt;code>sudo&lt;/code> to the runtime image to compensate for a poor ownership model.&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-dockerfile" data-lang="dockerfile">&lt;span class="line">&lt;span class="cl">&lt;span class="k">FROM&lt;/span>&lt;span class="s"> mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime&lt;/span>&lt;span class="err">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">&lt;/span>&lt;span class="k">WORKDIR&lt;/span>&lt;span class="s"> /app&lt;/span>&lt;span class="err">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">&lt;/span>&lt;span class="c"># Use a fixed identity so file ownership and policy are predictable.&lt;/span>&lt;span class="err">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">&lt;/span>&lt;span class="k">RUN&lt;/span> groupadd --system --gid &lt;span class="m">10001&lt;/span> appgroup &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> &lt;span class="o">&amp;amp;&amp;amp;&lt;/span> useradd --system --uid &lt;span class="m">10001&lt;/span> --gid appgroup --no-log-init appuser&lt;span class="err">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">&lt;/span>&lt;span class="k">COPY&lt;/span> --from&lt;span class="o">=&lt;/span>build --chown&lt;span class="o">=&lt;/span>appuser:appgroup /out ./&lt;span class="err">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">&lt;/span>&lt;span class="c"># Everything after this point runs without root privileges.&lt;/span>&lt;span class="err">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">&lt;/span>&lt;span class="k">USER&lt;/span>&lt;span class="s"> 10001:10001&lt;/span>&lt;span class="err">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">&lt;/span>&lt;span class="k">ENTRYPOINT&lt;/span> &lt;span class="p">[&lt;/span>&lt;span class="s2">&amp;#34;dotnet&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s2">&amp;#34;Example.Api.dll&amp;#34;&lt;/span>&lt;span class="p">]&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>The &lt;code>USER&lt;/code> instruction establishes the image default, but the runtime or orchestrator should enforce it too. In Kubernetes, add &lt;code>runAsNonRoot: true&lt;/code>, an explicit &lt;code>runAsUser&lt;/code>, and &lt;code>allowPrivilegeEscalation: false&lt;/code>. This protects against a later image or deployment change silently restoring root execution.&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-yaml" data-lang="yaml">&lt;span class="line">&lt;span class="cl">&lt;span class="nt">securityContext&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">runAsNonRoot&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kc">true&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">runAsUser&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="m">10001&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">runAsGroup&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="m">10001&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">allowPrivilegeEscalation&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kc">false&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">readOnlyRootFilesystem&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kc">true&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">capabilities&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">drop&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="s2">&amp;#34;ALL&amp;#34;&lt;/span>&lt;span class="p">]&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">seccompProfile&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">type&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">RuntimeDefault&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;h3>OWASP-aligned Dockerfile and image controls&lt;span class="hx-absolute -hx-mt-20" id="owasp-aligned-dockerfile-and-image-controls">&lt;/span>
+&lt;a href="#owasp-aligned-dockerfile-and-image-controls" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;ul>
+&lt;li>&lt;strong>Use a trusted, minimal base image.&lt;/strong> Prefer a documented official image or verified publisher. A smaller runtime stage removes shells, compilers, package managers, and debugging tools that an attacker could use after a compromise.&lt;/li>
+&lt;li>&lt;strong>Pin what you build from.&lt;/strong> Use a reviewed version and, for reproducible production builds, pin &lt;code>FROM&lt;/code> references to a digest. Pair pinning with an update process so security fixes do not become permanently frozen.&lt;/li>
+&lt;li>&lt;strong>Do not use &lt;code>latest&lt;/code>.&lt;/strong> It is mutable, makes rollbacks ambiguous, and hides which artifact was tested.&lt;/li>
+&lt;li>&lt;strong>Keep secrets out of Dockerfiles and layers.&lt;/strong> Never pass passwords, tokens, certificates, or private package credentials through &lt;code>ARG&lt;/code> or &lt;code>ENV&lt;/code>. Use BuildKit secret mounts for build-time access and a secret manager for runtime access.&lt;/li>
+&lt;li>&lt;strong>Keep secrets out of the build context.&lt;/strong> Use &lt;code>.dockerignore&lt;/code>, review the context, and scan the image filesystem and history for credentials.&lt;/li>
+&lt;li>&lt;strong>Do not expose the Docker socket.&lt;/strong> Mounting &lt;code>/var/run/docker.sock&lt;/code> into a container is effectively giving that container broad control over the host’s Docker engine; read-only mounting does not make this safe.&lt;/li>
+&lt;li>&lt;strong>Do not use &lt;code>--privileged&lt;/code>.&lt;/strong> It grants a broad set of kernel capabilities and weakens isolation. Drop all capabilities by default and add only a narrowly justified capability.&lt;/li>
+&lt;li>&lt;strong>Keep the root filesystem read-only where possible.&lt;/strong> Use a dedicated writable volume or &lt;code>tmpfs&lt;/code> for the few paths that genuinely need writes.&lt;/li>
+&lt;li>&lt;strong>Retain default seccomp/AppArmor/SELinux protections.&lt;/strong> Start from the runtime’s default profile and tighten it for the workload; never disable the profile as a troubleshooting shortcut.&lt;/li>
+&lt;li>&lt;strong>Scan continuously.&lt;/strong> Scan source dependencies, the built image, base-image updates, IaC, and secrets. Fail builds for defined severity thresholds, with documented exceptions rather than blanket suppression.&lt;/li>
+&lt;li>&lt;strong>Prove provenance and integrity.&lt;/strong> Publish SBOMs and build attestations, sign images where appropriate, and deploy by digest after admission checks.&lt;/li>
+&lt;li>&lt;strong>Patch the host and runtime.&lt;/strong> Containers share the host kernel, so Docker/Podman, Kubernetes nodes, and operating-system security updates remain part of the threat model.&lt;/li>
+&lt;/ul>
+&lt;h3>Security is a runtime property too&lt;span class="hx-absolute -hx-mt-20" id="security-is-a-runtime-property-too">&lt;/span>
+&lt;a href="#security-is-a-runtime-property-too" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>The Dockerfile cannot enforce every production control. At runtime, also configure non-root execution, capability dropping, read-only filesystems, network policy, resource limits, restricted service-account permissions, encrypted secrets, and admission policy. In Kubernetes, use the Restricted Pod Security standard or an equivalent policy baseline, and disable automatic service-account token mounting for workloads that do not call the Kubernetes API.&lt;/p>
+&lt;div class="hx-overflow-x-auto hx-mt-6 hx-flex hx-flex-col hx-rounded-lg hx-border hx-py-4 hx-px-4 contrast-more:hx-border-current contrast-more:dark:hx-border-current hx-border-amber-200 hx-bg-amber-100 hx-text-amber-900 dark:hx-border-amber-200/30 dark:hx-bg-amber-900/30 dark:hx-text-amber-200">
+&lt;p class="hx-flex hx-items-center hx-font-medium">&lt;svg height=16px class="hx-inline-block hx-align-middle hx-mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">&lt;path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>&lt;/svg>Warning&lt;/p>
+&lt;div class="hx-w-full hx-min-w-0 hx-leading-7">
+&lt;div class="hx-mt-6 hx-leading-7 first:hx-mt-0">&lt;p>“The image runs as non-root” is necessary but not sufficient. A privileged container, a mounted Docker socket, host-path access, excessive capabilities, or a compromised node can still defeat the intended isolation.&lt;/p>&lt;/div>
+&lt;/div>
+&lt;/div>
+&lt;h2>9. Container runtime best practices&lt;span class="hx-absolute -hx-mt-20" id="9-container-runtime-best-practices">&lt;/span>
+&lt;a href="#9-container-runtime-best-practices" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;h3>Make the process disposable&lt;span class="hx-absolute -hx-mt-20" id="make-the-process-disposable">&lt;/span>
+&lt;a href="#make-the-process-disposable" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>Treat the container filesystem as ephemeral. Write durable state to a managed volume or external service. Keep one main responsibility per container where practical, and send logs to standard output/error so the platform can collect them.&lt;/p>
+&lt;h3>Set resource boundaries&lt;span class="hx-absolute -hx-mt-20" id="set-resource-boundaries">&lt;/span>
+&lt;a href="#set-resource-boundaries" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>On a local engine, set CPU and memory limits for realistic testing. In Kubernetes, set requests and limits deliberately:&lt;/p>
+&lt;ul>
+&lt;li>Requests influence scheduling and autoscaling.&lt;/li>
+&lt;li>Limits protect the node but can cause throttling or out-of-memory kills.&lt;/li>
+&lt;li>Missing requests make capacity planning and autoscaler behavior less predictable.&lt;/li>
+&lt;/ul>
+&lt;h3>Reduce blast radius&lt;span class="hx-absolute -hx-mt-20" id="reduce-blast-radius">&lt;/span>
+&lt;a href="#reduce-blast-radius" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>Use a non-root user, drop unnecessary Linux capabilities, use a read-only root filesystem where possible, avoid privileged mode, and apply seccomp/AppArmor or equivalent runtime profiles. Keep images current and remove unused packages.&lt;/p>
+&lt;h3>Design for shutdown and failure&lt;span class="hx-absolute -hx-mt-20" id="design-for-shutdown-and-failure">&lt;/span>
+&lt;a href="#design-for-shutdown-and-failure" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>Use timeouts, retries with backoff and jitter, circuit breakers, idempotent handlers, bounded queues, and graceful shutdown. A restart loop is not resilience; it is a symptom until the underlying failure is understood.&lt;/p>
+&lt;h3>Observe the four signals&lt;span class="hx-absolute -hx-mt-20" id="observe-the-four-signals">&lt;/span>
+&lt;a href="#observe-the-four-signals" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>Collect latency, traffic, errors, and saturation. Add container restart counts, probe failures, pending Pods, image-pull failures, OOM kills, node pressure, and queue depth. Alert on user impact and sustained symptoms, not every transient restart.&lt;/p>
+&lt;h2>10. GitHub tooling that helps&lt;span class="hx-absolute -hx-mt-20" id="10-github-tooling-that-helps">&lt;/span>
+&lt;a href="#10-github-tooling-that-helps" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>GitHub provides a natural path from source to a signed or attested image:&lt;/p>
+&lt;ul>
+&lt;li>GitHub Actions runs build, test, scan, and release workflows.&lt;/li>
+&lt;li>GitHub Container Registry (GHCR) stores OCI images beside the repository.&lt;/li>
+&lt;li>Dependabot can raise updates for dependencies and actions.&lt;/li>
+&lt;li>Code scanning and SARIF integrations surface code and configuration findings.&lt;/li>
+&lt;li>Environments, reviewers, and protected branches gate production deployment.&lt;/li>
+&lt;li>Artifact attestations can establish build provenance for published images.&lt;/li>
+&lt;li>Docker Buildx and BuildKit provide cache export, multi-platform builds, and efficient multi-stage builds.&lt;/li>
+&lt;/ul>
+&lt;p>Pin third-party Actions to commit SHAs in security-sensitive workflows, keep permissions minimal, and use a short-lived workload identity for cloud deployment rather than a long-lived cloud secret.&lt;/p>
+&lt;h3>Sample GitHub Actions pipeline&lt;span class="hx-absolute -hx-mt-20" id="sample-github-actions-pipeline">&lt;/span>
+&lt;a href="#sample-github-actions-pipeline" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-yaml" data-lang="yaml">&lt;span class="line">&lt;span class="cl">&lt;span class="nt">name&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">container&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">on&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">pull_request&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">push&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">branches&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="l">main]&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">env&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">REGISTRY&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">ghcr.io&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">IMAGE_NAME&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">${{ github.repository }}&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">jobs&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">build-test-publish&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">runs-on&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">ubuntu-latest&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">permissions&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">contents&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">read&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">packages&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">write&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">attestations&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">write&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">id-token&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">write&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">steps&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="nt">name&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">Check out source&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">uses&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">actions/checkout@v6&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="nt">name&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">Set up Buildx&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">uses&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">docker/setup-buildx-action@v3&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="nt">name&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">Log in to GHCR&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">if&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">github.event_name == &amp;#39;push&amp;#39;&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">uses&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">docker/login-action@v3&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">with&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">registry&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">${{ env.REGISTRY }}&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">username&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">${{ github.actor }}&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">password&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">${{ secrets.GITHUB_TOKEN }}&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="nt">name&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">Build and test image&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">uses&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">docker/build-push-action@v6&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">with&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">context&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">.&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">load&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kc">true&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">tags&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">local/example:${{ github.sha }}&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">cache-from&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">type=gha&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">cache-to&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">type=gha,mode=max&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="nt">name&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">Run container smoke test&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">run&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">|&lt;/span>&lt;span class="sd">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="sd"> docker run -d --name example -p 8080:8080 local/example:${{ github.sha }}
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="sd"> for i in {1..30}; do curl --fail http://localhost:8080/health &amp;amp;&amp;amp; exit 0; sleep 2; done
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="sd"> docker logs example
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="sd"> exit 1&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="nt">name&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">Build and publish immutable image&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">if&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">github.event_name == &amp;#39;push&amp;#39;&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">id&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">push&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">uses&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">docker/build-push-action@v6&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">with&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">context&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">.&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">push&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kc">true&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">tags&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">labels&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">|&lt;/span>&lt;span class="sd">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="sd"> org.opencontainers.image.source=https://github.com/${{ github.repository }}
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="sd"> org.opencontainers.image.revision=${{ github.sha }}&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">cache-from&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">type=gha&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">cache-to&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">type=gha,mode=max&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="nt">name&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">Generate provenance attestation&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">if&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">github.event_name == &amp;#39;push&amp;#39;&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">uses&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">actions/attest-build-provenance@v2&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">with&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">subject-name&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">subject-digest&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">${{ steps.push.outputs.digest }}&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">push-to-registry&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kc">true&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>For production, pin the action references to reviewed commit SHAs; the version tags above keep the example readable.&lt;/p>
+&lt;h2>11. GitLab tooling that helps&lt;span class="hx-absolute -hx-mt-20" id="11-gitlab-tooling-that-helps">&lt;/span>
+&lt;a href="#11-gitlab-tooling-that-helps" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>GitLab’s integrated path includes:&lt;/p>
+&lt;ul>
+&lt;li>GitLab CI/CD pipelines defined in &lt;code>.gitlab-ci.yml&lt;/code>.&lt;/li>
+&lt;li>The GitLab Container Registry for project-scoped images.&lt;/li>
+&lt;li>Dependency scanning, SAST, secret detection, and container scanning templates.&lt;/li>
+&lt;li>BuildKit/buildx or Buildah when Docker-in-Docker is not the right trade-off.&lt;/li>
+&lt;li>Protected branches, environments, deployment approvals, and review apps.&lt;/li>
+&lt;li>Dependency Proxy to reduce external registry rate-limit pressure.&lt;/li>
+&lt;li>Kubernetes agents and deployment integrations for cluster delivery.&lt;/li>
+&lt;/ul>
+&lt;p>Docker-in-Docker is familiar, but it needs careful runner isolation and commonly requires privileged mode. Buildah or rootless BuildKit can reduce that dependency where the runner design supports it.&lt;/p>
+&lt;h3>Sample GitLab CI pipeline using BuildKit&lt;span class="hx-absolute -hx-mt-20" id="sample-gitlab-ci-pipeline-using-buildkit">&lt;/span>
+&lt;a href="#sample-gitlab-ci-pipeline-using-buildkit" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-yaml" data-lang="yaml">&lt;span class="line">&lt;span class="cl">&lt;span class="nt">stages&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="l">test&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="l">build&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="l">scan&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="l">deploy&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">variables&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">IMAGE_TAG&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">$CI_REGISTRY_IMAGE:$CI_COMMIT_SHA&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">BUILDKIT_HOST&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">tcp://buildkit:1234&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">unit-test&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">stage&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">test&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">image&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">mcr.microsoft.com/dotnet/sdk:10.0&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">script&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="l">dotnet test --configuration Release --no-restore&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">build-image&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">stage&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">build&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">image&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">moby/buildkit:rootless&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">services&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="nt">name&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">moby/buildkit:rootless&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">alias&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">buildkit&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">script&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="l">mkdir -p ~/.docker&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="l">printf &amp;#39;{&amp;#34;auths&amp;#34;:{&amp;#34;%s&amp;#34;:{&amp;#34;username&amp;#34;:&amp;#34;%s&amp;#34;,&amp;#34;password&amp;#34;:&amp;#34;%s&amp;#34;}}}&amp;#39; &amp;#34;$CI_REGISTRY&amp;#34; &amp;#34;$CI_REGISTRY_USER&amp;#34; &amp;#34;$CI_REGISTRY_PASSWORD&amp;#34; &amp;gt; ~/.docker/config.json&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="l">buildctl build --frontend dockerfile.v0 --local context=. --local dockerfile=. --output type=image,name=$IMAGE_TAG,push=true --export-cache type=registry,ref=$CI_REGISTRY_IMAGE:buildcache,mode=max --import-cache type=registry,ref=$CI_REGISTRY_IMAGE:buildcache&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">rules&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="nt">if&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">$CI_COMMIT_BRANCH&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="nt">if&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">$CI_COMMIT_TAG&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">container-scan&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">stage&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">scan&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">image&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">aquasec/trivy:latest&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">script&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="l">trivy image --exit-code 1 --severity HIGH,CRITICAL --username &amp;#34;$CI_REGISTRY_USER&amp;#34; --password &amp;#34;$CI_REGISTRY_PASSWORD&amp;#34; &amp;#34;$IMAGE_TAG&amp;#34;&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">needs&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="l">build-image]&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">deploy-production&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">stage&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">deploy&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">script&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="l">./scripts/deploy.sh &amp;#34;$IMAGE_TAG&amp;#34;&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">environment&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">name&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">production&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">rules&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="nt">if&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">$CI_COMMIT_TAG&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">when&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">manual&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>The BuildKit service and runner configuration must be validated for the chosen GitLab executor. If the environment cannot support rootless BuildKit, use the documented Docker-in-Docker or Buildah approach with an explicit security review.&lt;/p>
+&lt;h2>12. A production handoff checklist&lt;span class="hx-absolute -hx-mt-20" id="12-a-production-handoff-checklist">&lt;/span>
+&lt;a href="#12-a-production-handoff-checklist" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>Before promoting an image:&lt;/p>
+&lt;ul>
+&lt;li>Is the image built from a reproducible, reviewed Dockerfile?&lt;/li>
+&lt;li>Is the image tagged with the commit and deployed by digest?&lt;/li>
+&lt;li>Are tests running against the built image rather than only the source tree?&lt;/li>
+&lt;li>Are vulnerabilities triaged with an expiry date for accepted risk?&lt;/li>
+&lt;li>Is the process non-root and free of unnecessary capabilities?&lt;/li>
+&lt;li>Are readiness, liveness, and startup behaviors distinct and tested?&lt;/li>
+&lt;li>Are requests and limits based on measurements?&lt;/li>
+&lt;li>Can the application drain gracefully?&lt;/li>
+&lt;li>Are replicas spread across nodes or zones?&lt;/li>
+&lt;li>Is persistent state backed up and restorable?&lt;/li>
+&lt;li>Are deployment permissions short-lived and least-privilege?&lt;/li>
+&lt;li>Can an operator identify the source commit from a running workload?&lt;/li>
+&lt;li>Has rollback been rehearsed?&lt;/li>
+&lt;/ul>
+&lt;h2>Wrap-up&lt;span class="hx-absolute -hx-mt-20" id="wrap-up">&lt;/span>
+&lt;a href="#wrap-up" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>The container itself is not the resilient system. It is the smallest useful unit in a larger chain of intent: a Dockerfile describes how to package code, a runtime starts a process, a scheduler chooses a host, controllers replace what vanishes, autoscalers respond to demand, and operators preserve the data and decisions that automation cannot infer.&lt;/p>
+&lt;p>Docker Desktop makes that chain approachable. Podman makes it composable and rootless on a host. Kubernetes makes it declarative across a cluster. AKS turns much of the cluster platform into a managed Azure service. The enduring skill is knowing which layer owns which promise.&lt;/p>
+&lt;p>&lt;strong>A container is valuable because it can be replaced; a service is trustworthy only when replacement is expected, observable, safe, and almost boring.&lt;/strong>&lt;/p>
+&lt;h2>Further reading&lt;span class="hx-absolute -hx-mt-20" id="further-reading">&lt;/span>
+&lt;a href="#further-reading" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;ul>
+&lt;li>&lt;a href="https://docs.docker.com/build/building/best-practices/" target="_blank" rel="noopener">Docker build best practices&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://docs.docker.com/build/building/multi-stage/" target="_blank" rel="noopener">Docker multi-stage builds&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://cheatsheetseries.owasp.org/cheatsheets/Docker_Security_Cheat_Sheet.html" target="_blank" rel="noopener">OWASP Docker Security Cheat Sheet&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://cheatsheetseries.owasp.org/cheatsheets/Kubernetes_Security_Cheat_Sheet.html" target="_blank" rel="noopener">OWASP Kubernetes Security Cheat Sheet&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://docs.docker.com/build/building/secrets/" target="_blank" rel="noopener">Docker build secrets&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://docs.podman.io/" target="_blank" rel="noopener">Podman documentation&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://kubernetes.io/docs/concepts/workloads/autoscaling/horizontal-pod-autoscale/" target="_blank" rel="noopener">Kubernetes Horizontal Pod Autoscaler&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://learn.microsoft.com/en-us/azure/aks/what-is-aks" target="_blank" rel="noopener">What is Azure Kubernetes Service?&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://learn.microsoft.com/en-us/azure/aks/cluster-autoscaler-overview" target="_blank" rel="noopener">AKS cluster autoscaler&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://docs.github.com/en/actions/tutorials/publish-packages/publish-docker-images" target="_blank" rel="noopener">Publishing Docker images with GitHub Actions&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry" target="_blank" rel="noopener">GitHub Container Registry&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://docs.gitlab.com/ci/docker/using_docker_build/" target="_blank" rel="noopener">GitLab: use Docker to build images&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://docs.gitlab.com/ci/docker/using_buildkit/" target="_blank" rel="noopener">GitLab: BuildKit&lt;/a>&lt;/li>
+&lt;/ul></description></item></channel></rss>

@@ -1,4 +1,5 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Garrard Kitchen – Pods</title><link>https://blog-dev.garrardkitchen.com/tags/pods/</link><description>Recent content in Pods on Garrard Kitchen</description><generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Fri, 07 Jan 2022 08:20:20 +0000</lastBuildDate><atom:link href="https://blog-dev.garrardkitchen.com/tags/pods/index.xml" rel="self" type="application/rss+xml"/><item><title>Permission Denied While Trying to Connect to the Docker Daemon Socket</title><link>https://blog-dev.garrardkitchen.com/blog/permission-denied-while-trying-to-connect-to-the-docker-daemon-socket/</link><pubDate>Fri, 07 Jan 2022 08:20:20 +0000</pubDate><guid>https://blog-dev.garrardkitchen.com/blog/permission-denied-while-trying-to-connect-to-the-docker-daemon-socket/</guid><description>
+&lt;p>In this article, you&amp;rsquo;ll learn why Docker socket permissions fail, how to repair runner access, and what privilege you grant when you do. That distinction matters because cloud failures usually emerge at the seams between configuration, identity, networking, and operations.&lt;/p>
 &lt;p>Out of the blue today, my first day back after Christmas break, I got this when running a GH Actions Workflow on one of our Self-Hosted Linux Runners 😱:&lt;/p>
 &lt;div class="hx-overflow-x-auto hx-mt-6 hx-flex hx-rounded-lg hx-border hx-py-2 ltr:hx-pr-4 rtl:hx-pl-4 contrast-more:hx-border-current contrast-more:dark:hx-border-current hx-border-red-200 hx-bg-red-100 hx-text-red-900 dark:hx-border-red-200/30 dark:hx-bg-red-900/30 dark:hx-text-red-200">
 &lt;div class="ltr:hx-pl-3 ltr:hx-pr-2 rtl:hx-pr-3 rtl:hx-pl-2">&lt;div class="hx-select-none hx-text-xl" style="font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';">🚫&lt;/div>&lt;/div>
@@ -111,7 +112,20 @@ title="Copy code"
 &lt;/button>
 &lt;/div>
 &lt;/div>
-&lt;p>Then I logged out and back in again to confirm docker access &lt;code>docker ps&lt;/code> and finished off by re-running the failed GH Action Workflow. 🥳 Equilibrium is once again restored. As per protocol, I shared issue and resolution with our IT Team in case this crops up again when I&amp;rsquo;m not online to help.&lt;/p></description></item><item><title>Kubernetes on Windows</title><link>https://blog-dev.garrardkitchen.com/blog/kubernetes-on-windows/</link><pubDate>Mon, 06 Apr 2020 10:20:26 +0100</pubDate><guid>https://blog-dev.garrardkitchen.com/blog/kubernetes-on-windows/</guid><description>
+&lt;p>Then I logged out and back in again to confirm docker access &lt;code>docker ps&lt;/code> and finished off by re-running the failed GH Action Workflow. 🥳 Equilibrium is once again restored. As per protocol, I shared issue and resolution with our IT Team in case this crops up again when I&amp;rsquo;m not online to help.&lt;/p>
+&lt;h2>2026 technical review&lt;span class="hx-absolute -hx-mt-20" id="2026-technical-review">&lt;/span>
+&lt;a href="#2026-technical-review" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;h2>Technical review: the permission is the security boundary&lt;span class="hx-absolute -hx-mt-20" id="technical-review-the-permission-is-the-security-boundary">&lt;/span>
+&lt;a href="#technical-review-the-permission-is-the-security-boundary" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>Adding a user to the docker group commonly resolves access to the rootful Docker socket, but Docker documents that membership as granting root-level privileges. On a shared or self-hosted CI machine, that is not a routine convenience; workflow code can mount the host filesystem or start privileged containers.&lt;/p>
+&lt;p>First confirm which socket and context the CLI is using, inspect ownership, and check whether the daemon is running. If group access is appropriate, provision it deliberately and start a new login session so group membership is refreshed. Do not make the socket world-writable.&lt;/p>
+&lt;p>For stronger isolation, evaluate Docker rootless mode or ephemeral runners that are destroyed after a job. Restrict which repositories can target a privileged runner, avoid untrusted pull-request code, and rotate any credentials that may have been exposed on a previously shared host.&lt;/p>
+&lt;h2>References&lt;span class="hx-absolute -hx-mt-20" id="references">&lt;/span>
+&lt;a href="#references" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;ul>
+&lt;li>&lt;a href="https://docs.docker.com/engine/" target="_blank" rel="noopener">Docker Engine documentation&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://docs.docker.com/engine/security/rootless/" target="_blank" rel="noopener">Docker rootless mode&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;h2>Closing thought&lt;span class="hx-absolute -hx-mt-20" id="closing-thought">&lt;/span>
+&lt;a href="#closing-thought" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>Removing a Docker socket permission error is easy; understanding that the new permission is effectively authority over the host is the part that deserves care.&lt;/p></description></item><item><title>Kubernetes on Windows</title><link>https://blog-dev.garrardkitchen.com/blog/kubernetes-on-windows/</link><pubDate>Mon, 06 Apr 2020 10:20:26 +0100</pubDate><guid>https://blog-dev.garrardkitchen.com/blog/kubernetes-on-windows/</guid><description>
+&lt;p>In this article, you&amp;rsquo;ll learn how to build a local Kubernetes learning environment on Windows and understand each moving part rather than memorising commands. That distinction matters because cloud failures usually emerge at the seams between configuration, identity, networking, and operations.&lt;/p>
 &lt;p>This post is a reminder to me of what needs to be installed in order for a &lt;code>pod&lt;/code>, created from a local image, that is to be served up via a &lt;code>kubernetes cluster&lt;/code>, to be run from your local development environment.&lt;/p>
 &lt;h3>What is Kubernetes and why is it so important?&lt;span class="hx-absolute -hx-mt-20" id="what-is-kubernetes-and-why-is-it-so-important">&lt;/span>
 &lt;a href="#what-is-kubernetes-and-why-is-it-so-important" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>&amp;ldquo;Kubernetes is a portable, extensible, open-source platform for managing containerized workloads and services, that facilitates both declarative configuration and automation. It has a large, rapidly growing ecosystem. Kubernetes services, support, and tools are widely available.&amp;rdquo;&lt;/p>
@@ -185,7 +199,7 @@ panel-header ">
 &lt;div class="ltr:hx-pl-3 ltr:hx-pr-2 rtl:hx-pr-3 rtl:hx-pl-2">&lt;div class="hx-select-none hx-text-xl" style="font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';">ℹ️&lt;/div>&lt;/div>
 &lt;div class="hx-w-full hx-min-w-0 hx-leading-7">
 &lt;div class="hx-mt-6 hx-leading-7 first:hx-mt-0">&lt;p>&lt;strong>Permissions&lt;/strong>&lt;/p>
-&lt;p>To install &lt;b>kubectl&lt;/b> and &lt;b>minikube&lt;/b> you must start Powershell with Administrator permissions&lt;/p>
+&lt;p>To install &lt;b>kubectl&lt;/b> and &lt;b>minikube&lt;/b> you must start PowerShell with Administrator permissions&lt;/p>
 &lt;/div>
 &lt;/div>
 &lt;/div>
@@ -683,4 +697,8 @@ title="Copy code"
 &lt;li>&lt;a href="https://kubernetes.io/docs/tasks/tools/install-minikube/" target="_blank" rel="noopener">Install Minikube&lt;/a>&lt;/li>
 &lt;li>&lt;a href="https://kubernetes.io/docs/reference/kubectl/cheatsheet/" target="_blank" rel="noopener">Kubectl Cheatsheet&lt;/a>&lt;/li>
 &lt;li>&lt;a href="https://kubernetes.io/docs/setup/learning-environment/minikube/#use-local-images-by-re-using-the-docker-daemon" target="_blank" rel="noopener">Minikube&amp;rsquo;s built-in Docker daemon&lt;/a>&lt;/li>
-&lt;/ul></description></item></channel></rss>
+&lt;li>&lt;a href="https://kubernetes.io/docs/home/" target="_blank" rel="noopener">Kubernetes documentation&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://kubernetes.io/docs/reference/kubernetes-api/" target="_blank" rel="noopener">Kubernetes API reference&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;h2>Closing thought&lt;span class="hx-absolute -hx-mt-20" id="closing-thought">&lt;/span>
+&lt;a href="#closing-thought" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>A local Kubernetes cluster is most valuable when each command reveals another layer of the control plane, rather than leaving behind a collection of steps that work only on one laptop.&lt;/p></description></item></channel></rss>

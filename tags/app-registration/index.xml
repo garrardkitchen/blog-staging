@@ -1,0 +1,741 @@
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Garrard Kitchen – App Registration</title><link>https://blog-dev.garrardkitchen.com/tags/app-registration/</link><description>Recent content in App Registration on Garrard Kitchen</description><generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Thu, 16 Jul 2026 06:49:14 +0100</lastBuildDate><atom:link href="https://blog-dev.garrardkitchen.com/tags/app-registration/index.xml" rel="self" type="application/rss+xml"/><item><title>Secure an MCP Server with Microsoft Identity Platform and App Roles</title><link>https://blog-dev.garrardkitchen.com/blog/secure-mcp-with-entra-app-roles/</link><pubDate>Thu, 16 Jul 2026 06:49:14 +0100</pubDate><guid>https://blog-dev.garrardkitchen.com/blog/secure-mcp-with-entra-app-roles/</guid><description>
+&lt;p>An MCP server can turn a natural-language request into a database query, a file write, a cloud deployment, or a customer-impacting transaction. That is the promise—and the security boundary.&lt;/p>
+&lt;p>In this guide you will learn how to protect an ASP.NET Core MCP server with Microsoft Entra ID (Microsoft Identity Platform), application roles in app registrations, least-privilege tool authorization, privacy-aware logging, OWASP-aligned defenses, .NET Aspire observability, and unit tests that prove unauthorized tool calls stay unauthorized.&lt;/p>
+&lt;p>Why does this matter? Imagine the same assistant:&lt;/p>
+&lt;ul>
+&lt;li>&lt;strong>Healthcare:&lt;/strong> finds a patient’s appointment slot, but must never export an entire patient record because a prompt happened to ask for it.&lt;/li>
+&lt;li>&lt;strong>Finance:&lt;/strong> prepares a payment, but only a separately assigned &lt;code>Payments.Approve&lt;/code> role can authorize the final transfer.&lt;/li>
+&lt;li>&lt;strong>Cloud operations:&lt;/strong> diagnoses a production incident, but a read-only role cannot invoke &lt;code>Infrastructure.Delete&lt;/code>.&lt;/li>
+&lt;li>&lt;strong>Customer support:&lt;/strong> summarizes a complaint without leaking a customer’s email address, phone number, or access token into traces or model prompts.&lt;/li>
+&lt;/ul>
+&lt;p>The visual difference between a useful assistant and a dangerous one is often a single missing authorization check. The goal here is to make that check explicit, testable, observable, and boring.&lt;/p>
+&lt;div class="hx-overflow-x-auto hx-mt-6 hx-flex hx-flex-col hx-rounded-lg hx-border hx-py-4 hx-px-4 contrast-more:hx-border-current contrast-more:dark:hx-border-current hx-border-green-200 hx-bg-green-100 hx-text-green-900 dark:hx-border-green-200/30 dark:hx-bg-green-900/30 dark:hx-text-green-200">
+&lt;p class="hx-flex hx-items-center hx-font-medium">&lt;svg height=16px class="hx-inline-block hx-align-middle hx-mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">&lt;path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>&lt;/svg>Tip&lt;/p>
+&lt;div class="hx-w-full hx-min-w-0 hx-leading-7">
+&lt;div class="hx-mt-6 hx-leading-7 first:hx-mt-0">&lt;p>Treat every MCP tool as an API operation with a distinct threat model. “The model chose the tool” is not authorization.&lt;/p>&lt;/div>
+&lt;/div>
+&lt;/div>
+&lt;h2>The security model&lt;span class="hx-absolute -hx-mt-20" id="the-security-model">&lt;/span>
+&lt;a href="#the-security-model" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>Use two app registrations:&lt;/p>
+&lt;ol>
+&lt;li>&lt;strong>MCP API registration&lt;/strong> — exposes app roles such as &lt;code>Reports.Read&lt;/code> and &lt;code>Payments.Approve&lt;/code>.&lt;/li>
+&lt;li>&lt;strong>Calling client registration&lt;/strong> — receives delegated permissions or application permissions to call the MCP API.&lt;/li>
+&lt;/ol>
+&lt;p>For service-to-service calls, the client uses the client-credentials flow. Microsoft Entra ID places the assigned application permissions in the access token’s &lt;code>roles&lt;/code> claim. The MCP server validates the token, then ASP.NET Core authorization evaluates the role.&lt;/p>
+&lt;pre class="mermaid hx-mt-6">
+sequenceDiagram
+autonumber
+participant Caller as Agent host / client
+participant Entra as Microsoft Entra ID
+participant MCP as MCP server
+participant Tool as Tool handler
+participant Data as Protected system
+Caller-&amp;gt;&amp;gt;Entra: Client credentials + API permission
+Entra--&amp;gt;&amp;gt;Caller: Access token (audience = MCP API, roles = Reports.Read)
+Caller-&amp;gt;&amp;gt;MCP: MCP request + Bearer token
+MCP-&amp;gt;&amp;gt;MCP: Validate signature, issuer, audience, lifetime
+MCP-&amp;gt;&amp;gt;MCP: Authorize endpoint and tool policy
+MCP-&amp;gt;&amp;gt;Tool: Execute with trusted identity context
+Tool-&amp;gt;&amp;gt;Data: Validate input + least-privilege operation
+Data--&amp;gt;&amp;gt;Tool: Result
+Tool--&amp;gt;&amp;gt;Caller: Sanitized tool result
+&lt;/pre>&lt;p>For a larger deployment, keep the model provider, MCP boundary, policy engine, telemetry pipeline, and data systems visibly separate:&lt;/p>
+&lt;p>
+&lt;img src="../secure-mcp-architecture.svg" alt="Secure MCP reference architecture" loading="lazy" />&lt;/p>
+&lt;h2>1. Configure app registrations and app roles&lt;span class="hx-absolute -hx-mt-20" id="1-configure-app-registrations-and-app-roles">&lt;/span>
+&lt;a href="#1-configure-app-registrations-and-app-roles" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>In the &lt;strong>MCP API&lt;/strong> app registration:&lt;/p>
+&lt;ol>
+&lt;li>Open &lt;strong>Expose an API&lt;/strong> and record the Application ID URI.&lt;/li>
+&lt;li>Add app roles under &lt;strong>App roles&lt;/strong>.&lt;/li>
+&lt;li>Use stable, code-friendly values without spaces:
+&lt;ul>
+&lt;li>&lt;code>Reports.Read&lt;/code> — allowed member type: Applications.&lt;/li>
+&lt;li>&lt;code>Payments.Read&lt;/code> — allowed member type: Applications.&lt;/li>
+&lt;li>&lt;code>Payments.Approve&lt;/code> — allowed member type: Applications.&lt;/li>
+&lt;li>&lt;code>Infrastructure.Read&lt;/code> — allowed member type: Applications.&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>In the caller’s app registration, add &lt;strong>API permissions → My APIs → MCP API → Application permissions&lt;/strong>.&lt;/li>
+&lt;li>Grant admin consent.&lt;/li>
+&lt;/ol>
+&lt;p>The role value is part of your authorization contract. Renaming it is a security-sensitive change: update app registration assignments, code, tests, and deployment documentation together.&lt;/p>
+&lt;div class="hx-overflow-x-auto hx-mt-6 hx-flex hx-flex-col hx-rounded-lg hx-border hx-py-4 hx-px-4 contrast-more:hx-border-current contrast-more:dark:hx-border-current hx-border-amber-200 hx-bg-amber-100 hx-text-amber-900 dark:hx-border-amber-200/30 dark:hx-bg-amber-900/30 dark:hx-text-amber-200">
+&lt;p class="hx-flex hx-items-center hx-font-medium">&lt;svg height=16px class="hx-inline-block hx-align-middle hx-mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">&lt;path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>&lt;/svg>Warning&lt;/p>
+&lt;div class="hx-w-full hx-min-w-0 hx-leading-7">
+&lt;div class="hx-mt-6 hx-leading-7 first:hx-mt-0">&lt;p>Do not authorize from &lt;code>name&lt;/code>, &lt;code>preferred_username&lt;/code>, group display names, or model-supplied text. Use validated token claims and stable role values. Microsoft documents that app roles appear in the token’s &lt;code>roles&lt;/code> claim and that APIs still need to verify the expected claim.&lt;/p>&lt;/div>
+&lt;/div>
+&lt;/div>
+&lt;h2>2. Authenticate and authorize the ASP.NET Core server&lt;span class="hx-absolute -hx-mt-20" id="2-authenticate-and-authorize-the-aspnet-core-server">&lt;/span>
+&lt;a href="#2-authenticate-and-authorize-the-aspnet-core-server" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>The following sample uses &lt;code>Microsoft.Identity.Web&lt;/code> to configure JWT bearer validation. The &lt;code>audience&lt;/code> must be the MCP API’s Application ID URI, not the client application’s ID.&lt;/p>
+&lt;p>At the time of writing, the official Anthropic package is published as &lt;code>12.35.1&lt;/code> and the official MCP C# SDK is published as &lt;code>1.3.0&lt;/code>. Pin versions in a central package file, then let your dependency-update process verify newer releases rather than copying these numbers indefinitely:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-xml" data-lang="xml">&lt;span class="line">&lt;span class="cl">&lt;span class="nt">&amp;lt;PackageVersion&lt;/span> &lt;span class="na">Include=&lt;/span>&lt;span class="s">&amp;#34;Anthropic&amp;#34;&lt;/span> &lt;span class="na">Version=&lt;/span>&lt;span class="s">&amp;#34;12.35.1&amp;#34;&lt;/span> &lt;span class="nt">/&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nt">&amp;lt;PackageVersion&lt;/span> &lt;span class="na">Include=&lt;/span>&lt;span class="s">&amp;#34;ModelContextProtocol.AspNetCore&amp;#34;&lt;/span> &lt;span class="na">Version=&lt;/span>&lt;span class="s">&amp;#34;1.3.0&amp;#34;&lt;/span> &lt;span class="nt">/&amp;gt;&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>Use the current supported &lt;code>Microsoft.Identity.Web&lt;/code> version for your target .NET release. The security invariant is more important than a copied number: do not accept a package upgrade that changes token validation or authorization behavior without rerunning the security test suite.&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-csharp" data-lang="csharp">&lt;span class="line">&lt;span class="cl">&lt;span class="k">using&lt;/span> &lt;span class="nn">Microsoft.AspNetCore.Authentication.JwtBearer&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">using&lt;/span> &lt;span class="nn">Microsoft.Identity.Web&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">using&lt;/span> &lt;span class="nn">ModelContextProtocol.Server&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">WebApplicationBuilder&lt;/span> &lt;span class="n">builder&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="n">WebApplication&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">CreateBuilder&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">args&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">builder&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">Services&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">AddHttpContextAccessor&lt;/span>&lt;span class="p">();&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">builder&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">Services&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">.&lt;/span>&lt;span class="n">AddAuthentication&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">JwtBearerDefaults&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">AuthenticationScheme&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">.&lt;/span>&lt;span class="n">AddMicrosoftIdentityWebApi&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">builder&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">Configuration&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">GetSection&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;Entra&amp;#34;&lt;/span>&lt;span class="p">));&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">builder&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">Services&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">AddAuthorization&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">options&lt;/span> &lt;span class="p">=&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">options&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">AddPolicy&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;Mcp.Reports.Read&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">policy&lt;/span> &lt;span class="p">=&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">policy&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">RequireAuthenticatedUser&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">.&lt;/span>&lt;span class="n">RequireClaim&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;roles&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;Reports.Read&amp;#34;&lt;/span>&lt;span class="p">));&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">options&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">AddPolicy&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;Mcp.Payments.Approve&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">policy&lt;/span> &lt;span class="p">=&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">policy&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">RequireAuthenticatedUser&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">// Both requirements must pass. App roles are not hierarchical.&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">.&lt;/span>&lt;span class="n">RequireClaim&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;roles&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;Payments.Read&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">.&lt;/span>&lt;span class="n">RequireClaim&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;roles&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;Payments.Approve&amp;#34;&lt;/span>&lt;span class="p">));&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">});&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">builder&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">Services&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">.&lt;/span>&lt;span class="n">AddMcpServer&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">.&lt;/span>&lt;span class="n">WithHttpTransport&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">// Enables [Authorize], [Authorize(Policy = ...)], and [AllowAnonymous]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">// on MCP tools, prompts, and resources.&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">.&lt;/span>&lt;span class="n">AddAuthorizationFilters&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">.&lt;/span>&lt;span class="n">WithTools&lt;/span>&lt;span class="p">&amp;lt;&lt;/span>&lt;span class="n">ReportingTools&lt;/span>&lt;span class="p">&amp;gt;()&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">.&lt;/span>&lt;span class="n">WithTools&lt;/span>&lt;span class="p">&amp;lt;&lt;/span>&lt;span class="n">PaymentTools&lt;/span>&lt;span class="p">&amp;gt;();&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">WebApplication&lt;/span> &lt;span class="n">app&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="n">builder&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">Build&lt;/span>&lt;span class="p">();&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">app&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">UseHttpsRedirection&lt;/span>&lt;span class="p">();&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">app&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">UseAuthentication&lt;/span>&lt;span class="p">();&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">app&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">UseAuthorization&lt;/span>&lt;span class="p">();&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">// Require an authenticated caller at the transport boundary.&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">// Capability-specific roles are enforced by the tool attributes.&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">app&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">MapMcp&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;/mcp&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">.&lt;/span>&lt;span class="n">RequireAuthorization&lt;/span>&lt;span class="p">();&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">app&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">Run&lt;/span>&lt;span class="p">();&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>Example configuration:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-json" data-lang="json">&lt;span class="line">&lt;span class="cl">&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;#34;Entra&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;#34;Instance&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="s2">&amp;#34;https://login.microsoftonline.com/&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;#34;TenantId&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="s2">&amp;#34;00000000-0000-0000-0000-000000000000&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;#34;ClientId&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="s2">&amp;#34;00000000-0000-0000-0000-000000000000&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;#34;Audience&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="s2">&amp;#34;api://00000000-0000-0000-0000-000000000000&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>In production, keep secrets out of configuration files. Use managed identity, workload identity, or a secret store. For a multi-tenant service, validate the accepted tenant policy explicitly; “valid token” does not mean “valid customer.”&lt;/p>
+&lt;h2>3. Authorize at the tool boundary&lt;span class="hx-absolute -hx-mt-20" id="3-authorize-at-the-tool-boundary">&lt;/span>
+&lt;a href="#3-authorize-at-the-tool-boundary" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>Transport authorization is a useful coarse gate. It is not enough when a server exposes tools with different impact levels. A read-only MCP endpoint should not make an approval tool reachable merely because both tools share a transport.&lt;/p>
+&lt;p>The two policies below show why this distinction matters:&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>Mcp.Reports.Read&lt;/code> requires one capability: &lt;code>Reports.Read&lt;/code>.&lt;/li>
+&lt;li>&lt;code>Mcp.Payments.Approve&lt;/code> requires two independent capabilities: &lt;code>Payments.Read&lt;/code> &lt;strong>and&lt;/strong> &lt;code>Payments.Approve&lt;/code>.&lt;/li>
+&lt;/ul>
+&lt;p>The first is the right shape for a read-only tool. The second is useful when approval requires both visibility of the payment and explicit approval authority. ASP.NET Core evaluates the policy requirements as an AND; assigning only one of the two app roles is denied.&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-csharp" data-lang="csharp">&lt;span class="line">&lt;span class="cl">&lt;span class="k">using&lt;/span> &lt;span class="nn">System.ComponentModel&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">using&lt;/span> &lt;span class="nn">System.Text&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">using&lt;/span> &lt;span class="nn">System.Text.Json&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">using&lt;/span> &lt;span class="nn">Microsoft.AspNetCore.Authorization&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">using&lt;/span> &lt;span class="nn">ModelContextProtocol.Protocol&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">using&lt;/span> &lt;span class="nn">ModelContextProtocol.Server&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="na">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="na">[McpServerToolType]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kd">public&lt;/span> &lt;span class="kd">sealed&lt;/span> &lt;span class="k">class&lt;/span> &lt;span class="nc">ReportingTools&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="na"> [McpServerTool, Description(&amp;#34;Return an aggregate sales report for an approved region.&amp;#34;)]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="na"> [Authorize(Policy = &amp;#34;Mcp.Reports.Read&amp;#34;)]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="na"> [ToolRateLimit(&amp;#34;reports-read&amp;#34;)]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kd">async&lt;/span> &lt;span class="n">Task&lt;/span>&lt;span class="p">&amp;lt;&lt;/span>&lt;span class="n">CallToolResult&lt;/span>&lt;span class="p">&amp;gt;&lt;/span> &lt;span class="n">GetSalesReport&lt;/span>&lt;span class="p">(&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="na"> [Description(&amp;#34;An allow-listed region code, such as UK or US.&amp;#34;)]&lt;/span> &lt;span class="kt">string&lt;/span> &lt;span class="n">region&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">CancellationToken&lt;/span> &lt;span class="n">cancellationToken&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">if&lt;/span> &lt;span class="p">(!&lt;/span>&lt;span class="n">AllowedRegions&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">Contains&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">region&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">StringComparer&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">OrdinalIgnoreCase&lt;/span>&lt;span class="p">))&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">throw&lt;/span> &lt;span class="k">new&lt;/span> &lt;span class="n">ArgumentException&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;The region is not supported.&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">nameof&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">region&lt;/span>&lt;span class="p">));&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">// Query only the aggregate needed by the tool. Do not return raw customer records.&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">ReportSummary&lt;/span> &lt;span class="n">summary&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="k">await&lt;/span> &lt;span class="n">LoadAggregateAsync&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">region&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">cancellationToken&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kt">string&lt;/span> &lt;span class="n">json&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="n">JsonSerializer&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">Serialize&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">summary&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">if&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">Encoding&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">UTF8&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">GetByteCount&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">json&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">&amp;gt;&lt;/span> &lt;span class="m">64&lt;/span> &lt;span class="p">*&lt;/span> &lt;span class="m">1024&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="k">new&lt;/span> &lt;span class="n">CallToolResult&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">IsError&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="kc">true&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">Content&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="p">[&lt;/span>&lt;span class="k">new&lt;/span> &lt;span class="n">TextContentBlock&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">Text&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="s">&amp;#34;The result is too large. Refine the request or use paging.&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">};&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">// Keep content for clients that only consume text, and structuredContent&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">// for clients that can deserialize the machine-readable result.&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="k">new&lt;/span> &lt;span class="n">CallToolResult&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">Content&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="p">[&lt;/span>&lt;span class="k">new&lt;/span> &lt;span class="n">TextContentBlock&lt;/span> &lt;span class="p">{&lt;/span> &lt;span class="n">Text&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="n">json&lt;/span> &lt;span class="p">}],&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">StructuredContent&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="n">JsonSerializer&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">SerializeToElement&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">summary&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">};&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">private&lt;/span> &lt;span class="kd">static&lt;/span> &lt;span class="k">readonly&lt;/span> &lt;span class="kt">string&lt;/span>&lt;span class="p">[]&lt;/span> &lt;span class="n">AllowedRegions&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="p">[&lt;/span>&lt;span class="s">&amp;#34;UK&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;US&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;DE&amp;#34;&lt;/span>&lt;span class="p">];&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">private&lt;/span> &lt;span class="kd">static&lt;/span> &lt;span class="n">Task&lt;/span>&lt;span class="p">&amp;lt;&lt;/span>&lt;span class="n">ReportSummary&lt;/span>&lt;span class="p">&amp;gt;&lt;/span> &lt;span class="n">LoadAggregateAsync&lt;/span>&lt;span class="p">(&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kt">string&lt;/span> &lt;span class="n">region&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">CancellationToken&lt;/span> &lt;span class="n">cancellationToken&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">=&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">Task&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">FromResult&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="k">new&lt;/span> &lt;span class="n">ReportSummary&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">region&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="m">0&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="m">0&lt;/span>&lt;span class="p">));&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kd">public&lt;/span> &lt;span class="kd">sealed&lt;/span> &lt;span class="k">record&lt;/span> &lt;span class="nc">ReportSummary&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kt">string&lt;/span> &lt;span class="n">Region&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="n">Orders&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="kt">decimal&lt;/span> &lt;span class="n">Revenue&lt;/span>&lt;span class="p">);&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>The approval tool uses the second policy. Its caller must receive both role values in the access token:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-csharp" data-lang="csharp">&lt;span class="line">&lt;span class="cl">&lt;span class="k">using&lt;/span> &lt;span class="nn">System.ComponentModel&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">using&lt;/span> &lt;span class="nn">Microsoft.AspNetCore.Authorization&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">using&lt;/span> &lt;span class="nn">ModelContextProtocol.Server&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="na">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="na">[McpServerToolType]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kd">public&lt;/span> &lt;span class="kd">sealed&lt;/span> &lt;span class="k">class&lt;/span> &lt;span class="nc">PaymentTools&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="na"> [McpServerTool, Description(&amp;#34;Approve an eligible payment after business validation.&amp;#34;)]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="na"> [Authorize(Policy = &amp;#34;Mcp.Payments.Approve&amp;#34;)]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="na"> [ToolRateLimit(&amp;#34;payments-approve&amp;#34;)]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kd">async&lt;/span> &lt;span class="n">Task&lt;/span> &lt;span class="n">ApprovePayment&lt;/span>&lt;span class="p">(&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="na"> [Description(&amp;#34;The server-issued payment identifier.&amp;#34;)]&lt;/span> &lt;span class="kt">string&lt;/span> &lt;span class="n">paymentId&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">CancellationToken&lt;/span> &lt;span class="n">cancellationToken&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">if&lt;/span> &lt;span class="p">(!&lt;/span>&lt;span class="n">Guid&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">TryParse&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">paymentId&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="k">out&lt;/span> &lt;span class="n">Guid&lt;/span> &lt;span class="n">parsedPaymentId&lt;/span>&lt;span class="p">))&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">throw&lt;/span> &lt;span class="k">new&lt;/span> &lt;span class="n">ArgumentException&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;The payment identifier is invalid.&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">nameof&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">paymentId&lt;/span>&lt;span class="p">));&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">// Still apply resource ownership, amount limits, confirmation, idempotency,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">// and audit rules. App roles alone do not authorize a particular payment.&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">await&lt;/span> &lt;span class="n">ApproveIfEligibleAsync&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">parsedPaymentId&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">cancellationToken&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">private&lt;/span> &lt;span class="kd">static&lt;/span> &lt;span class="n">Task&lt;/span> &lt;span class="n">ApproveIfEligibleAsync&lt;/span>&lt;span class="p">(&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">Guid&lt;/span> &lt;span class="n">paymentId&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">CancellationToken&lt;/span> &lt;span class="n">cancellationToken&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">=&amp;gt;&lt;/span> &lt;span class="n">Task&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">CompletedTask&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>Do not add a second role merely to make a more impressive example. Use multiple requirements when they represent genuinely separate capabilities or a high-impact separation-of-duties control. Otherwise, one narrowly scoped role is easier to administer and less likely to create accidental lockouts.&lt;/p>
+&lt;p>For an approval or destructive tool, use a separate policy and add business controls: resource ownership, idempotency keys, confirmation, dual control, and an audit record. A role answers &lt;strong>who may attempt this operation&lt;/strong>; it does not answer &lt;strong>whether this particular operation is safe&lt;/strong>.&lt;/p>
+&lt;h2>Structured output, payload limits, and guardrails&lt;span class="hx-absolute -hx-mt-20" id="structured-output-payload-limits-and-guardrails">&lt;/span>
+&lt;a href="#structured-output-payload-limits-and-guardrails" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>The original &lt;code>ReportSummary&lt;/code> return type was strongly typed in C#, but that alone does not guarantee that every MCP client receives an MCP &lt;code>structuredContent&lt;/code> object. For an output contract that clients must deserialize, return &lt;code>CallToolResult&lt;/code> with both:&lt;/p>
+&lt;ul>
+&lt;li>a bounded machine-readable &lt;code>StructuredContent&lt;/code> value; and&lt;/li>
+&lt;li>a serialized text representation in &lt;code>Content&lt;/code> for clients that only consume text.&lt;/li>
+&lt;/ul>
+&lt;p>The revised reporting example does this and caps that tool’s serialized result at 64 KiB. Large results should be paged, summarized, or exposed as an access-controlled resource link—not embedded into the model context.&lt;/p>
+&lt;h3>Payload limits: applying OWASP resource-consumption controls&lt;span class="hx-absolute -hx-mt-20" id="payload-limits-applying-owasp-resource-consumption-controls">&lt;/span>
+&lt;a href="#payload-limits-applying-owasp-resource-consumption-controls" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>OWASP API4:2023 requires maximum sizes for incoming parameters and payloads, collection counts, page sizes, operation counts, timeouts, and spending limits. OWASP LLM10:2025 adds input, context-window, per-step, queue, and total-action limits for AI systems. OWASP A10:2025 reinforces quotas, throttling, strict validation, centralized error handling, and fail-closed behavior. None of these mappings mandates a single MCP payload ceiling; they require limits appropriate to the resources and risk of the operation.&lt;/p>
+&lt;p>Four megabytes is a sensible &lt;strong>absolute transport ceiling&lt;/strong> to reduce memory-exhaustion and oversized-request risk, but each tool should have a much smaller budget based on its purpose. Use separate limits for request bodies, individual string fields, array counts, model context, tool output, and downstream responses.&lt;/p>
+&lt;p>Configure the 4 MB request-body ceiling at Kestrel and at the reverse proxy/API gateway. Rate limiting is different: because every MCP call arrives at the same &lt;code>/mcp&lt;/code> endpoint, a global ASP.NET endpoint limiter would incorrectly make all tools share one bucket. Apply named limiter policies inside the MCP &lt;code>CallTool&lt;/code> filter and partition each named policy by tenant and caller.&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-csharp" data-lang="csharp">&lt;span class="line">&lt;span class="cl">&lt;span class="k">using&lt;/span> &lt;span class="nn">System.Threading.RateLimiting&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">using&lt;/span> &lt;span class="nn">ModelContextProtocol.Protocol&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kd">const&lt;/span> &lt;span class="kt">long&lt;/span> &lt;span class="n">MaxMcpRequestBytes&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="m">4L&lt;/span> &lt;span class="p">*&lt;/span> &lt;span class="m">1024&lt;/span> &lt;span class="p">*&lt;/span> &lt;span class="m">1024&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">builder&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">WebHost&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">ConfigureKestrel&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">options&lt;/span> &lt;span class="p">=&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">options&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">Limits&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">MaxRequestBodySize&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="n">MaxMcpRequestBytes&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">});&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">builder&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">Services&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">AddSingleton&lt;/span>&lt;span class="p">&amp;lt;&lt;/span>&lt;span class="n">ToolRateLimiter&lt;/span>&lt;span class="p">&amp;gt;();&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">builder&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">Services&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">.&lt;/span>&lt;span class="n">AddMcpServer&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">.&lt;/span>&lt;span class="n">WithHttpTransport&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">.&lt;/span>&lt;span class="n">AddAuthorizationFilters&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">.&lt;/span>&lt;span class="n">WithRequestFilters&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">requestFilters&lt;/span> &lt;span class="p">=&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">requestFilters&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">AddCallToolFilter&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">next&lt;/span> &lt;span class="p">=&amp;gt;&lt;/span> &lt;span class="kd">async&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">context&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">cancellationToken&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">=&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">ToolRateLimiter&lt;/span> &lt;span class="n">limiter&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="n">context&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">Services&lt;/span>&lt;span class="p">!.&lt;/span>&lt;span class="n">GetRequiredService&lt;/span>&lt;span class="p">&amp;lt;&lt;/span>&lt;span class="n">ToolRateLimiter&lt;/span>&lt;span class="p">&amp;gt;();&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">ToolRateLimitAttribute&lt;/span>&lt;span class="p">?&lt;/span> &lt;span class="n">rateLimit&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="n">context&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">MatchedPrimitive&lt;/span>&lt;span class="p">?.&lt;/span>&lt;span class="n">Metadata&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">.&lt;/span>&lt;span class="n">OfType&lt;/span>&lt;span class="p">&amp;lt;&lt;/span>&lt;span class="n">ToolRateLimitAttribute&lt;/span>&lt;span class="p">&amp;gt;()&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">.&lt;/span>&lt;span class="n">FirstOrDefault&lt;/span>&lt;span class="p">();&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">// Tools without a named policy are not silently assigned a default bucket.&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">if&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">rateLimit&lt;/span> &lt;span class="k">is&lt;/span> &lt;span class="kc">null&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="k">await&lt;/span> &lt;span class="n">next&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">context&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">cancellationToken&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kt">string&lt;/span> &lt;span class="n">tenant&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="n">context&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">User&lt;/span>&lt;span class="p">?.&lt;/span>&lt;span class="n">FindFirst&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;tid&amp;#34;&lt;/span>&lt;span class="p">)?.&lt;/span>&lt;span class="n">Value&lt;/span> &lt;span class="p">??&lt;/span> &lt;span class="s">&amp;#34;unknown-tenant&amp;#34;&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kt">string&lt;/span> &lt;span class="n">caller&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="n">context&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">User&lt;/span>&lt;span class="p">?.&lt;/span>&lt;span class="n">FindFirst&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;oid&amp;#34;&lt;/span>&lt;span class="p">)?.&lt;/span>&lt;span class="n">Value&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">??&lt;/span> &lt;span class="n">context&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">User&lt;/span>&lt;span class="p">?.&lt;/span>&lt;span class="n">FindFirst&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;appid&amp;#34;&lt;/span>&lt;span class="p">)?.&lt;/span>&lt;span class="n">Value&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">??&lt;/span> &lt;span class="s">&amp;#34;anonymous&amp;#34;&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">RateLimitLease&lt;/span> &lt;span class="n">lease&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="k">await&lt;/span> &lt;span class="n">limiter&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">AcquireAsync&lt;/span>&lt;span class="p">(&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">rateLimit&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">PolicyName&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="s">$&amp;#34;{tenant}:{caller}&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">cancellationToken&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">if&lt;/span> &lt;span class="p">(!&lt;/span>&lt;span class="n">lease&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">IsAcquired&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="k">new&lt;/span> &lt;span class="n">CallToolResult&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">IsError&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="kc">true&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">Content&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="p">[&lt;/span>&lt;span class="k">new&lt;/span> &lt;span class="n">TextContentBlock&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">Text&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="s">&amp;#34;This tool is temporarily rate-limited. Try again later.&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">};&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="k">await&lt;/span> &lt;span class="n">next&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">context&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">cancellationToken&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">});&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">})&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">.&lt;/span>&lt;span class="n">WithTools&lt;/span>&lt;span class="p">&amp;lt;&lt;/span>&lt;span class="n">ReportingTools&lt;/span>&lt;span class="p">&amp;gt;()&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">.&lt;/span>&lt;span class="n">WithTools&lt;/span>&lt;span class="p">&amp;lt;&lt;/span>&lt;span class="n">PaymentTools&lt;/span>&lt;span class="p">&amp;gt;();&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kd">public&lt;/span> &lt;span class="kd">sealed&lt;/span> &lt;span class="k">class&lt;/span> &lt;span class="nc">ToolRateLimiter&lt;/span> &lt;span class="p">:&lt;/span> &lt;span class="n">IDisposable&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">private&lt;/span> &lt;span class="k">readonly&lt;/span> &lt;span class="n">IReadOnlyDictionary&lt;/span>&lt;span class="p">&amp;lt;&lt;/span>&lt;span class="kt">string&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">PartitionedRateLimiter&lt;/span>&lt;span class="p">&amp;lt;&lt;/span>&lt;span class="kt">string&lt;/span>&lt;span class="p">&amp;gt;&amp;gt;&lt;/span> &lt;span class="n">limiters&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="n">ToolRateLimiter&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">limiters&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="k">new&lt;/span> &lt;span class="n">Dictionary&lt;/span>&lt;span class="p">&amp;lt;&lt;/span>&lt;span class="kt">string&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">PartitionedRateLimiter&lt;/span>&lt;span class="p">&amp;lt;&lt;/span>&lt;span class="kt">string&lt;/span>&lt;span class="p">&amp;gt;&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="na"> [&amp;#34;reports-read&amp;#34;]&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="n">CreateLimiter&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">tokenLimit&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="m">60&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">tokensPerPeriod&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="m">60&lt;/span>&lt;span class="p">),&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="na"> [&amp;#34;payments-approve&amp;#34;]&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="n">CreateLimiter&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">tokenLimit&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="m">5&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">tokensPerPeriod&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="m">5&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">};&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">private&lt;/span> &lt;span class="kd">static&lt;/span> &lt;span class="n">PartitionedRateLimiter&lt;/span>&lt;span class="p">&amp;lt;&lt;/span>&lt;span class="kt">string&lt;/span>&lt;span class="p">&amp;gt;&lt;/span> &lt;span class="n">CreateLimiter&lt;/span>&lt;span class="p">(&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kt">int&lt;/span> &lt;span class="n">tokenLimit&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kt">int&lt;/span> &lt;span class="n">tokensPerPeriod&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">=&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">PartitionedRateLimiter&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">Create&lt;/span>&lt;span class="p">&amp;lt;&lt;/span>&lt;span class="kt">string&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="kt">string&lt;/span>&lt;span class="p">&amp;gt;(&lt;/span>&lt;span class="n">partitionKey&lt;/span> &lt;span class="p">=&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">RateLimitPartition&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">GetTokenBucketLimiter&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">partitionKey&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">_&lt;/span> &lt;span class="p">=&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">new&lt;/span> &lt;span class="n">TokenBucketRateLimiterOptions&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">TokenLimit&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="n">tokenLimit&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">TokensPerPeriod&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="n">tokensPerPeriod&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">ReplenishmentPeriod&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="n">TimeSpan&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">FromMinutes&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">1&lt;/span>&lt;span class="p">),&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">AutoReplenishment&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="kc">true&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">QueueLimit&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="m">0&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}));&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="n">ValueTask&lt;/span>&lt;span class="p">&amp;lt;&lt;/span>&lt;span class="n">RateLimitLease&lt;/span>&lt;span class="p">&amp;gt;&lt;/span> &lt;span class="n">AcquireAsync&lt;/span>&lt;span class="p">(&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kt">string&lt;/span> &lt;span class="n">policyName&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kt">string&lt;/span> &lt;span class="n">partitionKey&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">CancellationToken&lt;/span> &lt;span class="n">cancellationToken&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">=&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">limiters&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">TryGetValue&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">policyName&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="k">out&lt;/span> &lt;span class="n">PartitionedRateLimiter&lt;/span>&lt;span class="p">&amp;lt;&lt;/span>&lt;span class="kt">string&lt;/span>&lt;span class="p">&amp;gt;?&lt;/span> &lt;span class="n">limiter&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">?&lt;/span> &lt;span class="n">limiter&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">AcquireAsync&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">partitionKey&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">permitCount&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="m">1&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">cancellationToken&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">:&lt;/span> &lt;span class="k">throw&lt;/span> &lt;span class="k">new&lt;/span> &lt;span class="n">InvalidOperationException&lt;/span>&lt;span class="p">(&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="s">$&amp;#34;No rate-limit policy is registered with name &amp;#39;{policyName}&amp;#39;.&amp;#34;&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="k">void&lt;/span> &lt;span class="n">Dispose&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">foreach&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">PartitionedRateLimiter&lt;/span>&lt;span class="p">&amp;lt;&lt;/span>&lt;span class="kt">string&lt;/span>&lt;span class="p">&amp;gt;&lt;/span> &lt;span class="n">limiter&lt;/span> &lt;span class="k">in&lt;/span> &lt;span class="n">limiters&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">Values&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">limiter&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">Dispose&lt;/span>&lt;span class="p">();&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>Apply those named policies declaratively to tools:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-csharp" data-lang="csharp">&lt;span class="line">&lt;span class="cl">&lt;span class="na">[McpServerToolType]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kd">public&lt;/span> &lt;span class="kd">sealed&lt;/span> &lt;span class="k">class&lt;/span> &lt;span class="nc">ReportingTools&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="na"> [McpServerTool, Description(&amp;#34;Return an aggregate sales report.&amp;#34;)]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="na"> [Authorize(Policy = &amp;#34;Mcp.Reports.Read&amp;#34;)]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="na"> [ToolRateLimit(&amp;#34;reports-read&amp;#34;)]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="n">Task&lt;/span>&lt;span class="p">&amp;lt;&lt;/span>&lt;span class="n">CallToolResult&lt;/span>&lt;span class="p">&amp;gt;&lt;/span> &lt;span class="n">GetSalesReport&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kt">string&lt;/span> &lt;span class="n">region&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">CancellationToken&lt;/span> &lt;span class="n">cancellationToken&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">=&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">Task&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">FromResult&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="k">new&lt;/span> &lt;span class="n">CallToolResult&lt;/span>&lt;span class="p">());&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="na">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="na">[McpServerToolType]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kd">public&lt;/span> &lt;span class="kd">sealed&lt;/span> &lt;span class="k">class&lt;/span> &lt;span class="nc">PaymentTools&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="na"> [McpServerTool, Description(&amp;#34;Approve an eligible payment.&amp;#34;)]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="na"> [Authorize(Policy = &amp;#34;Mcp.Payments.Approve&amp;#34;)]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="na"> [ToolRateLimit(&amp;#34;payments-approve&amp;#34;)]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="n">Task&lt;/span> &lt;span class="n">ApprovePayment&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kt">string&lt;/span> &lt;span class="n">paymentId&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">CancellationToken&lt;/span> &lt;span class="n">cancellationToken&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">=&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">Task&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">CompletedTask&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="na">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="na">[AttributeUsage(AttributeTargets.Method | AttributeTargets.Class)]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kd">public&lt;/span> &lt;span class="kd">sealed&lt;/span> &lt;span class="k">class&lt;/span> &lt;span class="nc">ToolRateLimitAttribute&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kt">string&lt;/span> &lt;span class="n">policyName&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">:&lt;/span> &lt;span class="n">Attribute&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kt">string&lt;/span> &lt;span class="n">PolicyName&lt;/span> &lt;span class="p">{&lt;/span> &lt;span class="k">get&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="p">}&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="n">policyName&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>This creates independent named buckets such as &lt;code>reports-read&lt;/code> and &lt;code>payments-approve&lt;/code>, each partitioned by tenant and caller. A policy name is part of the operational contract: review it like authorization configuration, alert when it is missing, and fail fast rather than silently falling back for unknown names. Give expensive or side-effecting tools stricter limits and concurrency gates than read-only tools. Rate limits are not authorization; also honor downstream &lt;code>Retry-After&lt;/code> responses and apply timeouts, cancellation, maximum page sizes, maximum batch counts, maximum string lengths, bounded recursion/depth, response truncation, circuit breakers, and an overall cost/time budget per request.&lt;/p>
+&lt;p>Other guardrails worth making explicit:&lt;/p>
+&lt;ul>
+&lt;li>&lt;strong>Outbound HTTP:&lt;/strong> allow-list hosts and methods; reject arbitrary URLs, private address ranges, redirects to new hosts, unsafe schemes, and unbounded response bodies to prevent SSRF and data exfiltration.&lt;/li>
+&lt;li>&lt;strong>Data access:&lt;/strong> use parameterized queries, tenant filters in the data layer, row/column minimization, and output classification. Never let the model choose a database connection, table, or Graph permission.&lt;/li>
+&lt;li>&lt;strong>Tool metadata:&lt;/strong> mark read-only, destructive, and idempotent behavior accurately. These annotations help clients present safer UX, but they do not replace server-side authorization.&lt;/li>
+&lt;li>&lt;strong>Errors:&lt;/strong> return bounded, generic errors to the model; keep detailed exception data in protected telemetry. Fail closed when policy, identity, or dependency state is ambiguous.&lt;/li>
+&lt;li>&lt;strong>Supply chain:&lt;/strong> pin and scan packages, verify tool inventory and ownership, and prevent unapproved “shadow” MCP servers from reaching production data.&lt;/li>
+&lt;/ul>
+&lt;h2>Calling Microsoft Graph or another elevated API&lt;span class="hx-absolute -hx-mt-20" id="calling-microsoft-graph-or-another-elevated-api">&lt;/span>
+&lt;a href="#calling-microsoft-graph-or-another-elevated-api" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>Do not give the general MCP server broad Microsoft Graph application permissions and rely on the model to behave. In app-only mode, an application permission can authorize access across the associated tenant data. Microsoft recommends requesting the least-privileged Graph permission, and Graph application permissions require administrator consent.&lt;/p>
+&lt;p>Prefer this separation:&lt;/p>
+&lt;ol>
+&lt;li>The MCP server holds only the permissions needed for low-risk read operations.&lt;/li>
+&lt;li>A narrowly scoped broker or worker has the elevated managed identity and Graph permissions.&lt;/li>
+&lt;li>The MCP server calls the broker through a private, authenticated API with its own app role.&lt;/li>
+&lt;li>The broker re-authorizes the specific operation, tenant, resource, and approved arguments before calling Graph.&lt;/li>
+&lt;/ol>
+&lt;p>Where the user’s delegated context is required, prefer delegated access or on-behalf-of flow when the scenario supports it. Do not implement “permission escalation” by acquiring a broader token because a prompt requested it. Application-only permissions cannot be dynamically elevated per model turn; consent and assignment are administrative controls, not runtime approval.&lt;/p>
+&lt;h2>Approval for high-impact actions&lt;span class="hx-absolute -hx-mt-20" id="approval-for-high-impact-actions">&lt;/span>
+&lt;a href="#approval-for-high-impact-actions" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>Yes—use an approval process for actions that send mail, change directory objects, alter permissions, spend money, delete data, deploy infrastructure, or call Graph with tenant-wide application permissions. Separate &lt;strong>prepare&lt;/strong> from &lt;strong>commit&lt;/strong>:&lt;/p>
+&lt;pre class="mermaid hx-mt-6">
+sequenceDiagram
+participant User as User / approver
+participant Agent as Agent host
+participant MCP as MCP server
+participant Broker as Privileged broker
+participant Graph as Graph / external API
+Agent-&amp;gt;&amp;gt;MCP: prepare_change(arguments)
+MCP-&amp;gt;&amp;gt;MCP: validate roles, tenant, resource, limits
+MCP--&amp;gt;&amp;gt;Agent: preview + approval ID + argument hash
+Agent-&amp;gt;&amp;gt;User: show exact effect and target
+User--&amp;gt;&amp;gt;MCP: approve once, with step-up authentication
+MCP-&amp;gt;&amp;gt;MCP: verify expiry, nonce, approver, hash, policy
+MCP-&amp;gt;&amp;gt;Broker: commit approved operation
+Broker-&amp;gt;&amp;gt;Graph: least-privileged API call
+Graph--&amp;gt;&amp;gt;Broker: result
+Broker--&amp;gt;&amp;gt;MCP: sanitized result + audit ID
+MCP--&amp;gt;&amp;gt;Agent: bounded outcome
+&lt;/pre>&lt;p>An approval should be short-lived, single-use, bound to the tenant, subject, tool, resource, and canonical argument hash, and recorded in an append-only audit trail. Re-check authorization and resource state at commit time; never trust an approval created before a role revocation or data change. Use idempotency keys, dry-run previews, amount/record-count limits, dual approval for exceptional risk, and a kill switch.&lt;/p>
+&lt;p>This is separate from Microsoft Entra admin consent. Admin consent grants an application a capability; per-action approval decides whether a particular high-impact operation may happen now. Use both where both risks exist.&lt;/p>
+&lt;h3>Declarative authorization on MCP tools&lt;span class="hx-absolute -hx-mt-20" id="declarative-authorization-on-mcp-tools">&lt;/span>
+&lt;a href="#declarative-authorization-on-mcp-tools" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>With the ASP.NET Core MCP integration, call &lt;code>AddAuthorizationFilters()&lt;/code> when registering the MCP server. The current SDK then applies standard ASP.NET Core authorization attributes to MCP tools, prompts, and resources. This is the concise, declarative version:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-csharp" data-lang="csharp">&lt;span class="line">&lt;span class="cl">&lt;span class="na">[McpServerTool, Description(&amp;#34;Approve an eligible payment.&amp;#34;)]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="na">[Authorize(Policy = &amp;#34;Mcp.Payments.Approve&amp;#34;)]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kd">public&lt;/span> &lt;span class="n">Task&lt;/span> &lt;span class="n">ApprovePayment&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kt">string&lt;/span> &lt;span class="n">paymentId&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">CancellationToken&lt;/span> &lt;span class="n">cancellationToken&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">=&amp;gt;&lt;/span> &lt;span class="n">paymentService&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">ApproveAsync&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">paymentId&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">cancellationToken&lt;/span>&lt;span class="p">);&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>&lt;code>[Authorize(&amp;quot;Mcp.Payments.Approve&amp;quot;)]&lt;/code> is also a valid shorthand for the named policy. The important part is not the attribute alone; it is the combination of the attribute and &lt;code>.AddAuthorizationFilters()&lt;/code>. Without that registration, the method metadata is not an enforcement mechanism.&lt;/p>
+&lt;p>Keep &lt;code>RequireAuthorization&lt;/code> on the mapped MCP endpoint as a coarse authenticated boundary, and use method-level attributes for capability-specific authorization. The SDK filters unauthorized tools out of capability listings and rejects unauthorized individual tool calls.&lt;/p>
+&lt;h2>4. Calling Claude with the official Anthropic C# SDK&lt;span class="hx-absolute -hx-mt-20" id="4-calling-claude-with-the-official-anthropic-c-sdk">&lt;/span>
+&lt;a href="#4-calling-claude-with-the-official-anthropic-c-sdk" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>The official package is &lt;code>Anthropic&lt;/code> (10+), maintained in &lt;code>anthropics/anthropic-sdk-csharp&lt;/code>. The following client is intentionally separated from authorization: the model can suggest a tool call, but the MCP server remains the policy enforcement point.&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-csharp" data-lang="csharp">&lt;span class="line">&lt;span class="cl">&lt;span class="k">using&lt;/span> &lt;span class="nn">Anthropic&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">using&lt;/span> &lt;span class="nn">Anthropic.Models.Messages&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kd">public&lt;/span> &lt;span class="kd">sealed&lt;/span> &lt;span class="k">class&lt;/span> &lt;span class="nc">ClaudePlanner&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">AnthropicClient&lt;/span> &lt;span class="n">client&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kd">async&lt;/span> &lt;span class="n">Task&lt;/span>&lt;span class="p">&amp;lt;&lt;/span>&lt;span class="kt">string&lt;/span>&lt;span class="p">&amp;gt;&lt;/span> &lt;span class="n">PlanAsync&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kt">string&lt;/span> &lt;span class="n">sanitizedRequest&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">CancellationToken&lt;/span> &lt;span class="n">cancellationToken&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">ArgumentException&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">ThrowIfNullOrWhiteSpace&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">sanitizedRequest&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">MessageCreateParams&lt;/span> &lt;span class="n">parameters&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="k">new&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">Model&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="s">&amp;#34;claude-opus-4-6&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">MaxTokens&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="m">600&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">System&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="s">&amp;#34;You may suggest read-only reports. Never claim authorization; the server decides.&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">Messages&lt;/span> &lt;span class="p">=&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="na"> [
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="na"> new()
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="na"> {
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="na"> Role = Role.User,
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="na"> Content = sanitizedRequest
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="na"> }
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="na"> ]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">};&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">Message&lt;/span> &lt;span class="n">response&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="k">await&lt;/span> &lt;span class="n">client&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">Messages&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">Create&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">parameters&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">cancellationToken&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="n">response&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">ToString&lt;/span>&lt;span class="p">();&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>Pin the package version in &lt;code>Directory.Packages.props&lt;/code>, review SDK release notes, and inject the client through &lt;code>IHttpClientFactory&lt;/code> or the SDK’s supported DI setup. Never place an Anthropic API key in a prompt, log entry, app registration, or source file.&lt;/p>
+&lt;h2>5. Logging, PII, and observability with Aspire&lt;span class="hx-absolute -hx-mt-20" id="5-logging-pii-and-observability-with-aspire">&lt;/span>
+&lt;a href="#5-logging-pii-and-observability-with-aspire" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>Security logs should answer: who called, what tool was requested, which policy decided, which resource class was affected, whether it succeeded, and how to correlate the event. They should not answer by dumping the entire prompt, token, tool arguments, database row, or model response.&lt;/p>
+&lt;p>Use structured logs and a redaction policy:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-csharp" data-lang="csharp">&lt;span class="line">&lt;span class="cl">&lt;span class="kd">public&lt;/span> &lt;span class="kd">static&lt;/span> &lt;span class="kd">partial&lt;/span> &lt;span class="k">class&lt;/span> &lt;span class="nc">SecurityLog&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="na"> [LoggerMessage(
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="na"> EventId = 4101,
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="na"> Level = LogLevel.Information,
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="na"> Message = &amp;#34;MCP tool completed. Tool={Tool} Decision={Decision} TraceId={TraceId}&amp;#34;)]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kd">static&lt;/span> &lt;span class="kd">partial&lt;/span> &lt;span class="k">void&lt;/span> &lt;span class="n">ToolCompleted&lt;/span>&lt;span class="p">(&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">this&lt;/span> &lt;span class="n">ILogger&lt;/span> &lt;span class="n">logger&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kt">string&lt;/span> &lt;span class="n">tool&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kt">string&lt;/span> &lt;span class="n">decision&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kt">string&lt;/span> &lt;span class="n">traceId&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>Log these fields when appropriate:&lt;/p>
+&lt;ul>
+&lt;li>stable pseudonymous subject or service-principal ID, not an email address;&lt;/li>
+&lt;li>tenant ID, client ID, token issuer, tool name, role/policy decision;&lt;/li>
+&lt;li>correlation/trace ID, duration, outcome, and coarse resource classification;&lt;/li>
+&lt;li>validation failures and authorization failures, with rate-limited alerts.&lt;/li>
+&lt;/ul>
+&lt;p>Never log bearer tokens, client secrets, API keys, full prompts, raw tool arguments, free-form customer content, health data, payment data, or full model responses. If an argument is needed for forensic value, hash or classify it, and document retention and access controls. Remember that traces, exception telemetry, metrics labels, dead-letter queues, and support dumps are logs too.&lt;/p>
+&lt;div class="hx-overflow-x-auto hx-mt-6 hx-flex hx-flex-col hx-rounded-lg hx-border hx-py-4 hx-px-4 contrast-more:hx-border-current contrast-more:dark:hx-border-current hx-border-green-200 hx-bg-green-100 hx-text-green-900 dark:hx-border-green-200/30 dark:hx-bg-green-900/30 dark:hx-text-green-200">
+&lt;p class="hx-flex hx-items-center hx-font-medium">&lt;svg height=16px class="hx-inline-block hx-align-middle hx-mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">&lt;path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>&lt;/svg>Tip&lt;/p>
+&lt;div class="hx-w-full hx-min-w-0 hx-leading-7">
+&lt;div class="hx-mt-6 hx-leading-7 first:hx-mt-0">&lt;p>Redaction is not a substitute for data minimization. The safest PII is the PII your tool never retrieves, never sends to the model, and never emits to telemetry.&lt;/p>&lt;/div>
+&lt;/div>
+&lt;/div>
+&lt;p>In .NET Aspire, put OpenTelemetry, health checks, service discovery, and resilience in shared service defaults. Export only the fields approved by your data-classification policy. The Aspire dashboard is excellent for local correlation; production telemetry still needs access control, retention, alerting, and tamper resistance.&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-csharp" data-lang="csharp">&lt;span class="line">&lt;span class="cl">&lt;span class="c1">// ServiceDefaults/Extensions.cs - keep security telemetry policy here.&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kd">public&lt;/span> &lt;span class="kd">static&lt;/span> &lt;span class="n">IHostApplicationBuilder&lt;/span> &lt;span class="n">AddSecureServiceDefaults&lt;/span>&lt;span class="p">(&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">this&lt;/span> &lt;span class="n">IHostApplicationBuilder&lt;/span> &lt;span class="n">builder&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">builder&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">AddDefaultHealthChecks&lt;/span>&lt;span class="p">();&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">builder&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">AddDefaultOpenTelemetry&lt;/span>&lt;span class="p">();&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">// Add explicit filters/processors for PII redaction before exporting.&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">// Do not export request bodies or Authorization headers.&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="n">builder&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;h2>OWASP practices and the attack vectors they address&lt;span class="hx-absolute -hx-mt-20" id="owasp-practices-and-the-attack-vectors-they-address">&lt;/span>
+&lt;a href="#owasp-practices-and-the-attack-vectors-they-address" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th>Practice&lt;/th>
+&lt;th>Why it matters&lt;/th>
+&lt;th>Attack vector addressed&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td>&lt;strong>A01 Broken Access Control&lt;/strong>: verify &lt;code>roles&lt;/code> and enforce per-tool policies&lt;/td>
+&lt;td>A valid token only proves identity; it does not grant every capability&lt;/td>
+&lt;td>Stolen low-privilege token invoking approval, deletion, or another tenant’s data&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;strong>A02 Security Misconfiguration&lt;/strong>: HTTPS, strict CORS/allowed hosts, disabled unused transports, secure headers&lt;/td>
+&lt;td>Defaults and exposed diagnostics create unintended entry points&lt;/td>
+&lt;td>Internet scanning, origin abuse, metadata leakage, downgrade and debug exposure&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;strong>A03 Software Supply Chain Failures&lt;/strong>: pin and scan MCP, identity, and Anthropic packages; review tool servers&lt;/td>
+&lt;td>MCP servers and SDKs execute code with access to your data&lt;/td>
+&lt;td>Malicious or compromised dependency, typosquatting, poisoned tool package&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;strong>A04 Cryptographic Failures&lt;/strong>: validate JWT signature/issuer/audience/lifetime; use TLS; protect keys&lt;/td>
+&lt;td>Authentication collapses if token integrity or transport confidentiality fails&lt;/td>
+&lt;td>Forged token, replay over plaintext, leaked client secret&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;strong>A05 Injection&lt;/strong>: schema validation, parameterized queries, output encoding, prompt/data separation&lt;/td>
+&lt;td>Tool arguments and retrieved content can contain attacker-controlled text&lt;/td>
+&lt;td>SQL/command injection, path traversal, indirect prompt injection&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;strong>A06 Insecure Design&lt;/strong>: threat model each tool, require confirmation and idempotency for side effects&lt;/td>
+&lt;td>Some risks cannot be patched into existence after the fact&lt;/td>
+&lt;td>Confused deputy, unsafe automation, irreversible actions from ambiguous prompts&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;strong>A07 Authentication Failures&lt;/strong>: use managed identity/client credentials, short-lived tokens, least privilege&lt;/td>
+&lt;td>Long-lived shared secrets are easy to steal and hard to rotate&lt;/td>
+&lt;td>Credential theft, token replay, unauthorized service impersonation&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;strong>A08 Software or Data Integrity Failures&lt;/strong>: verify schemas, signed artifacts, and trusted upstream data&lt;/td>
+&lt;td>Agents can act on tampered tool metadata or data&lt;/td>
+&lt;td>Tool description poisoning, response tampering, unsafe model decisions&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;strong>A09 Security Logging &amp;amp; Alerting Failures&lt;/strong>: log allow/deny decisions, alert on anomalies, protect logs&lt;/td>
+&lt;td>An attack that cannot be detected becomes an incident that cannot be contained&lt;/td>
+&lt;td>Silent role abuse, repeated probing, destructive action without evidence&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;strong>A10 Mishandling Exceptional Conditions&lt;/strong>: fail closed, bounded timeouts, cancellation, safe error messages&lt;/td>
+&lt;td>Errors often create accidental authorization bypasses&lt;/td>
+&lt;td>Fail-open policy, leaked stack traces, retry storms, denial of service&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;p>MCP-specific risks reinforce the same controls: tool poisoning and context injection make input validation and trust boundaries essential; excessive agency makes least privilege and confirmation essential; shadow servers make inventory, ownership, and telemetry essential.&lt;/p>
+&lt;h3>OWASP’s payload and resource-limit requirements&lt;span class="hx-absolute -hx-mt-20" id="owasps-payload-and-resource-limit-requirements">&lt;/span>
+&lt;a href="#owasps-payload-and-resource-limit-requirements" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>OWASP does not prescribe a single MCP payload size. It does require the underlying controls that make a limit meaningful:&lt;/p>
+&lt;ul>
+&lt;li>&lt;strong>OWASP API4:2023 — Unrestricted Resource Consumption:&lt;/strong> define and enforce maximum sizes for incoming parameters and payloads, maximum string lengths, array element counts, upload sizes, page sizes, operation counts, timeouts, and spending limits. It also calls for operation-specific rate limiting.&lt;/li>
+&lt;li>&lt;strong>OWASP LLM10:2025 — Unbounded Consumption:&lt;/strong> enforce reasonable input limits, cap resource use per request or step, limit queued and total actions, apply rate limits, and protect the model context window from oversized or repeated inputs.&lt;/li>
+&lt;li>&lt;strong>OWASP Top 10:2025 A10 — Mishandling of Exceptional Conditions:&lt;/strong> use rate limits, quotas, throttling, strict validation, centralized error handling, and fail-closed behavior so abnormal input cannot become a denial of service or an exceptional cloud bill.&lt;/li>
+&lt;/ul>
+&lt;p>For this MCP server, the practical control set is therefore: a transport ceiling, smaller named per-tool budgets, bounded fields and collections, bounded outputs, pagination, action/concurrency limits, downstream spending limits, timeouts, and monitoring. Choose the byte values from measured worst-case memory, CPU, model-token, downstream API, and cost budgets; document them as security requirements and test them at the boundary.&lt;/p>
+&lt;h2>Unit test the tooling, not just the token middleware&lt;span class="hx-absolute -hx-mt-20" id="unit-test-the-tooling-not-just-the-token-middleware">&lt;/span>
+&lt;a href="#unit-test-the-tooling-not-just-the-token-middleware" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>The highest-value tests assert that each tool’s authorization decision is independent of the model and cannot be bypassed with a crafted argument. With &lt;code>AddAuthorizationFilters()&lt;/code>, the role decision is made by the MCP SDK filter before the method body runs, so unit-test the tool’s business validation separately and integration-test the authorization filter through the hosted MCP endpoint.&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-csharp" data-lang="csharp">&lt;span class="line">&lt;span class="cl">&lt;span class="k">using&lt;/span> &lt;span class="nn">Xunit&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kd">public&lt;/span> &lt;span class="kd">sealed&lt;/span> &lt;span class="k">class&lt;/span> &lt;span class="nc">ReportingToolsTests&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="na"> [Fact]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kd">async&lt;/span> &lt;span class="n">Task&lt;/span> &lt;span class="n">Report_rejects_an_unallowlisted_region&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">ReportingTools&lt;/span> &lt;span class="n">tools&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="k">new&lt;/span>&lt;span class="p">();&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">await&lt;/span> &lt;span class="n">Assert&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">ThrowsAsync&lt;/span>&lt;span class="p">&amp;lt;&lt;/span>&lt;span class="n">ArgumentException&lt;/span>&lt;span class="p">&amp;gt;(()&lt;/span> &lt;span class="p">=&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">tools&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">GetSalesReport&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;FR&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">CancellationToken&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">None&lt;/span>&lt;span class="p">));&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>Add tests for:&lt;/p>
+&lt;ul>
+&lt;li>missing, wrong, expired, wrong-audience, and wrong-tenant tokens;&lt;/li>
+&lt;li>a hosted MCP call with only &lt;code>Reports.Read&lt;/code> cannot invoke the payment tool;&lt;/li>
+&lt;li>&lt;code>Payments.Read&lt;/code> without &lt;code>Payments.Approve&lt;/code> is denied, and &lt;code>Payments.Approve&lt;/code> without &lt;code>Payments.Read&lt;/code> is also denied;&lt;/li>
+&lt;li>invalid region, tenant, resource ID, path, URL, and query arguments;&lt;/li>
+&lt;li>prompt injection text is treated as data, not instructions;&lt;/li>
+&lt;li>approval tools require confirmation, idempotency, and an audit event;&lt;/li>
+&lt;li>logs contain correlation metadata but no token, prompt, PII, or secret;&lt;/li>
+&lt;li>timeouts and dependency failures return safe errors and do not authorize;&lt;/li>
+&lt;li>rate limits and alert thresholds trigger under repeated denied calls.&lt;/li>
+&lt;/ul>
+&lt;p>Use integration tests with a test identity provider or signed test tokens to verify the complete middleware and MCP authorization-filter path. Assert that the payment tool returns an authorization error when either role is absent, and succeeds only when both roles are present. Then run dynamic tests against the hosted MCP endpoint with the MCP Inspector or an equivalent test client. A unit test that calls a tool class directly is valuable; it does not prove the deployed route or SDK authorization filter is protected.&lt;/p>
+&lt;h2>A practical production checklist&lt;span class="hx-absolute -hx-mt-20" id="a-practical-production-checklist">&lt;/span>
+&lt;a href="#a-practical-production-checklist" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;ul>
+&lt;li>Inventory every server, tool, data source, side effect, owner, and tenant boundary.&lt;/li>
+&lt;li>Define one app role per meaningful capability; separate human and application roles where their semantics differ.&lt;/li>
+&lt;li>Validate issuer, audience, signature, lifetime, tenant, and &lt;code>roles&lt;/code> claim.&lt;/li>
+&lt;li>Enforce authorization at transport, tool, resource, and business-operation boundaries.&lt;/li>
+&lt;li>Set a transport ceiling, smaller per-tool payload budgets, page large results, and reject oversized requests before parsing them.&lt;/li>
+&lt;li>Rate-limit by tenant and subject/client, and add stricter quotas and concurrency limits to expensive or side-effecting tools.&lt;/li>
+&lt;li>Separate prepare/preview from commit for high-impact actions and require short-lived, auditable approval.&lt;/li>
+&lt;li>Isolate elevated Graph permissions behind a narrowly scoped broker or worker with its own managed identity.&lt;/li>
+&lt;li>Use managed identity or a secret manager for outbound credentials.&lt;/li>
+&lt;li>Validate and bound all tool inputs; use allow-lists and parameterized data access.&lt;/li>
+&lt;li>Minimize model context and redact telemetry by default.&lt;/li>
+&lt;li>Add structured security logs, protected retention, dashboards, alerts, and incident playbooks.&lt;/li>
+&lt;li>Pin dependencies and scan the complete supply chain.&lt;/li>
+&lt;li>Test denial paths, side effects, PII handling, and failure modes continuously.&lt;/li>
+&lt;/ul>
+&lt;h2>Closing thought&lt;span class="hx-absolute -hx-mt-20" id="closing-thought">&lt;/span>
+&lt;a href="#closing-thought" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>An MCP server does not become trustworthy because a model is helpful. It becomes trustworthy when the most persuasive prompt, the most privileged token, and the most surprising failure still meet a boundary that refuses to guess.&lt;/p>
+&lt;h2>References&lt;span class="hx-absolute -hx-mt-20" id="references">&lt;/span>
+&lt;a href="#references" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;ul>
+&lt;li>&lt;a href="https://learn.microsoft.com/en-us/entra/identity-platform/howto-add-app-roles-in-apps" target="_blank" rel="noopener">Microsoft Entra app roles and role claims&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://learn.microsoft.com/en-us/entra/identity-platform/scenario-protected-web-api-verification-scope-app-roles" target="_blank" rel="noopener">Microsoft guidance for verifying scopes and app roles&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://github.com/modelcontextprotocol/csharp-sdk" target="_blank" rel="noopener">Official MCP C# SDK&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://github.com/modelcontextprotocol/modelcontextprotocol/blob/main/schema/2025-06-18/schema.ts" target="_blank" rel="noopener">MCP tool output schema and structured content&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://github.com/modelcontextprotocol/csharp-sdk/blob/main/docs/concepts/filters.md" target="_blank" rel="noopener">MCP C# SDK authorization filters and attributes&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://github.com/modelcontextprotocol/csharp-sdk/blob/main/docs/concepts/identity/identity.md" target="_blank" rel="noopener">MCP C# SDK identity and role propagation&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://github.com/anthropics/anthropic-sdk-csharp" target="_blank" rel="noopener">Official Anthropic C# SDK&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://learn.microsoft.com/en-us/graph/permissions-overview" target="_blank" rel="noopener">Microsoft Graph permissions overview&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://cheatsheetseries.owasp.org/cheatsheets/gRPC_Security_Cheat_Sheet.html" target="_blank" rel="noopener">OWASP gRPC security guidance on message-size limits&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://aspire.dev/fundamentals/service-defaults/" target="_blank" rel="noopener">Microsoft .NET Aspire service defaults&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://owasp.org/Top10/2025/" target="_blank" rel="noopener">OWASP Top 10:2025&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://owasp.org/www-project-mcp-top-10/" target="_blank" rel="noopener">OWASP MCP Top 10&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://owasp.org/API-Security/editions/2023/en/0xa4-unrestricted-resource-consumption/" target="_blank" rel="noopener">OWASP API4:2023 — Unrestricted Resource Consumption&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://genai.owasp.org/llmrisk/llm102025-unbounded-consumption/" target="_blank" rel="noopener">OWASP LLM10:2025 — Unbounded Consumption&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://owasp.org/Top10/2025/A10_2025-Mishandling_of_Exceptional_Conditions/" target="_blank" rel="noopener">OWASP A10:2025 — Mishandling of Exceptional Conditions&lt;/a>&lt;/li>
+&lt;/ul></description></item></channel></rss>

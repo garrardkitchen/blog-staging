@@ -1,0 +1,68 @@
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Garrard Kitchen – Agentic-Systems</title><link>https://blog-dev.garrardkitchen.com/tags/agentic-systems/</link><description>Recent content in Agentic-Systems on Garrard Kitchen</description><generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Thu, 27 Jan 2022 11:49:14 +0100</lastBuildDate><atom:link href="https://blog-dev.garrardkitchen.com/tags/agentic-systems/index.xml" rel="self" type="application/rss+xml"/><item><title>MCP and OpenAPI: Similar Shape, Different Job</title><link>https://blog-dev.garrardkitchen.com/ai/mcp/mcp-intro/</link><pubDate>Thu, 27 Jan 2022 11:49:14 +0100</pubDate><guid>https://blog-dev.garrardkitchen.com/ai/mcp/mcp-intro/</guid><description>
+&lt;p>In this article, you&amp;rsquo;ll learn what the Model Context Protocol (MCP) standardises, how it differs from OpenAPI, and why agent-to-agent communication is a separate concern. That matters because useful AI integration depends as much on explicit trust and verification as it does on model capability.&lt;/p>
+&lt;p>MCP and OpenAPI feel related because both replace bespoke integration code with machine-readable contracts. The resemblance is useful, but only if we stop before claiming they solve the same problem.&lt;/p>
+&lt;h2>What MCP actually describes&lt;span class="hx-absolute -hx-mt-20" id="what-mcp-actually-describes">&lt;/span>
+&lt;a href="#what-mcp-actually-describes" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>MCP is a client-server protocol for connecting an AI host to context and capabilities supplied by a server. A server can expose three principal primitives:&lt;/p>
+&lt;ul>
+&lt;li>&lt;strong>Tools&lt;/strong> are operations the model may ask to invoke. They can have side effects, so the host should keep the user in control of sensitive actions.&lt;/li>
+&lt;li>&lt;strong>Resources&lt;/strong> are addressable context, such as files, records, or application state.&lt;/li>
+&lt;li>&lt;strong>Prompts&lt;/strong> are reusable message templates offered by the server.&lt;/li>
+&lt;/ul>
+&lt;p>The protocol defines lifecycle, capability negotiation, and JSON-RPC messages. It does not define the intelligence of the model, guarantee that a tool is safe, or remove the need for authentication and authorisation. Local process transport and remote HTTP transport also create different trust boundaries.&lt;/p>
+&lt;h2>Where the OpenAPI comparison helps&lt;span class="hx-absolute -hx-mt-20" id="where-the-openapi-comparison-helps">&lt;/span>
+&lt;a href="#where-the-openapi-comparison-helps" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>OpenAPI describes the surface of an HTTP API: paths, operations, parameters, request bodies, responses, and security schemes. Tool definitions in MCP also use names, descriptions, and schemas, so both specifications can help software discover how to call an operation.&lt;/p>
+&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th>Question&lt;/th>
+&lt;th>OpenAPI&lt;/th>
+&lt;th>MCP&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td>Primary concern&lt;/td>
+&lt;td>Describing HTTP APIs&lt;/td>
+&lt;td>Connecting AI hosts to tools and context&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>Typical transport&lt;/td>
+&lt;td>HTTP&lt;/td>
+&lt;td>Standard I/O or Streamable HTTP&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>Core contract&lt;/td>
+&lt;td>Paths, methods, payloads, responses&lt;/td>
+&lt;td>Tools, resources, prompts, capabilities&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>Intended caller&lt;/td>
+&lt;td>Any API consumer&lt;/td>
+&lt;td>An MCP client inside an AI host&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>Side-effect control&lt;/td>
+&lt;td>Defined by the API and client&lt;/td>
+&lt;td>Tool invocation plus host/user consent policy&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;p>An MCP server may wrap an API that already has an OpenAPI description. In that design, OpenAPI remains the service contract while MCP supplies an AI-oriented adapter: curated operations, model-facing descriptions, contextual resources, and a consent boundary. Generating MCP tools mechanically from a large API can work, but curation matters because a model needs a small, unambiguous capability surface more than it needs every endpoint.&lt;/p>
+&lt;h2>MCP is not an agent-to-agent protocol&lt;span class="hx-absolute -hx-mt-20" id="mcp-is-not-an-agent-to-agent-protocol">&lt;/span>
+&lt;a href="#mcp-is-not-an-agent-to-agent-protocol" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>MCP does not standardise autonomous agents delegating tasks to one another. A host can orchestrate several MCP servers, and an application can build multi-agent behavior above the protocol, but that orchestration is application logic. Dedicated agent-to-agent protocols address concerns such as agent discovery, task hand-off, status, and result exchange.&lt;/p>
+&lt;p>Keeping those layers separate makes architectures easier to reason about:&lt;/p>
+&lt;ol>
+&lt;li>Use OpenAPI when you need a contract for an HTTP service.&lt;/li>
+&lt;li>Use MCP when an AI host needs governed access to tools and context.&lt;/li>
+&lt;li>Use an orchestration or agent-to-agent layer when independent agents must coordinate work.&lt;/li>
+&lt;/ol>
+&lt;h2>The security boundary&lt;span class="hx-absolute -hx-mt-20" id="the-security-boundary">&lt;/span>
+&lt;a href="#the-security-boundary" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>Descriptions and schemas improve interoperability; they do not establish trust. Before enabling a server, consider who operates it, which data it can read, which actions it can perform, where credentials live, and whether outputs can contain untrusted instructions. Apply least privilege, validate tool inputs, log consequential calls, and require confirmation where an operation can change external state.&lt;/p>
+&lt;h2>References&lt;span class="hx-absolute -hx-mt-20" id="references">&lt;/span>
+&lt;a href="#references" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;ul>
+&lt;li>&lt;a href="https://modelcontextprotocol.io/specification/2025-06-18" target="_blank" rel="noopener">Model Context Protocol specification&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://modelcontextprotocol.io/docs/learn/architecture" target="_blank" rel="noopener">MCP architecture&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://spec.openapis.org/oas/latest.html" target="_blank" rel="noopener">OpenAPI Specification&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;h2>Closing thought&lt;span class="hx-absolute -hx-mt-20" id="closing-thought">&lt;/span>
+&lt;a href="#closing-thought" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>OpenAPI and MCP become more useful together when each is allowed to describe its own boundary instead of being stretched into a universal integration language.&lt;/p></description></item></channel></rss>

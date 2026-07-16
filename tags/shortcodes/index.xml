@@ -1,4 +1,5 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Garrard Kitchen – Shortcodes</title><link>https://blog-dev.garrardkitchen.com/tags/shortcodes/</link><description>Recent content in Shortcodes on Garrard Kitchen</description><generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Mon, 06 Apr 2020 15:31:12 +0100</lastBuildDate><atom:link href="https://blog-dev.garrardkitchen.com/tags/shortcodes/index.xml" rel="self" type="application/rss+xml"/><item><title>Hugo Shortcodes - my first try</title><link>https://blog-dev.garrardkitchen.com/blog/hugo-shortcodes/</link><pubDate>Mon, 06 Apr 2020 15:31:12 +0100</pubDate><guid>https://blog-dev.garrardkitchen.com/blog/hugo-shortcodes/</guid><description>
+&lt;p>In this article, you&amp;rsquo;ll learn how Hugo shortcodes package reusable presentation without embedding repeated HTML in Markdown. That matters because durable engineering comes from understanding trade-offs, not merely reproducing a command or pattern.&lt;/p>
 &lt;h1>My first attempt&lt;/h1>&lt;p>Here&amp;rsquo;s my first effort at creating a shortcode.&lt;/p>
 &lt;p>This shortcode is available &lt;a href="https://github.com/garrardkitchen/blog/blob/master/layouts/shortcodes/note.html" target="_blank" rel="noopener">here&lt;/a>&lt;/p>
 &lt;h3>Information&lt;span class="hx-absolute -hx-mt-20" id="information">&lt;/span>
@@ -519,4 +520,33 @@ panel-header ">
 Sample text
 &lt;/div>
 &lt;/div>
-&lt;/div></description></item></channel></rss>
+&lt;/div>
+&lt;h2>Deepening the article&lt;span class="hx-absolute -hx-mt-20" id="deepening-the-article">&lt;/span>
+&lt;a href="#deepening-the-article" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;h2>Treat a shortcode as an interface&lt;span class="hx-absolute -hx-mt-20" id="treat-a-shortcode-as-an-interface">&lt;/span>
+&lt;a href="#treat-a-shortcode-as-an-interface" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>A shortcode has callers, parameters, defaults, and rendered output; changing any of them can break old content. Prefer named parameters once a shortcode has more than one meaningful input, validate required values, and fail the build with a useful message rather than silently emitting malformed HTML.&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-go-html-template" data-lang="go-html-template">&lt;span class="line">&lt;span class="cl">&lt;span class="cp">{{&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="nx">$text&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">:=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="na">.Get&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="s">&amp;#34;text&amp;#34;&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="cp">}}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cp">{{&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">if&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">not&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="nx">$text&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="cp">}}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="cp">{{&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="nx">errorf&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="s">&amp;#34;notice shortcode requires text: %s&amp;#34;&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="na">.Position&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="cp">}}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cp">{{&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">end&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="cp">}}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">&amp;lt;&lt;/span>&lt;span class="nt">aside&lt;/span> &lt;span class="na">class&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s">&amp;#34;notice notice--&lt;/span>&lt;span class="cp">{{&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="na">.Get&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="s">&amp;#34;type&amp;#34;&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">|&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="nx">default&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="s">&amp;#34;info&amp;#34;&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="cp">}}&lt;/span>&lt;span class="s">&amp;#34;&lt;/span>&lt;span class="p">&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="cp">{{&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="nx">$text&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">|&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="nx">markdownify&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="cp">}}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">&amp;lt;/&lt;/span>&lt;span class="nt">aside&lt;/span>&lt;span class="p">&amp;gt;&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>Hugo templates escape values according to context. Do not mark arbitrary author input as safeHTML simply to make rendering work; that bypasses an important boundary. Decide explicitly whether a parameter accepts plain text, Markdown, or trusted HTML.&lt;/p>
+&lt;p>Keep presentation in the theme or asset pipeline and semantics in the shortcode. An aside with meaningful text survives a CSS failure and works better for assistive technology than a collection of decorative div elements.&lt;/p>
+&lt;h2>References&lt;span class="hx-absolute -hx-mt-20" id="references">&lt;/span>
+&lt;a href="#references" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;ul>
+&lt;li>&lt;a href="https://gohugo.io/documentation/" target="_blank" rel="noopener">Hugo documentation&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://gohugo.io/content-management/shortcodes/" target="_blank" rel="noopener">Hugo shortcode documentation&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;h2>Closing thought&lt;span class="hx-absolute -hx-mt-20" id="closing-thought">&lt;/span>
+&lt;a href="#closing-thought" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>A shortcode becomes worthwhile when it centralises semantics and safety, not merely when it saves an author from typing the same HTML twice.&lt;/p></description></item></channel></rss>

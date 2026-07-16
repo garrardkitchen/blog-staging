@@ -1,0 +1,44 @@
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Garrard Kitchen – Local-Development</title><link>https://blog-dev.garrardkitchen.com/tags/local-development/</link><description>Recent content in Local-Development on Garrard Kitchen</description><generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Thu, 17 Apr 2025 00:00:00 +0000</lastBuildDate><atom:link href="https://blog-dev.garrardkitchen.com/tags/local-development/index.xml" rel="self" type="application/rss+xml"/><item><title>Building a Local MCP Server</title><link>https://blog-dev.garrardkitchen.com/ai/mcp/mcp-local/</link><pubDate>Thu, 17 Apr 2025 00:00:00 +0000</pubDate><guid>https://blog-dev.garrardkitchen.com/ai/mcp/mcp-local/</guid><description>
+&lt;p>In this article, you&amp;rsquo;ll learn where the local MCP example lives, how standard input/output transport works, and what trust decisions remain with the user. That matters because a local server inherits the permissions of the process that launches it.&lt;/p>
+&lt;p>A local MCP server is commonly started by the host as a child process. Protocol messages travel over standard input and standard output. This is convenient—there is no listening port or separate service deployment—but it is not a sandbox.&lt;/p>
+&lt;h2>Example and operating model&lt;span class="hx-absolute -hx-mt-20" id="example-and-operating-model">&lt;/span>
+&lt;a href="#example-and-operating-model" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>The &lt;a href="https://github.com/garrardkitchen/mcp-example" target="_blank" rel="noopener">local MCP example&lt;/a> explores a small server and its host configuration. When adapting it:&lt;/p>
+&lt;ul>
+&lt;li>keep protocol messages on standard output and send diagnostics to standard error;&lt;/li>
+&lt;li>use absolute executable and working-directory paths where host configuration may vary;&lt;/li>
+&lt;li>pin dependencies and review the command before enabling it;&lt;/li>
+&lt;li>request the narrowest filesystem, network, and credential access possible; and&lt;/li>
+&lt;li>validate every tool argument even when the caller is local.&lt;/li>
+&lt;/ul>
+&lt;p>Environment variables passed by the host become available to the child process. Do not pass broad cloud credentials merely because the process is on your workstation. Prefer a short-lived or workload-scoped identity and keep consequential tool calls behind user confirmation.&lt;/p>
+&lt;h2>When local is the right choice&lt;span class="hx-absolute -hx-mt-20" id="when-local-is-the-right-choice">&lt;/span>
+&lt;a href="#when-local-is-the-right-choice" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>Local transport is well suited to development tools, access to a checked-out repository, and experiments that should not expose a network service. A remote server is more appropriate when capabilities must be shared, centrally maintained, or separated from the user&amp;rsquo;s machine. That move introduces authentication, authorisation, tenant isolation, and network failure; it is an architectural change, not only a transport setting.&lt;/p>
+&lt;h2>References&lt;span class="hx-absolute -hx-mt-20" id="references">&lt;/span>
+&lt;a href="#references" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;ul>
+&lt;li>&lt;a href="https://modelcontextprotocol.io/docs/learn/architecture" target="_blank" rel="noopener">MCP architecture&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://modelcontextprotocol.io/specification/2025-06-18/basic/transports" target="_blank" rel="noopener">MCP transports&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://code.visualstudio.com/docs/copilot/chat/mcp-servers" target="_blank" rel="noopener">VS Code MCP servers&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;h2>Closing thought&lt;span class="hx-absolute -hx-mt-20" id="closing-thought">&lt;/span>
+&lt;a href="#closing-thought" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>A local MCP server may be one process away, but every tool it exposes is still a decision about how much of the user&amp;rsquo;s machine an AI interaction should be allowed to reach.&lt;/p></description></item><item><title>Local MCP Checklist</title><link>https://blog-dev.garrardkitchen.com/nuggets/mcp/mcp-local/</link><pubDate>Thu, 17 Apr 2025 00:00:00 +0000</pubDate><guid>https://blog-dev.garrardkitchen.com/nuggets/mcp/mcp-local/</guid><description>
+&lt;p>This checklist helps you review a local MCP server&amp;rsquo;s command, permissions, transport, and failure behavior before enabling it. That matters because the process can often act with the same filesystem and credential access as its host.&lt;/p>
+&lt;h2>Checklist&lt;span class="hx-absolute -hx-mt-20" id="checklist">&lt;/span>
+&lt;a href="#checklist" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;ul>
+&lt;li>Read the configured command, arguments, and working directory.&lt;/li>
+&lt;li>Pin or verify the package or executable you are launching.&lt;/li>
+&lt;li>Keep JSON-RPC messages on standard output; route diagnostics to standard error.&lt;/li>
+&lt;li>Pass only the environment variables the server needs.&lt;/li>
+&lt;li>Prefer read-only tools and narrow path allow-lists.&lt;/li>
+&lt;li>Validate tool arguments and cap output size.&lt;/li>
+&lt;li>Require confirmation for writes, commands, or external side effects.&lt;/li>
+&lt;li>Confirm how the host stops orphaned or unresponsive processes.&lt;/li>
+&lt;li>Inspect logs for secrets before sharing diagnostics.&lt;/li>
+&lt;/ul>
+&lt;h2>Links&lt;span class="hx-absolute -hx-mt-20" id="links">&lt;/span>
+&lt;a href="#links" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;ul>
+&lt;li>&lt;a href="https://github.com/garrardkitchen/mcp-example" target="_blank" rel="noopener">Local example&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://modelcontextprotocol.io/specification/2025-06-18/basic/transports" target="_blank" rel="noopener">MCP transports&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://code.visualstudio.com/docs/copilot/chat/mcp-servers" target="_blank" rel="noopener">VS Code MCP servers&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;h2>Closing thought&lt;span class="hx-absolute -hx-mt-20" id="closing-thought">&lt;/span>
+&lt;a href="#closing-thought" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>A short local MCP configuration can launch a highly capable process, so its review should be proportional to the capability—not to the number of lines.&lt;/p></description></item></channel></rss>

@@ -1,4 +1,5 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Garrard Kitchen – Gridgain</title><link>https://blog-dev.garrardkitchen.com/tags/gridgain/</link><description>Recent content in Gridgain on Garrard Kitchen</description><generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Tue, 28 Jul 2020 13:48:46 +0100</lastBuildDate><atom:link href="https://blog-dev.garrardkitchen.com/tags/gridgain/index.xml" rel="self" type="application/rss+xml"/><item><title>How to run the Apache Ignite Agent with an Ignite.NET Core Server Node</title><link>https://blog-dev.garrardkitchen.com/blog/apache-ignite-running-agent-with-dotnetcore-server-node/</link><pubDate>Tue, 28 Jul 2020 13:48:46 +0100</pubDate><guid>https://blog-dev.garrardkitchen.com/blog/apache-ignite-running-agent-with-dotnetcore-server-node/</guid><description>
+&lt;p>In this article, you&amp;rsquo;ll learn how the Ignite control agent relates to an Ignite.NET server node, and how to run the pairing deliberately. That distinction matters because cloud failures usually emerge at the seams between configuration, identity, networking, and operations.&lt;/p>
 &lt;p>I&amp;rsquo;ve recently been researching into &lt;a href="https://apacheignite-net.readme.io/docs/getting-started" target="_blank" rel="noopener">Apache Ignite&lt;/a>. Apache Ignite is an in-memory, memory-centric, distributed database, caching and processing platform for transactional, analytical, and streaming workloads.&lt;/p>
 &lt;p>So why the post? Well, with using .NET Core, I have run into one or two challenges that I have had to work through. One of which involves the Agent. I feel it is important to share with you how I get beyond this issue. It may save you a lot of time if you&amp;rsquo;re an Apache Ignite noob like me.&lt;/p>
 &lt;p>You use the Agent when you want to execute queries, SQL DML &amp;amp; DDL amongst other actions, from within the Web Console app. The Agent acts as a proxy. The Agent must connect to both the Web Console and your Server node or Thick Client node.&lt;/p>
@@ -25,4 +26,11 @@ title="Copy code"
 &lt;/div>
 &lt;/div>
 &lt;p>From what I could find, there&amp;rsquo;s no plans on including the ignite-rest-http module in the Apache.Ignite nuget package.&lt;/p>
-&lt;p>I will share a GitHub repo to ease you into this shortly.&lt;/p></description></item></channel></rss>
+&lt;p>I will share a GitHub repo to ease you into this shortly.&lt;/p>
+&lt;h2>References&lt;span class="hx-absolute -hx-mt-20" id="references">&lt;/span>
+&lt;a href="#references" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;ul>
+&lt;li>&lt;a href="https://ignite.apache.org/docs/latest/" target="_blank" rel="noopener">Apache Ignite documentation&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://ignite.apache.org/docs/latest/net-specific/net-quick-start" target="_blank" rel="noopener">Apache Ignite.NET documentation&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;h2>Closing thought&lt;span class="hx-absolute -hx-mt-20" id="closing-thought">&lt;/span>
+&lt;a href="#closing-thought" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>The Ignite agent is valuable only when its connection to the cluster is explicit, observable, and treated as an operational dependency rather than as background magic.&lt;/p></description></item></channel></rss>

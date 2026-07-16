@@ -1,4 +1,5 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Garrard Kitchen – Gcp</title><link>https://blog-dev.garrardkitchen.com/tags/gcp/</link><description>Recent content in Gcp on Garrard Kitchen</description><generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Mon, 06 Apr 2020 10:20:26 +0100</lastBuildDate><atom:link href="https://blog-dev.garrardkitchen.com/tags/gcp/index.xml" rel="self" type="application/rss+xml"/><item><title>Kubernetes on Windows</title><link>https://blog-dev.garrardkitchen.com/blog/kubernetes-on-windows/</link><pubDate>Mon, 06 Apr 2020 10:20:26 +0100</pubDate><guid>https://blog-dev.garrardkitchen.com/blog/kubernetes-on-windows/</guid><description>
+&lt;p>In this article, you&amp;rsquo;ll learn how to build a local Kubernetes learning environment on Windows and understand each moving part rather than memorising commands. That distinction matters because cloud failures usually emerge at the seams between configuration, identity, networking, and operations.&lt;/p>
 &lt;p>This post is a reminder to me of what needs to be installed in order for a &lt;code>pod&lt;/code>, created from a local image, that is to be served up via a &lt;code>kubernetes cluster&lt;/code>, to be run from your local development environment.&lt;/p>
 &lt;h3>What is Kubernetes and why is it so important?&lt;span class="hx-absolute -hx-mt-20" id="what-is-kubernetes-and-why-is-it-so-important">&lt;/span>
 &lt;a href="#what-is-kubernetes-and-why-is-it-so-important" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>&amp;ldquo;Kubernetes is a portable, extensible, open-source platform for managing containerized workloads and services, that facilitates both declarative configuration and automation. It has a large, rapidly growing ecosystem. Kubernetes services, support, and tools are widely available.&amp;rdquo;&lt;/p>
@@ -72,7 +73,7 @@ panel-header ">
 &lt;div class="ltr:hx-pl-3 ltr:hx-pr-2 rtl:hx-pr-3 rtl:hx-pl-2">&lt;div class="hx-select-none hx-text-xl" style="font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';">ℹ️&lt;/div>&lt;/div>
 &lt;div class="hx-w-full hx-min-w-0 hx-leading-7">
 &lt;div class="hx-mt-6 hx-leading-7 first:hx-mt-0">&lt;p>&lt;strong>Permissions&lt;/strong>&lt;/p>
-&lt;p>To install &lt;b>kubectl&lt;/b> and &lt;b>minikube&lt;/b> you must start Powershell with Administrator permissions&lt;/p>
+&lt;p>To install &lt;b>kubectl&lt;/b> and &lt;b>minikube&lt;/b> you must start PowerShell with Administrator permissions&lt;/p>
 &lt;/div>
 &lt;/div>
 &lt;/div>
@@ -570,4 +571,8 @@ title="Copy code"
 &lt;li>&lt;a href="https://kubernetes.io/docs/tasks/tools/install-minikube/" target="_blank" rel="noopener">Install Minikube&lt;/a>&lt;/li>
 &lt;li>&lt;a href="https://kubernetes.io/docs/reference/kubectl/cheatsheet/" target="_blank" rel="noopener">Kubectl Cheatsheet&lt;/a>&lt;/li>
 &lt;li>&lt;a href="https://kubernetes.io/docs/setup/learning-environment/minikube/#use-local-images-by-re-using-the-docker-daemon" target="_blank" rel="noopener">Minikube&amp;rsquo;s built-in Docker daemon&lt;/a>&lt;/li>
-&lt;/ul></description></item></channel></rss>
+&lt;li>&lt;a href="https://kubernetes.io/docs/home/" target="_blank" rel="noopener">Kubernetes documentation&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://kubernetes.io/docs/reference/kubernetes-api/" target="_blank" rel="noopener">Kubernetes API reference&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;h2>Closing thought&lt;span class="hx-absolute -hx-mt-20" id="closing-thought">&lt;/span>
+&lt;a href="#closing-thought" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>A local Kubernetes cluster is most valuable when each command reveals another layer of the control plane, rather than leaving behind a collection of steps that work only on one laptop.&lt;/p></description></item></channel></rss>

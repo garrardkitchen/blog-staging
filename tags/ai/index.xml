@@ -1,4 +1,649 @@
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Garrard Kitchen – Ai</title><link>https://blog-dev.garrardkitchen.com/tags/ai/</link><description>Recent content in Ai on Garrard Kitchen</description><generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Fri, 18 Apr 2025 00:00:00 +0000</lastBuildDate><atom:link href="https://blog-dev.garrardkitchen.com/tags/ai/index.xml" rel="self" type="application/rss+xml"/><item><title>Prompts</title><link>https://blog-dev.garrardkitchen.com/blog/prompts/</link><pubDate>Fri, 18 Apr 2025 00:00:00 +0000</pubDate><guid>https://blog-dev.garrardkitchen.com/blog/prompts/</guid><description>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Garrard Kitchen – Ai</title><link>https://blog-dev.garrardkitchen.com/tags/ai/</link><description>Recent content in Ai on Garrard Kitchen</description><generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Thu, 18 Dec 2025 10:00:00 +0000</lastBuildDate><atom:link href="https://blog-dev.garrardkitchen.com/tags/ai/index.xml" rel="self" type="application/rss+xml"/><item><title>Building EntraTool - A Secure CLI for Microsoft Entra ID Token Management</title><link>https://blog-dev.garrardkitchen.com/blog/entra-token-cli-journey/</link><pubDate>Thu, 18 Dec 2025 10:00:00 +0000</pubDate><guid>https://blog-dev.garrardkitchen.com/blog/entra-token-cli-journey/</guid><description>
+&lt;p>In this article, you&amp;rsquo;ll learn how a token-management CLI can make OAuth flows repeatable while keeping credentials out of source control. That matters because useful AI integration depends as much on explicit trust and verification as it does on model capability.&lt;/p>
+&lt;h2>The Problem: Death by a Thousand Manual Token Requests&lt;span class="hx-absolute -hx-mt-20" id="the-problem-death-by-a-thousand-manual-token-requests">&lt;/span>
+&lt;a href="#the-problem-death-by-a-thousand-manual-token-requests" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>Picture this: You&amp;rsquo;re building a modern cloud application with proper security architecture. You&amp;rsquo;ve followed the principle of least privilege, creating dedicated app registrations for each API and client application. Your service principals are perfectly scoped with granular permissions. You&amp;rsquo;re doing everything right.&lt;/p>
+&lt;p>&lt;strong>Then reality hits.&lt;/strong>&lt;/p>
+&lt;p>Every time you need to test an API, debug an integration, or verify permissions, you&amp;rsquo;re stuck in a tedious workflow:&lt;/p>
+&lt;ul>
+&lt;li>Hunt down the tenant ID (again)&lt;/li>
+&lt;li>Find the client ID in the Azure portal&lt;/li>
+&lt;li>Copy that client secret you saved&amp;hellip; somewhere&lt;/li>
+&lt;li>Craft the OAuth2 token request manually or fiddle with Postman&lt;/li>
+&lt;li>Repeat this 5-10 times a day across dev, staging, and production environments&lt;/li>
+&lt;/ul>
+&lt;p>&lt;strong>But the real nightmare? The security risk.&lt;/strong>&lt;/p>
+&lt;p>After creating my third C# console app to generate tokens (the last one being a .NET 10 file-based utility), I realized I was one &lt;code>git commit&lt;/code> away from disaster. How long before I accidentally pushed a client secret into a repo? How many developers have made that mistake, triggering emergency credential rotations at 2 AM?&lt;/p>
+&lt;p>&lt;strong>There had to be a better way.&lt;/strong>&lt;/p>
+&lt;h2>The Solution: EntraTool - Secure Token Management Made Simple&lt;span class="hx-absolute -hx-mt-20" id="the-solution-entratool---secure-token-management-made-simple">&lt;/span>
+&lt;a href="#the-solution-entratool---secure-token-management-made-simple" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>I decided to build &lt;code>entratool&lt;/code>, a cross-platform CLI that eliminates both the frustration and the security risk. The elevator pitch:&lt;/p>
+&lt;blockquote>
+&lt;p>&lt;strong>Stop manually hunting for credentials across Azure portals. Stop risking accidental secret commits. Store your profiles once with platform-native encryption, and generate tokens with a single command—no matter which OS you&amp;rsquo;re on.&lt;/strong>&lt;/p>
+&lt;/blockquote>
+&lt;p>The goal was simple: &lt;strong>secure by default, fast by design, natural to use.&lt;/strong>&lt;/p>
+&lt;h2>The Journey: From Problem to Solution in 1 Hour&lt;span class="hx-absolute -hx-mt-20" id="the-journey-from-problem-to-solution-in-1-hour">&lt;/span>
+&lt;a href="#the-journey-from-problem-to-solution-in-1-hour" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>Here&amp;rsquo;s where it gets interesting—I built the entire initial version in just &lt;strong>1 hour&lt;/strong> using Claude Sonnet 4.5 and GitHub Copilot in VS Code.&lt;/p>
+&lt;h3>AI-Assisted Development Done Right&lt;span class="hx-absolute -hx-mt-20" id="ai-assisted-development-done-right">&lt;/span>
+&lt;a href="#ai-assisted-development-done-right" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>Rather than writing boilerplate from scratch, I focused on:&lt;/p>
+&lt;ul>
+&lt;li>&lt;strong>Architecture decisions&lt;/strong>: OAuth2 flows, secure storage patterns, command structure&lt;/li>
+&lt;li>&lt;strong>UX design&lt;/strong>: Making the CLI feel natural and intuitive&lt;/li>
+&lt;li>&lt;strong>Platform integration&lt;/strong>: macOS Keychain, Windows DPAPI, Linux fallbacks&lt;/li>
+&lt;/ul>
+&lt;p>The AI pair programming handled:&lt;/p>
+&lt;ul>
+&lt;li>Complex OAuth2 flow implementations with MSAL&lt;/li>
+&lt;li>Certificate authentication edge cases&lt;/li>
+&lt;li>Platform-specific secure storage integrations (especially the tricky macOS Keychain CLI interactions)&lt;/li>
+&lt;li>Rich console UI with Spectre.Console&lt;/li>
+&lt;/ul>
+&lt;p>&lt;strong>The biggest challenge?&lt;/strong> Getting the UX right. The tool needed to feel natural—profiles should be easy to create, secrets should be transparently handled, and common workflows should &amp;ldquo;just work&amp;rdquo; without reading documentation.&lt;/p>
+&lt;h2>Technical Deep Dive: How It Works&lt;span class="hx-absolute -hx-mt-20" id="technical-deep-dive-how-it-works">&lt;/span>
+&lt;a href="#technical-deep-dive-how-it-works" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;h3>Understanding Service Principals and API Permissions&lt;span class="hx-absolute -hx-mt-20" id="understanding-service-principals-and-api-permissions">&lt;/span>
+&lt;a href="#understanding-service-principals-and-api-permissions" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>When you create an &lt;strong>app registration&lt;/strong> in Microsoft Entra ID (formerly Azure AD), you&amp;rsquo;re defining an application identity. But here&amp;rsquo;s the key concept many developers miss:&lt;/p>
+&lt;p>&lt;strong>An app registration is just a blueprint.&lt;/strong> When your app registration gets permissions to access a resource (like Microsoft Graph or your custom API), Azure automatically creates a &lt;strong>service principal&lt;/strong> in your tenant.&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;pre>&lt;code>App Registration (Blueprint)
+↓ grants permission to
+Resource API (e.g., Microsoft Graph)
+↓ automatically creates
+Service Principal (Runtime Identity)&lt;/code>&lt;/pre>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>The service principal is what actually authenticates and gets tokens. This is why:&lt;/p>
+&lt;ul>
+&lt;li>You create app registrations in one place&lt;/li>
+&lt;li>But service principals exist per tenant&lt;/li>
+&lt;li>Multi-tenant apps have one app registration but many service principals&lt;/li>
+&lt;/ul>
+&lt;p>&lt;strong>EntraTool manages both sides:&lt;/strong> It stores your client credentials securely and handles the OAuth2 flows to get tokens from those service principals.&lt;/p>
+&lt;h3>Four OAuth2 Flows, One Command&lt;span class="hx-absolute -hx-mt-20" id="four-oauth2-flows-one-command">&lt;/span>
+&lt;a href="#four-oauth2-flows-one-command" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>EntratTool supports all the major OAuth2 flows:&lt;/p>
+&lt;p>&lt;strong>1. Client Credentials&lt;/strong> (Service-to-Service)&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">entratool get-token -p myapi&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>Perfect for service principals, API access, automation. No user interaction needed.&lt;/p>
+&lt;p>&lt;strong>2. Authorization Code with PKCE&lt;/strong> (User-Interactive)&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">entratool get-token -p myapp -f AuthorizationCode&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>Opens a browser, user logs in, token is cached. Great for delegated permissions.&lt;/p>
+&lt;p>&lt;strong>3. Device Code&lt;/strong> (Headless/SSH)&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">entratool get-token -p myapp -f DeviceCode&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>Displays a code to enter on another device. Perfect for SSH sessions or containers.&lt;/p>
+&lt;p>&lt;strong>4. Interactive Browser&lt;/strong> (Local Development)&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">entratool get-token -p myapp -f InteractiveBrowser&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>Full browser flow with automatic localhost callback handling.&lt;/p>
+&lt;h3>Secure Storage: Platform-Native Encryption&lt;span class="hx-absolute -hx-mt-20" id="secure-storage-platform-native-encryption">&lt;/span>
+&lt;a href="#secure-storage-platform-native-encryption" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>This is where security meets usability. Secrets are &lt;strong>never stored in plain text&lt;/strong>:&lt;/p>
+&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th>Platform&lt;/th>
+&lt;th>Storage Method&lt;/th>
+&lt;th>Location&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td>&lt;strong>Windows&lt;/strong>&lt;/td>
+&lt;td>DPAPI (Data Protection API)&lt;/td>
+&lt;td>&lt;code>%APPDATA%\entratool\secure\&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;strong>macOS&lt;/strong>&lt;/td>
+&lt;td>System Keychain&lt;/td>
+&lt;td>Keychain Access (search &amp;ldquo;entratool&amp;rdquo;)&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;strong>Linux&lt;/strong>&lt;/td>
+&lt;td>XOR Obfuscation*&lt;/td>
+&lt;td>&lt;code>~/.config/entratool/secure/&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;p>*Linux fallback is weak; proper libsecret integration planned for future versions.&lt;/p>
+&lt;p>The profile metadata (tenant IDs, client IDs, scopes) is stored separately in &lt;code>profiles.json&lt;/code>, but &lt;strong>zero secrets touch that file&lt;/strong>.&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-json" data-lang="json">&lt;span class="line">&lt;span class="cl">&lt;span class="c1">// profiles.json - safe to commit (no secrets!)
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;#34;name&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="s2">&amp;#34;production-api&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;#34;tenantId&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="s2">&amp;#34;f1a8cfe1-...&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;#34;clientId&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="s2">&amp;#34;2d1b44f8-...&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;#34;scopes&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="p">[&lt;/span>&lt;span class="s2">&amp;#34;api://myapi/.default&amp;#34;&lt;/span>&lt;span class="p">],&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;#34;authMethod&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="s2">&amp;#34;ClientSecret&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>The actual client secret? Encrypted in the OS keychain, accessible only to your user account.&lt;/p>
+&lt;h3>Smart Flow Inference&lt;span class="hx-absolute -hx-mt-20" id="smart-flow-inference">&lt;/span>
+&lt;a href="#smart-flow-inference" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>One of my favorite UX touches: &lt;strong>you don&amp;rsquo;t have to specify the OAuth2 flow every time.&lt;/strong>&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-csharp" data-lang="csharp">&lt;span class="line">&lt;span class="cl">&lt;span class="c1">// In GetTokenCommand.cs&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">OAuth2Flow&lt;/span> &lt;span class="n">flow&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">if&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">profile&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">AuthMethod&lt;/span> &lt;span class="p">==&lt;/span> &lt;span class="n">AuthenticationMethod&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">ClientSecret&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">flow&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="n">OAuth2Flow&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">ClientCredentials&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="c1">// Service principal? Use client credentials&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">else&lt;/span> &lt;span class="k">if&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">profile&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">AuthMethod&lt;/span> &lt;span class="p">==&lt;/span> &lt;span class="n">AuthenticationMethod&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">Certificate&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">flow&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="n">OAuth2Flow&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">ClientCredentials&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="c1">// Certificate auth? Same deal&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">else&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">flow&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="n">OAuth2Flow&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">InteractiveBrowser&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="c1">// Otherwise, interactive browser&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>&lt;strong>Result:&lt;/strong> Just type &lt;code>entratool get-token -p myprofile&lt;/code> and the tool picks the right flow based on your authentication method. No mental overhead.&lt;/p>
+&lt;h2>Key Features That Save Time and Prevent Disasters&lt;span class="hx-absolute -hx-mt-20" id="key-features-that-save-time-and-prevent-disasters">&lt;/span>
+&lt;a href="#key-features-that-save-time-and-prevent-disasters" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;h3>1. Profile Management&lt;span class="hx-absolute -hx-mt-20" id="1-profile-management">&lt;/span>
+&lt;a href="#1-profile-management" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>Create once, use everywhere:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># Interactive profile creation&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">entratool config create
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># List all profiles&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">entratool config list
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># Edit existing profiles&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">entratool config edit -p production-api&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;h3>2. Team Sharing (Without Exposing Secrets)&lt;span class="hx-absolute -hx-mt-20" id="2-team-sharing-without-exposing-secrets">&lt;/span>
+&lt;a href="#2-team-sharing-without-exposing-secrets" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>Export profiles with encryption for team distribution:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># Export with secrets (AES-256 + PBKDF2)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">entratool config &lt;span class="nb">export&lt;/span> -p myprofile --include-secrets -o team-profile.enc
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># Team member imports&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">entratool config import -i team-profile.enc&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;h3>3. Token Inspection&lt;span class="hx-absolute -hx-mt-20" id="3-token-inspection">&lt;/span>
+&lt;a href="#3-token-inspection" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>Decode JWTs instantly:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">entratool inspect eyJ0eXAiOiJKV1Qi...&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>Shows all claims, expiration, issuer—perfect for debugging permission issues.&lt;/p>
+&lt;h3>4. Clipboard Integration&lt;span class="hx-absolute -hx-mt-20" id="4-clipboard-integration">&lt;/span>
+&lt;a href="#4-clipboard-integration" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>Tokens auto-copy to clipboard (with smart fallback to file in headless environments):&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">entratool get-token -p myapi
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># Token in clipboard, ready to paste into Postman/curl&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;h3>5. Certificate Authentication&lt;span class="hx-absolute -hx-mt-20" id="5-certificate-authentication">&lt;/span>
+&lt;a href="#5-certificate-authentication" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>Full support for .pfx certificates with three password strategies:&lt;/p>
+&lt;ul>
+&lt;li>&lt;strong>Always prompt&lt;/strong> (maximum security)&lt;/li>
+&lt;li>&lt;strong>Cached password&lt;/strong> (convenience)&lt;/li>
+&lt;li>&lt;strong>Passwordless certificates&lt;/strong> (when possible)&lt;/li>
+&lt;/ul>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">entratool get-token -p cert-app --cache-cert-password&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;h3>6. App Registration Discovery&lt;span class="hx-absolute -hx-mt-20" id="6-app-registration-discovery">&lt;/span>
+&lt;a href="#6-app-registration-discovery" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>Search your tenant for app registrations without leaving the terminal:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">entratool discover -t contoso.onmicrosoft.com -s &lt;span class="s2">&amp;#34;MyApp*&amp;#34;&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>Uses Microsoft Graph API with keyboard search filtering and colored output.&lt;/p>
+&lt;h2>Best Practices and Architecture Decisions&lt;span class="hx-absolute -hx-mt-20" id="best-practices-and-architecture-decisions">&lt;/span>
+&lt;a href="#best-practices-and-architecture-decisions" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;h3>1. Separation of Concerns&lt;span class="hx-absolute -hx-mt-20" id="1-separation-of-concerns">&lt;/span>
+&lt;a href="#1-separation-of-concerns" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;ul>
+&lt;li>&lt;strong>Configuration layer&lt;/strong> (&lt;code>ConfigService&lt;/code>) handles profile CRUD&lt;/li>
+&lt;li>&lt;strong>Authentication layer&lt;/strong> (&lt;code>MsalAuthService&lt;/code>) handles OAuth2 flows&lt;/li>
+&lt;li>&lt;strong>Storage layer&lt;/strong> (&lt;code>ISecureStorage&lt;/code>) abstracts platform differences&lt;/li>
+&lt;li>&lt;strong>UI layer&lt;/strong> (&lt;code>ConsoleUi&lt;/code>) handles all Spectre.Console interactions&lt;/li>
+&lt;/ul>
+&lt;h3>2. Immutable Data Models&lt;span class="hx-absolute -hx-mt-20" id="2-immutable-data-models">&lt;/span>
+&lt;a href="#2-immutable-data-models" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>Using C# record types for profiles:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-csharp" data-lang="csharp">&lt;span class="line">&lt;span class="cl">&lt;span class="kd">public&lt;/span> &lt;span class="k">record&lt;/span> &lt;span class="nc">AuthProfile&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kt">string&lt;/span> &lt;span class="n">Name&lt;/span> &lt;span class="p">{&lt;/span> &lt;span class="k">get&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="k">init&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kt">string&lt;/span> &lt;span class="n">TenantId&lt;/span> &lt;span class="p">{&lt;/span> &lt;span class="k">get&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="k">init&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="n">OAuth2Flow&lt;/span>&lt;span class="p">?&lt;/span> &lt;span class="n">DefaultFlow&lt;/span> &lt;span class="p">{&lt;/span> &lt;span class="k">get&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="k">init&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">// ... with expressions for updates&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kt">var&lt;/span> &lt;span class="n">updated&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="n">profile&lt;/span> &lt;span class="n">with&lt;/span> &lt;span class="p">{&lt;/span> &lt;span class="n">TenantId&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="n">newTenantId&lt;/span> &lt;span class="p">};&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;h3>3. Explicit Over Implicit&lt;span class="hx-absolute -hx-mt-20" id="3-explicit-over-implicit">&lt;/span>
+&lt;a href="#3-explicit-over-implicit" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;ul>
+&lt;li>Token refresh is a separate command (&lt;code>refresh&lt;/code>), not automatic&lt;/li>
+&lt;li>Certificate password caching requires explicit flag (&lt;code>--cache-cert-password&lt;/code>)&lt;/li>
+&lt;li>Token expiration warnings enabled by default but configurable&lt;/li>
+&lt;/ul>
+&lt;h3>4. Platform Detection at Runtime&lt;span class="hx-absolute -hx-mt-20" id="4-platform-detection-at-runtime">&lt;/span>
+&lt;a href="#4-platform-detection-at-runtime" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-csharp" data-lang="csharp">&lt;span class="line">&lt;span class="cl">&lt;span class="kd">public&lt;/span> &lt;span class="kd">static&lt;/span> &lt;span class="n">ISecureStorage&lt;/span> &lt;span class="n">Create&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">if&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">RuntimeInformation&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">IsOSPlatform&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">OSPlatform&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">Windows&lt;/span>&lt;span class="p">))&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="k">new&lt;/span> &lt;span class="n">WindowsSecureStorage&lt;/span>&lt;span class="p">();&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">if&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">RuntimeInformation&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">IsOSPlatform&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">OSPlatform&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">OSX&lt;/span>&lt;span class="p">))&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="k">new&lt;/span> &lt;span class="n">MacOsSecureStorage&lt;/span>&lt;span class="p">();&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="k">new&lt;/span> &lt;span class="n">LinuxSecureStorage&lt;/span>&lt;span class="p">();&lt;/span> &lt;span class="c1">// fallback&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;h3>5. Async All the Way Down&lt;span class="hx-absolute -hx-mt-20" id="5-async-all-the-way-down">&lt;/span>
+&lt;a href="#5-async-all-the-way-down" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>Every I/O operation is async, keeping the CLI responsive even during network calls or certificate loading.&lt;/p>
+&lt;h2>Real-World Impact: Time Savings and Security Wins&lt;span class="hx-absolute -hx-mt-20" id="real-world-impact-time-savings-and-security-wins">&lt;/span>
+&lt;a href="#real-world-impact-time-savings-and-security-wins" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;h3>Time Savings&lt;span class="hx-absolute -hx-mt-20" id="time-savings">&lt;/span>
+&lt;a href="#time-savings" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>&lt;strong>Before EntraTool:&lt;/strong>&lt;/p>
+&lt;ul>
+&lt;li>Hunt for credentials in Azure Portal: &lt;strong>2-3 minutes&lt;/strong>&lt;/li>
+&lt;li>Craft token request manually: &lt;strong>1-2 minutes&lt;/strong>&lt;/li>
+&lt;li>Copy/paste credentials: &lt;strong>30 seconds&lt;/strong>&lt;/li>
+&lt;li>&lt;strong>Total: 4-5 minutes per token request&lt;/strong>&lt;/li>
+&lt;/ul>
+&lt;p>&lt;strong>With EntraTool:&lt;/strong>&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>entratool get-token -p myapi&lt;/code>: &lt;strong>3 seconds&lt;/strong>&lt;/li>
+&lt;/ul>
+&lt;p>&lt;strong>For a developer making 10 token requests per day:&lt;/strong>&lt;/p>
+&lt;ul>
+&lt;li>Daily savings: ~40 minutes&lt;/li>
+&lt;li>Monthly savings: &lt;strong>~13 hours&lt;/strong> (conservative estimate) 😬&lt;/li>
+&lt;li>&lt;strong>Plus:&lt;/strong> Zero risk of committing secrets&lt;/li>
+&lt;/ul>
+&lt;h3>Security Wins&lt;span class="hx-absolute -hx-mt-20" id="security-wins">&lt;/span>
+&lt;a href="#security-wins" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;ul>
+&lt;li>✅ &lt;strong>No secrets in code&lt;/strong> - Everything in OS-native secure storage&lt;/li>
+&lt;li>✅ &lt;strong>No secrets in version control&lt;/strong> - Profiles contain metadata only&lt;/li>
+&lt;li>✅ &lt;strong>Encrypted team sharing&lt;/strong> - AES-256 profile exports&lt;/li>
+&lt;li>✅ &lt;strong>Token caching&lt;/strong> - Reduces authentication frequency&lt;/li>
+&lt;li>✅ &lt;strong>Audit trail&lt;/strong> - Keychain entries visible for compliance&lt;/li>
+&lt;/ul>
+&lt;h2>Who Should Use This?&lt;span class="hx-absolute -hx-mt-20" id="who-should-use-this">&lt;/span>
+&lt;a href="#who-should-use-this" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>&lt;strong>DevOps Engineers:&lt;/strong>&lt;/p>
+&lt;ul>
+&lt;li>Managing multiple environments (dev/staging/prod)&lt;/li>
+&lt;li>Automating deployments with service principals&lt;/li>
+&lt;li>Testing infrastructure-as-code (Terraform, Bicep)&lt;/li>
+&lt;/ul>
+&lt;p>&lt;strong>Backend Developers:&lt;/strong>&lt;/p>
+&lt;ul>
+&lt;li>Testing APIs locally with proper authentication&lt;/li>
+&lt;li>Debugging permission issues with token inspection&lt;/li>
+&lt;li>Working with Microsoft Graph API&lt;/li>
+&lt;/ul>
+&lt;p>&lt;strong>Cloud Architects:&lt;/strong>&lt;/p>
+&lt;ul>
+&lt;li>Demonstrating authentication flows&lt;/li>
+&lt;li>Prototyping security architectures&lt;/li>
+&lt;li>Managing multiple tenant configurations&lt;/li>
+&lt;/ul>
+&lt;p>&lt;strong>Security Teams:&lt;/strong>&lt;/p>
+&lt;ul>
+&lt;li>Auditing service principal access&lt;/li>
+&lt;li>Rotating credentials without disruption&lt;/li>
+&lt;li>Ensuring least-privilege implementations&lt;/li>
+&lt;/ul>
+&lt;h2>The Tech Stack&lt;span class="hx-absolute -hx-mt-20" id="the-tech-stack">&lt;/span>
+&lt;a href="#the-tech-stack" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;ul>
+&lt;li>&lt;strong>.NET 10.0&lt;/strong> - Latest framework with modern C# features&lt;/li>
+&lt;li>&lt;strong>Spectre.Console&lt;/strong> - Rich, colored console UI&lt;/li>
+&lt;li>&lt;strong>MSAL.NET&lt;/strong> - Official Microsoft authentication library&lt;/li>
+&lt;li>&lt;strong>Microsoft.Graph SDK&lt;/strong> - For app registration discovery&lt;/li>
+&lt;li>&lt;strong>TextCopy&lt;/strong> - Cross-platform clipboard integration&lt;/li>
+&lt;li>&lt;strong>System.Security.Cryptography&lt;/strong> - DPAPI and encryption&lt;/li>
+&lt;/ul>
+&lt;h2>Get Started in 30 Seconds&lt;span class="hx-absolute -hx-mt-20" id="get-started-in-30-seconds">&lt;/span>
+&lt;a href="#get-started-in-30-seconds" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># Install globally&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">dotnet tool install -g EntraTokenCli
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># Or download executables from releases&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># https://github.com/garrardkitchen/entra-token-cli/releases&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># Create your first profile&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">entratool config create
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># Get a token&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">entratool get-token&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;h2>What&amp;rsquo;s Next?&lt;span class="hx-absolute -hx-mt-20" id="whats-next">&lt;/span>
+&lt;a href="#whats-next" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>&lt;strong>Planned features:&lt;/strong>&lt;/p>
+&lt;ul>
+&lt;li>Proper libsecret integration for Linux (replacing XOR obfuscation). This is currently only used with Linux and as a fallback mechanism&lt;/li>
+&lt;li>Managed identity support for Azure VMs&lt;/li>
+&lt;li>Shell completion scripts (bash, zsh, PowerShell)&lt;/li>
+&lt;li>Automated testing suite&lt;/li>
+&lt;li>Token validation with signature verification&lt;/li>
+&lt;/ul>
+&lt;h2>Lessons Learned&lt;span class="hx-absolute -hx-mt-20" id="lessons-learned">&lt;/span>
+&lt;a href="#lessons-learned" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;h3>1. AI Accelerates, Humans Guide&lt;span class="hx-absolute -hx-mt-20" id="1-ai-accelerates-humans-guide">&lt;/span>
+&lt;a href="#1-ai-accelerates-humans-guide" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>Claude and Copilot handled the heavy lifting, but the &lt;strong>architecture, UX decisions, and platform nuances&lt;/strong> required human judgment. AI is incredible for implementation, but you still need to know what you want to build.&lt;/p>
+&lt;h3>2. Security Should Be Invisible&lt;span class="hx-absolute -hx-mt-20" id="2-security-should-be-invisible">&lt;/span>
+&lt;a href="#2-security-should-be-invisible" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>The best security UX is when users don&amp;rsquo;t think about security. By using platform-native storage and making secrets transparent, users get security without friction.&lt;/p>
+&lt;h3>3. CLI Tools Need Love Too&lt;span class="hx-absolute -hx-mt-20" id="3-cli-tools-need-love-too">&lt;/span>
+&lt;a href="#3-cli-tools-need-love-too" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>Good CLI UX means:&lt;/p>
+&lt;ul>
+&lt;li>Colored output for scannability&lt;/li>
+&lt;li>Interactive prompts with sensible defaults&lt;/li>
+&lt;li>Smart inference (like automatic flow selection)&lt;/li>
+&lt;li>Comprehensive &lt;code>--help&lt;/code> text&lt;/li>
+&lt;li>Consistent command structure&lt;/li>
+&lt;/ul>
+&lt;h3>4. Cross-Platform Is Hard&lt;span class="hx-absolute -hx-mt-20" id="4-cross-platform-is-hard">&lt;/span>
+&lt;a href="#4-cross-platform-is-hard" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>What works on macOS doesn&amp;rsquo;t work on Windows. Testing on all three platforms revealed issues that wouldn&amp;rsquo;t surface otherwise (looking at you, Keychain CLI quirks).&lt;/p>
+&lt;h2>Conclusion: Stop Committing Secrets, Start Using EntraTool&lt;span class="hx-absolute -hx-mt-20" id="conclusion-stop-committing-secrets-start-using-entratool">&lt;/span>
+&lt;a href="#conclusion-stop-committing-secrets-start-using-entratool" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>I built &lt;code>entratool&lt;/code> because I was tired of:&lt;/p>
+&lt;ul>
+&lt;li>&lt;strong>The tedium&lt;/strong> of manually generating tokens&lt;/li>
+&lt;li>&lt;strong>The anxiety&lt;/strong> of potentially committing secrets&lt;/li>
+&lt;li>&lt;strong>The friction&lt;/strong> of context-switching to the Azure Portal&lt;/li>
+&lt;li>&lt;strong>The inconsistency&lt;/strong> across different operating systems&lt;/li>
+&lt;/ul>
+&lt;p>If you&amp;rsquo;ve ever:&lt;/p>
+&lt;ul>
+&lt;li>✅ Accidentally committed a secret (or feared doing so)&lt;/li>
+&lt;li>✅ Wasted time hunting for client IDs in Azure Portal&lt;/li>
+&lt;li>✅ Struggled with OAuth2 flows in Postman&lt;/li>
+&lt;li>✅ Needed tokens across multiple environments&lt;/li>
+&lt;li>✅ Wished for secure credential storage that &amp;ldquo;just works&amp;rdquo;&lt;/li>
+&lt;/ul>
+&lt;p>&lt;strong>Then &lt;code>entratool&lt;/code> is for you.&lt;/strong>&lt;/p>
+&lt;p>It took 1 hour to build with AI assistance, but it will save you &lt;strong>hours every month&lt;/strong> and eliminate a major security risk from your workflow.&lt;/p>
+&lt;h2>Resources&lt;span class="hx-absolute -hx-mt-20" id="resources">&lt;/span>
+&lt;a href="#resources" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;ul>
+&lt;li>&lt;strong>GitHub&lt;/strong>: &lt;a href="https://github.com/garrardkitchen/entra-token-cli" target="_blank" rel="noopener">github.com/garrardkitchen/entra-token-cli&lt;/a>&lt;/li>
+&lt;li>&lt;strong>Documentation&lt;/strong>: See README.md for full documentation&lt;/li>
+&lt;li>&lt;strong>Issues/Feedback&lt;/strong>: GitHub Issues welcome!&lt;/li>
+&lt;li>&lt;strong>License&lt;/strong>: MIT&lt;/li>
+&lt;/ul>
+&lt;hr>
+&lt;p>&lt;strong>Have you struggled with token management or accidentally committed secrets?&lt;/strong> Share your story in the comments below. Let&amp;rsquo;s build better, more secure developer experiences together.&lt;/p>
+&lt;p>&lt;em>Built with ☕ and Claude Sonnet 4.5 in 1 hour on December 18, 2025.&lt;/em>&lt;/p>
+&lt;h2>References&lt;span class="hx-absolute -hx-mt-20" id="references">&lt;/span>
+&lt;a href="#references" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;ul>
+&lt;li>&lt;a href="https://learn.microsoft.com/azure/" target="_blank" rel="noopener">Microsoft Azure documentation&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://learn.microsoft.com/entra/identity-platform/" target="_blank" rel="noopener">Microsoft identity platform documentation&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;h2>Closing thought&lt;span class="hx-absolute -hx-mt-20" id="closing-thought">&lt;/span>
+&lt;a href="#closing-thought" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>A token tool earns trust not by making credentials invisible, but by making the lifetime, audience, authority, and storage of every credential difficult to misunderstand.&lt;/p></description></item><item><title>Unlock Better AI Code - Why Small Batches are Your Secret Weapon</title><link>https://blog-dev.garrardkitchen.com/blog/unlock-better-ai-code/</link><pubDate>Thu, 20 Nov 2025 10:00:00 +0000</pubDate><guid>https://blog-dev.garrardkitchen.com/blog/unlock-better-ai-code/</guid><description>
+&lt;p>In this article, you&amp;rsquo;ll learn why small, reviewable batches improve AI-assisted development and how to turn intent into verifiable increments. That matters because useful AI integration depends as much on explicit trust and verification as it does on model capability.&lt;/p>
+&lt;h1>Stop fighting your AI coding assistant&lt;/h1>&lt;h2>Introduction&lt;span class="hx-absolute -hx-mt-20" id="introduction">&lt;/span>
+&lt;a href="#introduction" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>We&amp;rsquo;re all learning. None of us know it all. We have opinions, we have experiences, we conduct research, we scratch the occasional itch. We watch YouTube videos and read a blog posts and think we&amp;rsquo;ve mastered the infinite detail of the &amp;ldquo;new shiny.&amp;rdquo; We haven&amp;rsquo;t though. We need real experiences for authentic opinions.&lt;/p>
+&lt;p>With this in mind and not wanting to suggest I&amp;rsquo;m a master of all things AI related, I&amp;rsquo;ve recently discovered spec-driven AI development, and it&amp;rsquo;s changing how I think about working with AI coding assistants.&lt;/p>
+&lt;p>We&amp;rsquo;ve all been there - working within a context window for what feels like days, dipping in when we can, steering the AI to do what we want it to do, becoming increasingly frustrated with the output it generates. Well, if you were given a short, possibly terse requirement, you&amp;rsquo;d struggle too!&lt;/p>
+&lt;h2>The Power of Small Batches&lt;span class="hx-absolute -hx-mt-20" id="the-power-of-small-batches">&lt;/span>
+&lt;a href="#the-power-of-small-batches" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>What I&amp;rsquo;m learning right now is that it&amp;rsquo;s all about batch size. And this batch size has to be small. When it&amp;rsquo;s small, it&amp;rsquo;s focused. Plus, this aligns perfectly with commit/PR sizes too. This also aligns nicely with what my own research has determined: an agent&amp;rsquo;s scope must be small. And when I think small, I think of the Single Responsibility Principle (SRP).&lt;/p>
+&lt;p>Oh yeah, and costs. How many of us, if we have to pay for tokens or credits ourselves, watch our usage like a hawk? I know I do!&lt;/p>
+&lt;h2>A New Engineering Flow&lt;span class="hx-absolute -hx-mt-20" id="a-new-engineering-flow">&lt;/span>
+&lt;a href="#a-new-engineering-flow" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>I believe this represents a new engineering workflow emerging:&lt;/p>
+&lt;h3>Step 1: Requirements to Plan&lt;span class="hx-absolute -hx-mt-20" id="step-1-requirements-to-plan">&lt;/span>
+&lt;a href="#step-1-requirements-to-plan" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>Get the AI to produce a plan from your requirements. This high-level overview sets the direction without getting lost in implementation details.&lt;/p>
+&lt;h3>Step 2: Plan to Tasks&lt;span class="hx-absolute -hx-mt-20" id="step-2-plan-to-tasks">&lt;/span>
+&lt;a href="#step-2-plan-to-tasks" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>From the plan, have the AI produce a series of tasks (grouped). These tasks are the small batch sizes—small enough to avoid overwhelming the AI and appropriately sized to produce meaningful commits/PRs from.&lt;/p>
+&lt;p>As a side - One sentence I&amp;rsquo;ve personally been adding to my prompts for several months now is: &lt;em>&amp;ldquo;Please create a plan before you make code changes and ask me any questions you have to help guide you.&amp;rdquo;&lt;/em>. This simple addition has dramatically improved the quality and relevance of AI-generated code in my projects (but not perfect, just improved).&lt;/p>
+&lt;h2>Why This Matters&lt;span class="hx-absolute -hx-mt-20" id="why-this-matters">&lt;/span>
+&lt;a href="#why-this-matters" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>This approach offers several compelling advantages:&lt;/p>
+&lt;p>&lt;strong>Clarity and Focus&lt;/strong>: Small, well-defined tasks reduce ambiguity and help the AI generate more accurate code.&lt;/p>
+&lt;p>&lt;strong>Cost Efficiency&lt;/strong>: Smaller context windows mean fewer tokens consumed per interaction, making AI assistance more economical.&lt;/p>
+&lt;p>&lt;strong>Better Version Control&lt;/strong>: Task-sized batches naturally align with atomic commits, improving your Git history and making code reviews more manageable.&lt;/p>
+&lt;p>&lt;strong>Alignment with Best Practices&lt;/strong>: The Single Responsibility Principle isn&amp;rsquo;t just for classes anymore—it applies to how we scope AI tasks.&lt;/p>
+&lt;h2>Toward Intentional AI Collaboration&lt;span class="hx-absolute -hx-mt-20" id="toward-intentional-ai-collaboration">&lt;/span>
+&lt;a href="#toward-intentional-ai-collaboration" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>In conclusion (thus far in my journey)…&lt;/p>
+&lt;p>We stand at the threshold of a fundamental shift in how software is created. The next stage of the agentic revolution will be defined not by the AI models themselves, but by our sophistication in collaborating with them. Just as previous generations learned design patterns, version control, and agile methodologies, we must now master the art [and it is an art!] of prompt engineering, context management, and AI task orchestration.&lt;/p>
+&lt;p>To steer this transformation for the greater good, we need a collective commitment to intentionality. This means rejecting the &amp;ldquo;move fast and break things&amp;rdquo; mentality when it comes to AI-generated code in production systems. It means developing peer review processes that account for AI-assisted development. It means training the next generation of developers not just in coding, but in critical evaluation of AI outputs.&lt;/p>
+&lt;p>Most importantly, we must preserve and celebrate what makes us uniquely human in this process: our ability to understand user needs, to make ethical trade-offs, to see the bigger picture beyond any single function or module. The small-batch, spec-driven approach isn&amp;rsquo;t just a technical optimization - it&amp;rsquo;s a philosophy that keeps humans in the loop at every meaningful decision point.&lt;/p>
+&lt;p>If we approach this revolution thoughtfully, with humility about what we don&amp;rsquo;t yet know and commitment to what we value as engineers and humans, we can create a future where AI amplifies our capabilities without diminishing our agency. The question isn&amp;rsquo;t whether AI will change how we build software - it will. The question is whether we&amp;rsquo;ll shape that change deliberately, with our values and humanity intact.&lt;/p>
+&lt;h2>Closing thought&lt;span class="hx-absolute -hx-mt-20" id="closing-thought">&lt;/span>
+&lt;a href="#closing-thought" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>AI can make code arrive faster, but only small batches and disciplined feedback can make understanding arrive at the same speed.&lt;/p></description></item><item><title>Setting Up a Model Context Protocol (MCP) Remote Server in VSCode</title><link>https://blog-dev.garrardkitchen.com/blog/mcp-server-example/</link><pubDate>Wed, 23 Apr 2025 13:29:21 +0100</pubDate><guid>https://blog-dev.garrardkitchen.com/blog/mcp-server-example/</guid><description>
+&lt;p>In this article, you&amp;rsquo;ll learn how VS Code connects to a remote MCP server, where trust boundaries sit, and how to troubleshoot the transport. That matters because useful AI integration depends as much on explicit trust and verification as it does on model capability.&lt;/p>
+&lt;h2>Summary&lt;span class="hx-absolute -hx-mt-20" id="summary">&lt;/span>
+&lt;a href="#summary" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>This guide walks you through the process of connecting a Model Context Protocol (MCP) remote server to Visual Studio Code (VSCode). You&amp;rsquo;ll learn what MCP is, why it&amp;rsquo;s useful, and how to set up and use an MCP server to provide richer, real-time context to AI-powered tools like GitHub Copilot.&lt;/p>
+&lt;hr>
+&lt;h2>What is Model Context Protocol (MCP)?&lt;span class="hx-absolute -hx-mt-20" id="what-is-model-context-protocol-mcp">&lt;/span>
+&lt;a href="#what-is-model-context-protocol-mcp" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>Model Context Protocol (MCP) is an open protocol that standardizes how applications supply context to large language models (LLMs), similar to how USB-C standardizes device connections. It enables AI tools to integrate with local and remote data sources, supporting agent workflows, flexibility between vendors, and secure handling of user data. MCP follows a client-server architecture with hosts, clients, and servers working together.&lt;/p>
+&lt;p>For more information, see the &lt;a href="https://modelcontext.org/" target="_blank" rel="noopener">Model Context Protocol website&lt;/a>.&lt;/p>
+&lt;h2>Why Use an MCP Server?&lt;span class="hx-absolute -hx-mt-20" id="why-use-an-mcp-server">&lt;/span>
+&lt;a href="#why-use-an-mcp-server" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>An MCP server acts as a bridge between your development environment and AI tools. It streams real-time context about your workspace, allowing AI assistants to provide more relevant and accurate suggestions. This is especially useful for:&lt;/p>
+&lt;ul>
+&lt;li>Keeping AI tools up-to-date with your latest changes&lt;/li>
+&lt;li>Improving privacy by standardizing what context is shared&lt;/li>
+&lt;li>Enabling interoperability between different editors and AI services&lt;/li>
+&lt;/ul>
+&lt;h2>Step-by-Step: Adding an MCP Server in VSCode&lt;span class="hx-absolute -hx-mt-20" id="step-by-step-adding-an-mcp-server-in-vscode">&lt;/span>
+&lt;a href="#step-by-step-adding-an-mcp-server-in-vscode" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;ol>
+&lt;li>
+&lt;p>&lt;strong>Get the MCP Server Code&lt;/strong>&lt;/p>
+&lt;p>Download or clone the MCP server implementation from the &lt;a href="https://github.com/garrardkitchen/mcp-server-example" target="_blank" rel="noopener">MCP Server repository&lt;/a>.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>Open the Agent Pane in VSCode&lt;/strong>&lt;/p>
+&lt;p>Move to the Agent pane and press the tools icon:&lt;/p>
+&lt;p>
+&lt;img src="../img/mcp-server-example.png" alt="Agent pane tools icon" loading="lazy" />&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>Add More Tools&lt;/strong>&lt;/p>
+&lt;p>This will open a list of available tools. Select the &lt;code>+ Add More Tools&lt;/code> option:&lt;/p>
+&lt;p>
+&lt;img src="../img/mcp-server-example-1.png" alt="Add More Tools" loading="lazy" />&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>Add MCP Server&lt;/strong>&lt;/p>
+&lt;p>Click on &lt;code>+ Add MCP Server...&lt;/code>:&lt;/p>
+&lt;p>
+&lt;img src="../img/mcp-server-example-2.png" alt="Add MCP Server" loading="lazy" />&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>Select Server Type&lt;/strong>&lt;/p>
+&lt;p>Since MCP servers uses HTTP to push real-time events, select the highlighted HTTP Server option:&lt;/p>
+&lt;p>
+&lt;img src="../img/mcp-server-example-3.png" alt="Select HTTP Server" loading="lazy" />&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>Enter Server Details&lt;/strong>&lt;/p>
+&lt;p>Enter your MCP server&amp;rsquo;s URL and a unique ID. After this, a new server entry will be created in your &lt;code>.vscode/mcp.json&lt;/code> file:&lt;/p>
+&lt;p>
+&lt;img src="../img/mcp-server-example-4.png" alt="mcp.json entry" loading="lazy" />&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>Start the MCP Server&lt;/strong>&lt;/p>
+&lt;p>Press the start button to activate the connection:&lt;/p>
+&lt;p>
+&lt;img src="../img/mcp-server-example-5.png" alt="Start MCP Server" loading="lazy" />&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>Interact with the Agent&lt;/strong>&lt;/p>
+&lt;p>Now, go to your Agent pane. For example, you might ask the agent to look up a person. The agent may prompt you for more information:&lt;/p>
+&lt;p>
+&lt;img src="../img/mcp-server-example-7.png" alt="Agent prompt" loading="lazy" />&lt;/p>
+&lt;p>After providing the requested input and clicking continue, you&amp;rsquo;ll see the agent&amp;rsquo;s response:&lt;/p>
+&lt;p>
+&lt;img src="../img/mcp-server-example-8.png" alt="Agent response" loading="lazy" />&lt;/p>
+&lt;/li>
+&lt;/ol>
+&lt;hr>
+&lt;h2>Troubleshooting&lt;span class="hx-absolute -hx-mt-20" id="troubleshooting">&lt;/span>
+&lt;a href="#troubleshooting" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>If you&amp;rsquo;re not receiving the responses you expect, or if you want to test and interact with your MCP server(s) outside of the VSCode environment, you can use the MCP Inspector. This tool provides a user-friendly interface for testing and debugging your MCP servers. &lt;a href="https://github.com/modelcontextprotocol/inspector" target="_blank" rel="noopener">Access the MCP Inspector source code here&lt;/a>.&lt;/p>
+&lt;p>To install the inspector, enter this into your terminal:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">npx @modelcontextprotocol/inspector dotnet run&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>This then starts the MCP Inspector. Click on the HTTP URL to access the Inspector:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">Starting MCP inspector...
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">⚙️ Proxy server listening on port &lt;span class="m">6277&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">🔍 MCP Inspector is up and running at http://127.0.0.1:6274 🚀
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">New SSE connection&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>This is how my MCP Remote Server looks in the Inspector. I have listed the tools to review WhoIs and have enter my name to get a response:&lt;/p>
+&lt;p>
+&lt;img src="../img/mcp-server-example-9.png" alt="alt text" loading="lazy" />&lt;/p>
+&lt;hr>
+&lt;h2>How Does This Help?&lt;span class="hx-absolute -hx-mt-20" id="how-does-this-help">&lt;/span>
+&lt;a href="#how-does-this-help" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>By connecting an MCP server, you enable VSCode and its AI-powered extensions (like Copilot) to access richer, real-time context about your project. This leads to smarter, more relevant suggestions and a more seamless development experience.&lt;/p>
+&lt;hr>
+&lt;h2>Terminology&lt;span class="hx-absolute -hx-mt-20" id="terminology">&lt;/span>
+&lt;a href="#terminology" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;ul>
+&lt;li>
+&lt;p>&lt;strong>Model Context Protocol (MCP):&lt;/strong> An open standard for sharing workspace and project context between editors, AI tools, and services. &lt;a href="https://modelcontextprotocol.io/introduction" target="_blank" rel="noopener">Learn more&lt;/a>.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>Server-Sent Events (SSE):&lt;/strong>&lt;/p>
+&lt;p>In relation to MCP, SSE is a way for an MCP server to push real-time updates or context information to connected clients (such as editors or AI tools) over HTTP. With SSE, the server can continuously stream data—like file changes, user actions, or other context—without the client needing to repeatedly poll for updates. This enables efficient, low-latency communication and ensures that AI tools always have the latest context from the user&amp;rsquo;s environment.&lt;/p>
+&lt;p>&lt;strong>In summary:&lt;/strong>&lt;/p>
+&lt;p>SSE allows an MCP server to broadcast context changes to clients in real time, improving the responsiveness and accuracy of AI-powered features in tools that support MCP.&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;h2>2026 technical review&lt;span class="hx-absolute -hx-mt-20" id="2026-technical-review">&lt;/span>
+&lt;a href="#2026-technical-review" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;h2>2026 update: use Streamable HTTP&lt;span class="hx-absolute -hx-mt-20" id="2026-update-use-streamable-http">&lt;/span>
+&lt;a href="#2026-update-use-streamable-http" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>The screenshots capture VS Code&amp;rsquo;s earlier remote-server flow. Current MCP uses Streamable HTTP for remote transport. The older HTTP+SSE transport is retained only for backwards compatibility in clients that support it; describing MCP as “HTTP pushing real-time events” is incomplete. The client sends JSON-RPC over HTTP POST, and the server may respond with JSON or an SSE stream. A standalone SSE endpoint is part of the legacy transport.&lt;/p>
+&lt;p>A remote endpoint must validate authentication and authorisation, not just accept a URL from mcp.json. Use HTTPS, current OAuth guidance, least-privilege scopes, and per-resource tenant checks. Validate Origin where relevant and do not use a session ID as an authentication token.&lt;/p>
+&lt;p>The Inspector is a development tool. Run it only from a trusted package source, keep its proxy bound to a safe interface, and avoid testing with production credentials. Successful tool discovery proves protocol compatibility; it does not prove that tool descriptions, argument validation, side effects, or access control are safe.&lt;/p>
+&lt;h2>References&lt;span class="hx-absolute -hx-mt-20" id="references">&lt;/span>
+&lt;a href="#references" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;ul>
+&lt;li>&lt;a href="https://modelcontextprotocol.io/introduction" target="_blank" rel="noopener">Model Context Protocol (MCP) Website&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://github.com/modelcontextprotocol/" target="_blank" rel="noopener">MCP GitHub Organization&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events" target="_blank" rel="noopener">Server-Sent Events (MDN)&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://modelcontextprotocol.io/specification/2025-06-18" target="_blank" rel="noopener">Model Context Protocol specification&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://code.visualstudio.com/docs/copilot/chat/mcp-servers" target="_blank" rel="noopener">VS Code: MCP servers&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;h2>Closing thought&lt;span class="hx-absolute -hx-mt-20" id="closing-thought">&lt;/span>
+&lt;a href="#closing-thought" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>A green connection in VS Code proves that MCP messages can travel; trust begins only when the server&amp;rsquo;s tools, identities, side effects, and failure modes have also been examined.&lt;/p></description></item><item><title>Prompts</title><link>https://blog-dev.garrardkitchen.com/blog/prompts/</link><pubDate>Fri, 18 Apr 2025 00:00:00 +0000</pubDate><guid>https://blog-dev.garrardkitchen.com/blog/prompts/</guid><description>
+&lt;p>In this article, you&amp;rsquo;ll learn how prompt files and repository instructions shape GitHub Copilot interactions without replacing review and verification. That matters because useful AI integration depends as much on explicit trust and verification as it does on model capability.&lt;/p>
 &lt;h2>Summary&lt;span class="hx-absolute -hx-mt-20" id="summary">&lt;/span>
 &lt;a href="#summary" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>This post explains what prompts are in the context of GitHub Copilot Chat, how to create reusable prompts in the &lt;code>.github/prompts&lt;/code> directory, and how to automatically include them in Copilot Chat using the &lt;code>github.copilot.chat.codeGeneration.instructions&lt;/code> setting. An example and useful references are provided.&lt;/p>
 &lt;p>For more tips on writing effective prompts and using Copilot efficiently, see the &lt;a href="https://docs.github.com/en/copilot/using-github-copilot/best-practices-for-using-github-copilot" target="_blank" rel="noopener">Best Practices for Using GitHub Copilot&lt;/a>.&lt;/p>
@@ -119,10 +764,201 @@ title="Copy code"
 &lt;li>&lt;strong>&lt;code>github.copilot.chat.commitMessageGeneration.instructions (Experimental)&lt;/code>&lt;/strong>: set of instructions that will be added to Copilot requests that generate commit messages.&lt;/li>
 &lt;li>&lt;strong>&lt;code>github.copilot.chat.pullRequestDescriptionGeneration.instructions (Experimental)&lt;/code>&lt;/strong>: set of instructions that will be added to Copilot requests that generate pull request titles and descriptions.&lt;/li>
 &lt;/ul>
+&lt;h2>2026 technical review&lt;span class="hx-absolute -hx-mt-20" id="2026-technical-review">&lt;/span>
+&lt;a href="#2026-technical-review" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;h2>2026 update: prompt files are not instruction files&lt;span class="hx-absolute -hx-mt-20" id="2026-update-prompt-files-are-not-instruction-files">&lt;/span>
+&lt;a href="#2026-update-prompt-files-are-not-instruction-files" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>The settings-based code-generation and test-generation instruction mechanism described below is deprecated in current VS Code. Use file-based custom instructions instead:&lt;/p>
+&lt;ul>
+&lt;li>.github/copilot-instructions.md for repository-wide, always-on guidance;&lt;/li>
+&lt;li>.github/instructions/*.instructions.md with applyTo patterns for file- or task-specific guidance; and&lt;/li>
+&lt;li>.github/prompts/*.prompt.md for reusable prompts that a user invokes for a particular task.&lt;/li>
+&lt;/ul>
+&lt;p>A prompt file is an on-demand workflow and can declare inputs, tools, and model preferences. It is not automatically attached to every chat merely because it sits in the prompts directory. Keep instructions concise, explain non-obvious reasons, and use examples for conventions that a formatter cannot enforce.&lt;/p>
+&lt;p>Instructions influence model behavior; they are not policy enforcement. Back important requirements with compilation, tests, linters, security controls, and human review. Treat instructions from dependencies, copied issues, and tool output as untrusted context when they conflict with repository or user intent.&lt;/p>
 &lt;h2>References&lt;span class="hx-absolute -hx-mt-20" id="references">&lt;/span>
 &lt;a href="#references" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;ul>
 &lt;li>&lt;a href="https://docs.github.com/en/copilot/copilot-chat-cookbook" target="_blank" rel="noopener">GitHub Copilot Chat Cookbook&lt;/a>&lt;/li>
 &lt;li>&lt;a href="https://code.visualstudio.com/docs/copilot/copilot-tips-and-tricks" target="_blank" rel="noopener">GitHub Copilot Tips and Tricks&lt;/a>&lt;/li>
 &lt;li>&lt;a href="https://code.visualstudio.com/docs/copilot/copilot-customization" target="_blank" rel="noopener">Customise Copilot Chat&lt;/a>&lt;/li>
 &lt;li>&lt;a href="https://docs.github.com/en/copilot/using-github-copilot/best-practices-for-using-github-copilot" target="_blank" rel="noopener">Best Practices for Using GitHub Copilot&lt;/a>&lt;/li>
-&lt;/ul></description></item></channel></rss>
+&lt;li>&lt;a href="https://code.visualstudio.com/docs/agent-customization/custom-instructions" target="_blank" rel="noopener">VS Code custom instructions&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://code.visualstudio.com/docs/agent-customization/prompt-files" target="_blank" rel="noopener">VS Code prompt files&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;h2>Closing thought&lt;span class="hx-absolute -hx-mt-20" id="closing-thought">&lt;/span>
+&lt;a href="#closing-thought" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>A prompt file can make intent repeatable, but only tests, tools, and review can turn that repeated intent into dependable software.&lt;/p></description></item><item><title>Building a Local MCP Server</title><link>https://blog-dev.garrardkitchen.com/ai/mcp/mcp-local/</link><pubDate>Thu, 17 Apr 2025 00:00:00 +0000</pubDate><guid>https://blog-dev.garrardkitchen.com/ai/mcp/mcp-local/</guid><description>
+&lt;p>In this article, you&amp;rsquo;ll learn where the local MCP example lives, how standard input/output transport works, and what trust decisions remain with the user. That matters because a local server inherits the permissions of the process that launches it.&lt;/p>
+&lt;p>A local MCP server is commonly started by the host as a child process. Protocol messages travel over standard input and standard output. This is convenient—there is no listening port or separate service deployment—but it is not a sandbox.&lt;/p>
+&lt;h2>Example and operating model&lt;span class="hx-absolute -hx-mt-20" id="example-and-operating-model">&lt;/span>
+&lt;a href="#example-and-operating-model" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>The &lt;a href="https://github.com/garrardkitchen/mcp-example" target="_blank" rel="noopener">local MCP example&lt;/a> explores a small server and its host configuration. When adapting it:&lt;/p>
+&lt;ul>
+&lt;li>keep protocol messages on standard output and send diagnostics to standard error;&lt;/li>
+&lt;li>use absolute executable and working-directory paths where host configuration may vary;&lt;/li>
+&lt;li>pin dependencies and review the command before enabling it;&lt;/li>
+&lt;li>request the narrowest filesystem, network, and credential access possible; and&lt;/li>
+&lt;li>validate every tool argument even when the caller is local.&lt;/li>
+&lt;/ul>
+&lt;p>Environment variables passed by the host become available to the child process. Do not pass broad cloud credentials merely because the process is on your workstation. Prefer a short-lived or workload-scoped identity and keep consequential tool calls behind user confirmation.&lt;/p>
+&lt;h2>When local is the right choice&lt;span class="hx-absolute -hx-mt-20" id="when-local-is-the-right-choice">&lt;/span>
+&lt;a href="#when-local-is-the-right-choice" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>Local transport is well suited to development tools, access to a checked-out repository, and experiments that should not expose a network service. A remote server is more appropriate when capabilities must be shared, centrally maintained, or separated from the user&amp;rsquo;s machine. That move introduces authentication, authorisation, tenant isolation, and network failure; it is an architectural change, not only a transport setting.&lt;/p>
+&lt;h2>References&lt;span class="hx-absolute -hx-mt-20" id="references">&lt;/span>
+&lt;a href="#references" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;ul>
+&lt;li>&lt;a href="https://modelcontextprotocol.io/docs/learn/architecture" target="_blank" rel="noopener">MCP architecture&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://modelcontextprotocol.io/specification/2025-06-18/basic/transports" target="_blank" rel="noopener">MCP transports&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://code.visualstudio.com/docs/copilot/chat/mcp-servers" target="_blank" rel="noopener">VS Code MCP servers&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;h2>Closing thought&lt;span class="hx-absolute -hx-mt-20" id="closing-thought">&lt;/span>
+&lt;a href="#closing-thought" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>A local MCP server may be one process away, but every tool it exposes is still a decision about how much of the user&amp;rsquo;s machine an AI interaction should be allowed to reach.&lt;/p></description></item><item><title>Building a Remote MCP Server</title><link>https://blog-dev.garrardkitchen.com/ai/mcp/mcp-remote/</link><pubDate>Thu, 17 Apr 2025 00:00:00 +0000</pubDate><guid>https://blog-dev.garrardkitchen.com/ai/mcp/mcp-remote/</guid><description>
+&lt;p>In this article, you&amp;rsquo;ll learn where the remote MCP example lives, how remote transport changes the threat model, and what to verify first. That matters because centralising a capability also centralises the consequences of weak identity and tenant isolation.&lt;/p>
+&lt;p>The &lt;a href="https://github.com/garrardkitchen/mcp-server-example" target="_blank" rel="noopener">sample code&lt;/a> and &lt;a href="https://blog-dev.garrardkitchen.com/blog/mcp-server-example/" >walk-through&lt;/a> show the mechanics of connecting a host to a remote MCP server. Treat the example as a learning scaffold; production readiness begins where the happy-path connection ends.&lt;/p>
+&lt;h2>What changes when the server is remote&lt;span class="hx-absolute -hx-mt-20" id="what-changes-when-the-server-is-remote">&lt;/span>
+&lt;a href="#what-changes-when-the-server-is-remote" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>A remote server normally uses Streamable HTTP. The client must validate the endpoint and certificate, and the server must validate the caller. Authentication proves an identity; authorisation decides which tools and resources that identity can use. Apply both at the operation and data boundary.&lt;/p>
+&lt;p>For a shared service:&lt;/p>
+&lt;ul>
+&lt;li>use HTTPS and a supported OAuth flow rather than long-lived tokens in editor settings;&lt;/li>
+&lt;li>validate token issuer, audience, signature, lifetime, and scopes;&lt;/li>
+&lt;li>bind every resource lookup to the authenticated tenant or subject;&lt;/li>
+&lt;li>protect state-changing tools against replay and duplicate invocation;&lt;/li>
+&lt;li>rate-limit expensive operations and cap response sizes;&lt;/li>
+&lt;li>treat tool output and resource content as untrusted data; and&lt;/li>
+&lt;li>record security-relevant calls without logging secrets or sensitive payloads.&lt;/li>
+&lt;/ul>
+&lt;p>Do not use session identifiers as authentication. Validate Origin where browser-based clients are possible, and avoid binding a development server to all network interfaces by default.&lt;/p>
+&lt;h2>Design for failure&lt;span class="hx-absolute -hx-mt-20" id="design-for-failure">&lt;/span>
+&lt;a href="#design-for-failure" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>Remote calls can time out after the server has completed the work. Give mutating tools idempotency semantics or a way to query status. Return structured errors that distinguish invalid input, denied access, transient dependency failure, and an internal fault. A model may choose a different next step based on that distinction, but the server remains responsible for enforcing policy.&lt;/p>
+&lt;h2>References&lt;span class="hx-absolute -hx-mt-20" id="references">&lt;/span>
+&lt;a href="#references" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;ul>
+&lt;li>&lt;a href="https://modelcontextprotocol.io/specification/2025-06-18/basic/transports" target="_blank" rel="noopener">MCP transports&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://modelcontextprotocol.io/specification/2025-06-18/basic/authorization" target="_blank" rel="noopener">MCP authorisation&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://code.visualstudio.com/docs/copilot/chat/mcp-servers" target="_blank" rel="noopener">VS Code MCP servers&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;h2>Closing thought&lt;span class="hx-absolute -hx-mt-20" id="closing-thought">&lt;/span>
+&lt;a href="#closing-thought" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>Remote MCP succeeds when a shared capability is easier to reach without making identity, authority, and failure harder to see.&lt;/p></description></item><item><title>Local MCP Checklist</title><link>https://blog-dev.garrardkitchen.com/nuggets/mcp/mcp-local/</link><pubDate>Thu, 17 Apr 2025 00:00:00 +0000</pubDate><guid>https://blog-dev.garrardkitchen.com/nuggets/mcp/mcp-local/</guid><description>
+&lt;p>This checklist helps you review a local MCP server&amp;rsquo;s command, permissions, transport, and failure behavior before enabling it. That matters because the process can often act with the same filesystem and credential access as its host.&lt;/p>
+&lt;h2>Checklist&lt;span class="hx-absolute -hx-mt-20" id="checklist">&lt;/span>
+&lt;a href="#checklist" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;ul>
+&lt;li>Read the configured command, arguments, and working directory.&lt;/li>
+&lt;li>Pin or verify the package or executable you are launching.&lt;/li>
+&lt;li>Keep JSON-RPC messages on standard output; route diagnostics to standard error.&lt;/li>
+&lt;li>Pass only the environment variables the server needs.&lt;/li>
+&lt;li>Prefer read-only tools and narrow path allow-lists.&lt;/li>
+&lt;li>Validate tool arguments and cap output size.&lt;/li>
+&lt;li>Require confirmation for writes, commands, or external side effects.&lt;/li>
+&lt;li>Confirm how the host stops orphaned or unresponsive processes.&lt;/li>
+&lt;li>Inspect logs for secrets before sharing diagnostics.&lt;/li>
+&lt;/ul>
+&lt;h2>Links&lt;span class="hx-absolute -hx-mt-20" id="links">&lt;/span>
+&lt;a href="#links" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;ul>
+&lt;li>&lt;a href="https://github.com/garrardkitchen/mcp-example" target="_blank" rel="noopener">Local example&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://modelcontextprotocol.io/specification/2025-06-18/basic/transports" target="_blank" rel="noopener">MCP transports&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://code.visualstudio.com/docs/copilot/chat/mcp-servers" target="_blank" rel="noopener">VS Code MCP servers&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;h2>Closing thought&lt;span class="hx-absolute -hx-mt-20" id="closing-thought">&lt;/span>
+&lt;a href="#closing-thought" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>A short local MCP configuration can launch a highly capable process, so its review should be proportional to the capability—not to the number of lines.&lt;/p></description></item><item><title>Remote MCP Checklist</title><link>https://blog-dev.garrardkitchen.com/nuggets/mcp/mcp-remote/</link><pubDate>Thu, 17 Apr 2025 00:00:00 +0000</pubDate><guid>https://blog-dev.garrardkitchen.com/nuggets/mcp/mcp-remote/</guid><description>
+&lt;p>This checklist helps you review a remote MCP endpoint&amp;rsquo;s identity, authority, transport, and data handling. That matters because a convenient shared server can otherwise become a shared escalation path.&lt;/p>
+&lt;h2>Checklist&lt;span class="hx-absolute -hx-mt-20" id="checklist">&lt;/span>
+&lt;a href="#checklist" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;ul>
+&lt;li>Verify the HTTPS endpoint and who operates it.&lt;/li>
+&lt;li>Use OAuth or another approved short-lived credential mechanism.&lt;/li>
+&lt;li>Confirm issuer, audience, scopes, and token expiry are validated.&lt;/li>
+&lt;li>Separate authentication from per-tool and per-resource authorisation.&lt;/li>
+&lt;li>Test tenant isolation with deliberately cross-tenant identifiers.&lt;/li>
+&lt;li>Set timeouts, request limits, and rate limits.&lt;/li>
+&lt;li>Make mutating operations idempotent where retries are possible.&lt;/li>
+&lt;li>Redact secrets and personal data from logs and traces.&lt;/li>
+&lt;li>Treat server-supplied text as untrusted content.&lt;/li>
+&lt;li>Define how access is revoked and how incidents are audited.&lt;/li>
+&lt;/ul>
+&lt;h2>Links&lt;span class="hx-absolute -hx-mt-20" id="links">&lt;/span>
+&lt;a href="#links" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;ul>
+&lt;li>&lt;a href="https://github.com/garrardkitchen/mcp-server-example" target="_blank" rel="noopener">Remote example&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://blog-dev.garrardkitchen.com/blog/mcp-server-example/" >Remote server walk-through&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://modelcontextprotocol.io/specification/2025-06-18/basic/authorization" target="_blank" rel="noopener">MCP authorisation&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;h2>Closing thought&lt;span class="hx-absolute -hx-mt-20" id="closing-thought">&lt;/span>
+&lt;a href="#closing-thought" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>Connectivity answers whether a host can call a remote MCP server; identity and authorisation answer whether it should.&lt;/p></description></item><item><title>VS Code MCP Checklist</title><link>https://blog-dev.garrardkitchen.com/nuggets/mcp/mcp-vscode/</link><pubDate>Thu, 17 Apr 2025 00:00:00 +0000</pubDate><guid>https://blog-dev.garrardkitchen.com/nuggets/mcp/mcp-vscode/</guid><description>
+&lt;p>This checklist shows what to inspect before enabling an MCP server in VS Code and how to keep tool use observable. That matters because a server can turn a chat interaction into a real operation on local or remote systems.&lt;/p>
+&lt;h2>Checklist&lt;span class="hx-absolute -hx-mt-20" id="checklist">&lt;/span>
+&lt;a href="#checklist" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;ul>
+&lt;li>Review the server definition committed to the workspace.&lt;/li>
+&lt;li>Do not approve a command merely because the repository is trusted.&lt;/li>
+&lt;li>Check executable paths, arguments, environment input, and endpoint ownership.&lt;/li>
+&lt;li>Prefer input variables or approved secret storage over literal credentials.&lt;/li>
+&lt;li>Inspect the server&amp;rsquo;s discovered tools and disable capabilities you do not need.&lt;/li>
+&lt;li>Read tool arguments before approving consequential calls.&lt;/li>
+&lt;li>Keep workspace trust, extension trust, and MCP server trust as separate decisions.&lt;/li>
+&lt;li>Re-check configuration changes during code review.&lt;/li>
+&lt;li>Stop or remove servers that are no longer needed.&lt;/li>
+&lt;/ul>
+&lt;h2>Links&lt;span class="hx-absolute -hx-mt-20" id="links">&lt;/span>
+&lt;a href="#links" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;ul>
+&lt;li>&lt;a href="https://code.visualstudio.com/docs/copilot/chat/mcp-servers" target="_blank" rel="noopener">VS Code MCP server documentation&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://modelcontextprotocol.io/docs/learn/architecture" target="_blank" rel="noopener">MCP architecture&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;h2>Closing thought&lt;span class="hx-absolute -hx-mt-20" id="closing-thought">&lt;/span>
+&lt;a href="#closing-thought" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>The most important action in a tool-enabled editor is often the pause before deciding what has earned permission to run.&lt;/p></description></item><item><title>MCP and OpenAPI: Similar Shape, Different Job</title><link>https://blog-dev.garrardkitchen.com/ai/mcp/mcp-intro/</link><pubDate>Thu, 27 Jan 2022 11:49:14 +0100</pubDate><guid>https://blog-dev.garrardkitchen.com/ai/mcp/mcp-intro/</guid><description>
+&lt;p>In this article, you&amp;rsquo;ll learn what the Model Context Protocol (MCP) standardises, how it differs from OpenAPI, and why agent-to-agent communication is a separate concern. That matters because useful AI integration depends as much on explicit trust and verification as it does on model capability.&lt;/p>
+&lt;p>MCP and OpenAPI feel related because both replace bespoke integration code with machine-readable contracts. The resemblance is useful, but only if we stop before claiming they solve the same problem.&lt;/p>
+&lt;h2>What MCP actually describes&lt;span class="hx-absolute -hx-mt-20" id="what-mcp-actually-describes">&lt;/span>
+&lt;a href="#what-mcp-actually-describes" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>MCP is a client-server protocol for connecting an AI host to context and capabilities supplied by a server. A server can expose three principal primitives:&lt;/p>
+&lt;ul>
+&lt;li>&lt;strong>Tools&lt;/strong> are operations the model may ask to invoke. They can have side effects, so the host should keep the user in control of sensitive actions.&lt;/li>
+&lt;li>&lt;strong>Resources&lt;/strong> are addressable context, such as files, records, or application state.&lt;/li>
+&lt;li>&lt;strong>Prompts&lt;/strong> are reusable message templates offered by the server.&lt;/li>
+&lt;/ul>
+&lt;p>The protocol defines lifecycle, capability negotiation, and JSON-RPC messages. It does not define the intelligence of the model, guarantee that a tool is safe, or remove the need for authentication and authorisation. Local process transport and remote HTTP transport also create different trust boundaries.&lt;/p>
+&lt;h2>Where the OpenAPI comparison helps&lt;span class="hx-absolute -hx-mt-20" id="where-the-openapi-comparison-helps">&lt;/span>
+&lt;a href="#where-the-openapi-comparison-helps" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>OpenAPI describes the surface of an HTTP API: paths, operations, parameters, request bodies, responses, and security schemes. Tool definitions in MCP also use names, descriptions, and schemas, so both specifications can help software discover how to call an operation.&lt;/p>
+&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th>Question&lt;/th>
+&lt;th>OpenAPI&lt;/th>
+&lt;th>MCP&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td>Primary concern&lt;/td>
+&lt;td>Describing HTTP APIs&lt;/td>
+&lt;td>Connecting AI hosts to tools and context&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>Typical transport&lt;/td>
+&lt;td>HTTP&lt;/td>
+&lt;td>Standard I/O or Streamable HTTP&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>Core contract&lt;/td>
+&lt;td>Paths, methods, payloads, responses&lt;/td>
+&lt;td>Tools, resources, prompts, capabilities&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>Intended caller&lt;/td>
+&lt;td>Any API consumer&lt;/td>
+&lt;td>An MCP client inside an AI host&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>Side-effect control&lt;/td>
+&lt;td>Defined by the API and client&lt;/td>
+&lt;td>Tool invocation plus host/user consent policy&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;p>An MCP server may wrap an API that already has an OpenAPI description. In that design, OpenAPI remains the service contract while MCP supplies an AI-oriented adapter: curated operations, model-facing descriptions, contextual resources, and a consent boundary. Generating MCP tools mechanically from a large API can work, but curation matters because a model needs a small, unambiguous capability surface more than it needs every endpoint.&lt;/p>
+&lt;h2>MCP is not an agent-to-agent protocol&lt;span class="hx-absolute -hx-mt-20" id="mcp-is-not-an-agent-to-agent-protocol">&lt;/span>
+&lt;a href="#mcp-is-not-an-agent-to-agent-protocol" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>MCP does not standardise autonomous agents delegating tasks to one another. A host can orchestrate several MCP servers, and an application can build multi-agent behavior above the protocol, but that orchestration is application logic. Dedicated agent-to-agent protocols address concerns such as agent discovery, task hand-off, status, and result exchange.&lt;/p>
+&lt;p>Keeping those layers separate makes architectures easier to reason about:&lt;/p>
+&lt;ol>
+&lt;li>Use OpenAPI when you need a contract for an HTTP service.&lt;/li>
+&lt;li>Use MCP when an AI host needs governed access to tools and context.&lt;/li>
+&lt;li>Use an orchestration or agent-to-agent layer when independent agents must coordinate work.&lt;/li>
+&lt;/ol>
+&lt;h2>The security boundary&lt;span class="hx-absolute -hx-mt-20" id="the-security-boundary">&lt;/span>
+&lt;a href="#the-security-boundary" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>Descriptions and schemas improve interoperability; they do not establish trust. Before enabling a server, consider who operates it, which data it can read, which actions it can perform, where credentials live, and whether outputs can contain untrusted instructions. Apply least privilege, validate tool inputs, log consequential calls, and require confirmation where an operation can change external state.&lt;/p>
+&lt;h2>References&lt;span class="hx-absolute -hx-mt-20" id="references">&lt;/span>
+&lt;a href="#references" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;ul>
+&lt;li>&lt;a href="https://modelcontextprotocol.io/specification/2025-06-18" target="_blank" rel="noopener">Model Context Protocol specification&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://modelcontextprotocol.io/docs/learn/architecture" target="_blank" rel="noopener">MCP architecture&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://spec.openapis.org/oas/latest.html" target="_blank" rel="noopener">OpenAPI Specification&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;h2>Closing thought&lt;span class="hx-absolute -hx-mt-20" id="closing-thought">&lt;/span>
+&lt;a href="#closing-thought" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>OpenAPI and MCP become more useful together when each is allowed to describe its own boundary instead of being stretched into a universal integration language.&lt;/p></description></item></channel></rss>

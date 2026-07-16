@@ -1,0 +1,126 @@
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Garrard Kitchen – Helm</title><link>https://blog-dev.garrardkitchen.com/tags/helm/</link><description>Recent content in Helm on Garrard Kitchen</description><generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Fri, 21 Jan 2022 14:19:01 +0000</lastBuildDate><atom:link href="https://blog-dev.garrardkitchen.com/tags/helm/index.xml" rel="self" type="application/rss+xml"/><item><title>Kubernetes Pod Disruption Budget and the Helm hasKey Function</title><link>https://blog-dev.garrardkitchen.com/blog/k8s-pdb/</link><pubDate>Fri, 21 Jan 2022 14:19:01 +0000</pubDate><guid>https://blog-dev.garrardkitchen.com/blog/k8s-pdb/</guid><description>
+&lt;p>In this article, you&amp;rsquo;ll learn how PodDisruptionBudgets constrain voluntary disruption and how to render one safely from Helm values. That distinction matters because cloud failures usually emerge at the seams between configuration, identity, networking, and operations.&lt;/p>
+&lt;h1>Pod Disruption Budget&lt;/h1>&lt;p>When working with Kubernetes, one crucial component of configuration is known as a PDB (Pod Disruption Budget). A PDB will ensure your workload remains running when you work through a &lt;strong>Voluntary Disruption&lt;/strong>.&lt;/p>
+&lt;p>What on earth is a &lt;strong>Voluntary Disruption&lt;/strong>? A &lt;strong>Voluntary Disruption&lt;/strong> is when you trigger an action &lt;em>that causes the&lt;/em> disruption. For example, if you wish to upgrade a Minor AKS version or any action that recycles a Node Pool. Click here ➡ &lt;a href="https://kubernetes.io/docs/concepts/workloads/pods/disruptions/" target="_blank" rel="noopener">Disruptions&lt;/a> to read up on what Disruptions are.&lt;/p>
+&lt;p>This is what a PDB manifest looks like this. This example tells Kubernetes to make sure there&amp;rsquo;s always a minimum of 2 Pods running during a disruption:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-yml" data-lang="yml">&lt;span class="line">&lt;span class="cl">&lt;span class="nt">apiVersion&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">policy/v1&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">kind&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">PodDisruptionBudget&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">metadata&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">name&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">my-awesome-microservice-pdb&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">spec&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">minAvailable&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="m">2&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">selector&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">matchLabels&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">app&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">my-awesome-microservice-api&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>We use Helm Charts so part the declaration that wraps the &lt;code>minAvailable&lt;/code> property looks like this:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-yaml" data-lang="yaml">&lt;span class="line">&lt;span class="cl">{{- &lt;span class="l">if hasKey .Values &amp;#34;pdb&amp;#34; }}&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>{{- &lt;span class="l">if hasKey .Values.pdb &amp;#34;minAvailable&amp;#34; }}&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">minAvailable&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>{{&lt;span class="w"> &lt;/span>&lt;span class="l">.Values.pdb.minAvailable }}&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>{{- &lt;span class="l">end }}&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>{{- &lt;span class="l">else }}&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">minAvailable&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>{{&lt;span class="w"> &lt;/span>&lt;span class="l">max (sub .Values.replicaCount 1) 1 }}&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>{{- &lt;span class="l">end }}&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>What on earth is going on here then?!&lt;/p>
+&lt;p>There are a few rules that I need to accommodate for within our workload PDBs. These are:&lt;/p>
+&lt;ul>
+&lt;li>Apply a specific value that may be contained within a values .yaml file&lt;/li>
+&lt;li>Provide a default value if one is not supplied&lt;/li>
+&lt;li>Ensure there&amp;rsquo;s at least 1 pod running throughout the disruption so a workload doesn&amp;rsquo;t go offline during this period. 😱&lt;/li>
+&lt;/ul>
+&lt;h1>How to use the value provided by the developer&lt;/h1>&lt;p>I&amp;rsquo;ve designed our CICD pipeline so we get base configurations (one .NET Framework IIS workloads, one for .NET Core Web workloads, one for &amp;hellip; etc.) from one git repo, and get all application(s) configuration properties from the application git repo itself (📂 /.k8s/). It is here from within the application&amp;rsquo;s repo we set the properties for a service(s) within a &lt;code>values-&amp;lt;env&amp;gt;.yaml&lt;/code> file. If there&amp;rsquo;s more than one application found in an application&amp;rsquo;s git repo, the name is reflected in the name of values .yaml file to provide uniqueness - eg &lt;code>values-&amp;lt;consumer&amp;gt;-&amp;lt;env&amp;gt;.yaml&lt;/code>.&lt;/p>
+&lt;p>It is in this values .yaml file we set - if at all - a value to the &lt;code>pdb.minAvailable&lt;/code> nested property.&lt;/p>
+&lt;p>Here, in this control flow, we are checking that both pdb and minAvailable properties exist. If they do, we apply the &lt;code>minAvailable&lt;/code> value. We use the hasKey function to good effect to check for the existence of a property in another property:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-yml" data-lang="yml">&lt;span class="line">&lt;span class="cl">{{- &lt;span class="l">if hasKey .Values &amp;#34;pdb&amp;#34; }}&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>{{- &lt;span class="l">if hasKey .Values.pdb &amp;#34;minAvailable&amp;#34; }}&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">minAvailable&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>{{&lt;span class="w"> &lt;/span>&lt;span class="l">.Values.pdb.minAvailable }}&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>{{- &lt;span class="l">end }}&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>{{- &lt;span class="l">else }}&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;h1>How to provide a default value&lt;/h1>&lt;p>If the application configuration does not contain a &lt;code>minAvailable&lt;/code> property, we take the value found in the &lt;code>replicaCount&lt;/code> value and use this. However, we do not insist on the same value, but instead 1 less - &lt;code>(sub .Values.replicaCount 1)&lt;/code>.&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-yml" data-lang="yml">&lt;span class="line">&lt;span class="cl">&lt;span class="nn">...&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>{{- &lt;span class="l">else }}&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">minAvailable&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>{{&lt;span class="w"> &lt;/span>&lt;span class="l">max (sub .Values.replicaCount 1) 1 }}&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>{{- &lt;span class="l">end }}&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;h1>How to ensure there&amp;rsquo;s at least one pod running&lt;/h1>&lt;p>We must ensure at least one instance of a workload is running and if we simply reduced the &lt;code>replicaCount&lt;/code> by one and left it at that, we could end up with a budget of zero. I don&amp;rsquo;t want this to happen. What I do here is use the &lt;code>max&lt;/code> function to good effect to safeguard against this ever being a zero - and if &lt;code>replicaCount: 1&lt;/code>, then the expression would read &lt;code>max (0) 1&lt;/code>, meaning 1 would be the value used.&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-yml" data-lang="yml">&lt;span class="line">&lt;span class="cl">&lt;span class="nn">...&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>{{- &lt;span class="l">else }}&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">minAvailable&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>{{&lt;span class="w"> &lt;/span>&lt;span class="l">max (sub .Values.replicaCount 1) 1 }}&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>{{- &lt;span class="l">end }}&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;h2>2026 technical review&lt;span class="hx-absolute -hx-mt-20" id="2026-technical-review">&lt;/span>
+&lt;a href="#2026-technical-review" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;h2>Technical review: budget semantics&lt;span class="hx-absolute -hx-mt-20" id="technical-review-budget-semantics">&lt;/span>
+&lt;a href="#technical-review-budget-semantics" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>A PDB does not guarantee that a workload “remains running.” It limits evictions performed through the Eviction API when doing so would exceed the budget. Direct Pod or Deployment deletion can bypass it, involuntary failures cannot be prevented, and a Deployment rollout is governed by its own strategy even though unavailable rollout Pods count towards budget health.&lt;/p>
+&lt;p>The selector must match the workload&amp;rsquo;s Pods exactly. Set either minAvailable or maxUnavailable, never both. For a single-replica application, minAvailable: 1 blocks voluntary eviction and can prevent a node drain from completing; it cannot create high availability. Add replicas and spread them across failure domains before using a PDB to preserve capacity.&lt;/p>
+&lt;p>The nested Helm condition in the original example omits minAvailable when pdb exists but minAvailable does not. Prefer a single default expression and validate the values:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-go-html-template" data-lang="go-html-template">&lt;span class="line">&lt;span class="cl">&lt;span class="cp">{{-&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="nx">$default&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">:=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="nx">max&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">(&lt;/span>&lt;span class="nx">sub&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">(&lt;/span>&lt;span class="nx">int&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="na">.Values.replicaCount&lt;/span>&lt;span class="o">)&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="nx">1&lt;/span>&lt;span class="o">)&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="nx">1&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="cp">-}}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">minAvailable: &lt;span class="cp">{{&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="nx">dig&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="s">&amp;#34;pdb&amp;#34;&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="s">&amp;#34;minAvailable&amp;#34;&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="nx">$default&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="na">.Values&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="cp">}}&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>Render with helm template, validate the schema, and test replica counts of zero, one, and several. A percentage or maxUnavailable can track scaled Deployments more naturally, but the correct policy depends on quorum and capacity rather than a universal formula.&lt;/p>
+&lt;h2>References&lt;span class="hx-absolute -hx-mt-20" id="references">&lt;/span>
+&lt;a href="#references" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;ul>
+&lt;li>&lt;a href="https://github.com/helm/helm-www/blob/main/content/en/docs/chart_template_guide/function_list.md#floor" target="_blank" rel="noopener">Helm Functions&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://helm.sh/docs/chart_template_guide/control_structures/" target="_blank" rel="noopener">Flow control&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://kubernetes.io/docs/concepts/workloads/pods/disruptions/" target="_blank" rel="noopener">Disruptions&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://docs.microsoft.com/en-us/azure/aks/operator-best-practices-scheduler#voluntary-disruptions" target="_blank" rel="noopener">Best practices - Voluntary Disruption&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://kubernetes.io/docs/home/" target="_blank" rel="noopener">Kubernetes documentation&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://kubernetes.io/docs/reference/kubernetes-api/" target="_blank" rel="noopener">Kubernetes API reference&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;h2>Closing thought&lt;span class="hx-absolute -hx-mt-20" id="closing-thought">&lt;/span>
+&lt;a href="#closing-thought" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>A PodDisruptionBudget can govern an eviction, but only replicas, placement, readiness, and tested recovery can make the workload genuinely available.&lt;/p></description></item></channel></rss>

@@ -1,4 +1,5 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Garrard Kitchen – Npm Feed</title><link>https://blog-dev.garrardkitchen.com/tags/npm-feed/</link><description>Recent content in Npm Feed on Garrard Kitchen</description><generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Sat, 22 Jan 2022 16:54:48 +0000</lastBuildDate><atom:link href="https://blog-dev.garrardkitchen.com/tags/npm-feed/index.xml" rel="self" type="application/rss+xml"/><item><title>Nodejs Install E401</title><link>https://blog-dev.garrardkitchen.com/blog/nodejs-install-e401/</link><pubDate>Sat, 22 Jan 2022 16:54:48 +0000</pubDate><guid>https://blog-dev.garrardkitchen.com/blog/nodejs-install-e401/</guid><description>
+&lt;p>In this article, you&amp;rsquo;ll learn how to trace npm E401 errors across credentials, registry selection, and Azure Artifacts upstream behavior. That matters because durable engineering comes from understanding trade-offs, not merely reproducing a command or pattern.&lt;/p>
 &lt;p>Today I created a simple nodeJS Azure Functions Applicaiton to start building out a PoC and when I tried to install it&amp;rsquo;s dependencies like so:&lt;/p>
 &lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
 &lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-powershell" data-lang="powershell">&lt;span class="line">&lt;span class="cl">&lt;span class="n">npm&lt;/span> &lt;span class="n">install&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
@@ -78,4 +79,25 @@ title="Copy code"
 &lt;/button>
 &lt;/div>
 &lt;/div>
-&lt;p>All good, but now I need to change my defaults &amp;hellip;&lt;/p></description></item></channel></rss>
+&lt;p>All good, but now I need to change my defaults &amp;hellip;&lt;/p>
+&lt;h2>Deepening the article&lt;span class="hx-absolute -hx-mt-20" id="deepening-the-article">&lt;/span>
+&lt;a href="#deepening-the-article" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;h2>Diagnose in layers&lt;span class="hx-absolute -hx-mt-20" id="diagnose-in-layers">&lt;/span>
+&lt;a href="#diagnose-in-layers" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>E401 means the registry rejected authentication, but the cause may be a missing credential, an expired token, a registry mismatch, or an upstream feed policy. Ask npm which configuration it actually sees:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-powershell" data-lang="powershell">&lt;span class="line">&lt;span class="cl">&lt;span class="n">npm&lt;/span> &lt;span class="n">config&lt;/span> &lt;span class="n">get&lt;/span> &lt;span class="n">registry&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">npm&lt;/span> &lt;span class="n">config&lt;/span> &lt;span class="n">list&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">npm&lt;/span> &lt;span class="n">ping&lt;/span> &lt;span class="p">-&lt;/span>&lt;span class="n">-registry&lt;/span> &lt;span class="n">https&lt;/span>&lt;span class="err">:&lt;/span>&lt;span class="p">//&lt;/span>&lt;span class="n">registry&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="py">npmjs&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">org&lt;/span>&lt;span class="p">/&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>Redact output before sharing it; user and project npmrc files may contain credentials. Check configuration precedence across command-line options, environment variables, project npmrc, user npmrc, and global configuration. A scoped package can use a different registry from unscoped packages.&lt;/p>
+&lt;p>For Azure Artifacts, use the feed&amp;rsquo;s current Connect to feed instructions and a supported credential provider for the environment. In CI, create the minimal npmrc at run time, inject a short-lived secret, and delete the file after use. Never commit a personal access token. If the package should arrive through an upstream source, confirm the upstream is enabled, ordered correctly, and that the requesting identity has the required feed permissions.&lt;/p>
+&lt;p>Do not disable strict SSL to make an authentication problem disappear. A TLS error, proxy interception, or incorrect system clock is a separate failure and should be fixed at the trust boundary.&lt;/p>
+&lt;h2>Closing thought&lt;span class="hx-absolute -hx-mt-20" id="closing-thought">&lt;/span>
+&lt;a href="#closing-thought" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>An npm E401 is resolved properly only when the registry, credential source, identity, and feed policy are understood—not when another token happens to make the error vanish.&lt;/p></description></item></channel></rss>

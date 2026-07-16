@@ -1,4 +1,5 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Garrard Kitchen – Keda</title><link>https://blog-dev.garrardkitchen.com/tags/keda/</link><description>Recent content in Keda on Garrard Kitchen</description><generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Fri, 06 Nov 2020 09:54:02 +0000</lastBuildDate><atom:link href="https://blog-dev.garrardkitchen.com/tags/keda/index.xml" rel="self" type="application/rss+xml"/><item><title>My First Outing With Dapr</title><link>https://blog-dev.garrardkitchen.com/blog/my-first-outing-with-dapr/</link><pubDate>Fri, 06 Nov 2020 09:54:02 +0000</pubDate><guid>https://blog-dev.garrardkitchen.com/blog/my-first-outing-with-dapr/</guid><description>
+&lt;p>In this article, you&amp;rsquo;ll learn what Dapr contributes to a Kubernetes application and where its building blocks stop short of replacing application design. That distinction matters because cloud failures usually emerge at the seams between configuration, identity, networking, and operations.&lt;/p>
 &lt;p>&lt;strong>TL;DR&lt;/strong>: Not as forgiving as I&amp;rsquo;d have liked &amp;hellip;&lt;/p>
 &lt;div class="hx-overflow-x-auto hx-mt-6 hx-flex hx-rounded-lg hx-border hx-py-2 ltr:hx-pr-4 rtl:hx-pl-4 contrast-more:hx-border-current contrast-more:dark:hx-border-current hx-border-blue-200 hx-bg-blue-100 hx-text-blue-900 dark:hx-border-blue-200/30 dark:hx-bg-blue-900/30 dark:hx-text-blue-200">
 &lt;div class="ltr:hx-pl-3 ltr:hx-pr-2 rtl:hx-pr-3 rtl:hx-pl-2">&lt;div class="hx-select-none hx-text-xl" style="font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';">ℹ️&lt;/div>&lt;/div>
@@ -210,4 +211,11 @@ title="Copy code"
 &lt;p>Ref: &lt;a href="https://docs.microsoft.com/en-us/azure/aks/csi-secrets-store-driver" target="_blank" rel="noopener">https://docs.microsoft.com/en-us/azure/aks/csi-secrets-store-driver&lt;/a>&lt;/p>
 &lt;/div>
 &lt;/div>
-&lt;/div></description></item></channel></rss>
+&lt;/div>
+&lt;h2>References&lt;span class="hx-absolute -hx-mt-20" id="references">&lt;/span>
+&lt;a href="#references" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;ul>
+&lt;li>&lt;a href="https://docs.dapr.io/" target="_blank" rel="noopener">Dapr documentation&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://docs.dapr.io/concepts/building-blocks-concept/" target="_blank" rel="noopener">Dapr building blocks&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;h2>Closing thought&lt;span class="hx-absolute -hx-mt-20" id="closing-thought">&lt;/span>
+&lt;a href="#closing-thought" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>Dapr can standardise access to distributed-system capabilities, but it cannot decide which state belongs together or which failures the application must be prepared to own.&lt;/p></description></item></channel></rss>
