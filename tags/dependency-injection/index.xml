@@ -1,4 +1,4 @@
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Garrard Kitchen – Dependency Injection</title><link>https://blog-dev.garrardkitchen.com/tags/dependency-injection/</link><description>Recent content in Dependency Injection on Garrard Kitchen</description><generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Sun, 25 Feb 2024 09:41:08 +0000</lastBuildDate><atom:link href="https://blog-dev.garrardkitchen.com/tags/dependency-injection/index.xml" rel="self" type="application/rss+xml"/><item><title>.NET Aspire and Redis</title><link>https://blog-dev.garrardkitchen.com/blog/dotnet-aspire-and-redis/</link><pubDate>Sun, 25 Feb 2024 09:41:08 +0000</pubDate><guid>https://blog-dev.garrardkitchen.com/blog/dotnet-aspire-and-redis/</guid><description>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Garrard Kitchen – Dependency Injection</title><link>https://blog-dev.garrardkitchen.com/tags/dependency-injection/</link><description>Recent content in Dependency Injection on Garrard Kitchen</description><generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Sun, 25 Feb 2024 09:41:08 +0000</lastBuildDate><atom:link href="https://blog-dev.garrardkitchen.com/tags/dependency-injection/index.xml" rel="self" type="application/rss+xml"/><item><title>.NET Aspire and Redis</title><link>https://blog-dev.garrardkitchen.com/engineering/dotnet-aspire-and-redis/</link><pubDate>Sun, 25 Feb 2024 09:41:08 +0000</pubDate><guid>https://blog-dev.garrardkitchen.com/engineering/dotnet-aspire-and-redis/</guid><description>
 &lt;p>In this article, you&amp;rsquo;ll learn how .NET Aspire models a Redis dependency, wires it into an application, and improves local orchestration. That matters because durable engineering comes from understanding trade-offs, not merely reproducing a command or pattern.&lt;/p>
 &lt;h1>First look into .NET Aspire&lt;/h1>&lt;p>TL;DR: &lt;a href="#addendum" >See here&lt;/a> for why AZD is not yet supported.&lt;/p>
 &lt;p>I decided to give .NET Aspire a try. I&amp;rsquo;m yet to watch an online tutorial but I did watch its announcement a few months ago. At the time I did think YAGNI. For me, it didn&amp;rsquo;t make much sense. Either that, or it just wasn&amp;rsquo;t being explained well enough. Enthusiasm alone isn&amp;rsquo;t enough to promote a new tool. Since then, I’ve seen many tweets. So, over the last month or so, I’ve gradually grasped its raison d’être.&lt;/p>
@@ -61,17 +61,17 @@ title="Copy code"
 &lt;/div>
 &lt;p>To create your first .NET Aspire application is straight forward. From the menu you choose &lt;code>Create a new project&lt;/code>. I filtered on the .NET Apsire project type just to see what&amp;rsquo;s available:&lt;/p>
 &lt;figure>
-&lt;img src="../img/2024-02-25-10-49-32.png" alt="">
+&lt;img src="https://blog-dev.garrardkitchen.com/blog/img/2024-02-25-10-49-32.png" alt="">
 &lt;figcaption>.NET Aspire project templates&lt;/figcaption>
 &lt;/figure>
 &lt;p>I selected the .NET Aspire Starter Application and named it &lt;code>sample1&lt;/code>. I was prompted to start up Docker for Desktop due to the Redis dependency. The next action I performed was to debug the app to see if anything barked at me. It didn&amp;rsquo;t and I was presented with the dashboard:&lt;/p>
 &lt;figure>
-&lt;img src="../img/2024-02-25-10-54-40.png" alt="">
+&lt;img src="https://blog-dev.garrardkitchen.com/blog/img/2024-02-25-10-54-40.png" alt="">
 &lt;figcaption>.NET Aspire dashboard&lt;/figcaption>
 &lt;/figure>
 &lt;p>I clicked on the Endpoint link next to the &lt;code>frontendweb&lt;/code> project and this Blazor app loaded:&lt;/p>
 &lt;figure>
-&lt;img src="../img/2024-02-25-10-55-19.png" alt="">
+&lt;img src="https://blog-dev.garrardkitchen.com/blog/img/2024-02-25-10-55-19.png" alt="">
 &lt;figcaption>My first Aspire hosted sample app&lt;/figcaption>
 &lt;/figure>
 &lt;p>I clicked on the Counter menu option, then the &lt;code>click me&lt;/code> button which incremented the on page counter. I clicked away and when I returned the counter had zeroed. Great, I thought, this is where I can start hacking away to see how easy it is to persist this to the redis cache. The remainder of this post covers what I did.&lt;/p>
@@ -258,7 +258,7 @@ title="Copy code"
 &lt;/div>
 &lt;p>I also looked at the distributed tracing to get confirmation of this. Here&amp;rsquo;s an example of this:&lt;/p>
 &lt;figure>
-&lt;img src="../img/2024-02-25-11-55-37.png" alt="">
+&lt;img src="https://blog-dev.garrardkitchen.com/blog/img/2024-02-25-11-55-37.png" alt="">
 &lt;figcaption>Distributed trace example&lt;/figcaption>
 &lt;/figure>
 &lt;p>And that was that. I was able to take a sample Aspire app and perist a counter value to Redis cache with very little effort. All in all, this was a positive DevEx.&lt;/p>

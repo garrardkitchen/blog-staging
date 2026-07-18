@@ -1,4 +1,4 @@
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Garrard Kitchen – Mcp Remote Server</title><link>https://blog-dev.garrardkitchen.com/tags/mcp-remote-server/</link><description>Recent content in Mcp Remote Server on Garrard Kitchen</description><generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Wed, 23 Apr 2025 13:29:21 +0100</lastBuildDate><atom:link href="https://blog-dev.garrardkitchen.com/tags/mcp-remote-server/index.xml" rel="self" type="application/rss+xml"/><item><title>Setting Up a Model Context Protocol (MCP) Remote Server in VSCode</title><link>https://blog-dev.garrardkitchen.com/blog/mcp-server-example/</link><pubDate>Wed, 23 Apr 2025 13:29:21 +0100</pubDate><guid>https://blog-dev.garrardkitchen.com/blog/mcp-server-example/</guid><description>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Garrard Kitchen – Mcp Remote Server</title><link>https://blog-dev.garrardkitchen.com/tags/mcp-remote-server/</link><description>Recent content in Mcp Remote Server on Garrard Kitchen</description><generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Wed, 23 Apr 2025 13:29:21 +0100</lastBuildDate><atom:link href="https://blog-dev.garrardkitchen.com/tags/mcp-remote-server/index.xml" rel="self" type="application/rss+xml"/><item><title>Setting Up a Model Context Protocol (MCP) Remote Server in VSCode</title><link>https://blog-dev.garrardkitchen.com/ai/mcp-server-example/</link><pubDate>Wed, 23 Apr 2025 13:29:21 +0100</pubDate><guid>https://blog-dev.garrardkitchen.com/ai/mcp-server-example/</guid><description>
 &lt;p>In this article, you&amp;rsquo;ll learn how VS Code connects to a remote MCP server, where trust boundaries sit, and how to troubleshoot the transport. That matters because useful AI integration depends as much on explicit trust and verification as it does on model capability.&lt;/p>
 &lt;h2>Summary&lt;span class="hx-absolute -hx-mt-20" id="summary">&lt;/span>
 &lt;a href="#summary" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>This guide walks you through the process of connecting a Model Context Protocol (MCP) remote server to Visual Studio Code (VSCode). You&amp;rsquo;ll learn what MCP is, why it&amp;rsquo;s useful, and how to set up and use an MCP server to provide richer, real-time context to AI-powered tools like GitHub Copilot.&lt;/p>
@@ -22,47 +22,39 @@
 &lt;li>
 &lt;p>&lt;strong>Open the Agent Pane in VSCode&lt;/strong>&lt;/p>
 &lt;p>Move to the Agent pane and press the tools icon:&lt;/p>
-&lt;p>
-&lt;img src="../img/mcp-server-example.png" alt="Agent pane tools icon" loading="lazy" />&lt;/p>
+&lt;p>&lt;img src="https://blog-dev.garrardkitchen.com/blog/img/mcp-server-example.png" alt="Agent pane tools icon" loading="lazy" />&lt;/p>
 &lt;/li>
 &lt;li>
 &lt;p>&lt;strong>Add More Tools&lt;/strong>&lt;/p>
 &lt;p>This will open a list of available tools. Select the &lt;code>+ Add More Tools&lt;/code> option:&lt;/p>
-&lt;p>
-&lt;img src="../img/mcp-server-example-1.png" alt="Add More Tools" loading="lazy" />&lt;/p>
+&lt;p>&lt;img src="https://blog-dev.garrardkitchen.com/blog/img/mcp-server-example-1.png" alt="Add More Tools" loading="lazy" />&lt;/p>
 &lt;/li>
 &lt;li>
 &lt;p>&lt;strong>Add MCP Server&lt;/strong>&lt;/p>
 &lt;p>Click on &lt;code>+ Add MCP Server...&lt;/code>:&lt;/p>
-&lt;p>
-&lt;img src="../img/mcp-server-example-2.png" alt="Add MCP Server" loading="lazy" />&lt;/p>
+&lt;p>&lt;img src="https://blog-dev.garrardkitchen.com/blog/img/mcp-server-example-2.png" alt="Add MCP Server" loading="lazy" />&lt;/p>
 &lt;/li>
 &lt;li>
 &lt;p>&lt;strong>Select Server Type&lt;/strong>&lt;/p>
 &lt;p>Since MCP servers uses HTTP to push real-time events, select the highlighted HTTP Server option:&lt;/p>
-&lt;p>
-&lt;img src="../img/mcp-server-example-3.png" alt="Select HTTP Server" loading="lazy" />&lt;/p>
+&lt;p>&lt;img src="https://blog-dev.garrardkitchen.com/blog/img/mcp-server-example-3.png" alt="Select HTTP Server" loading="lazy" />&lt;/p>
 &lt;/li>
 &lt;li>
 &lt;p>&lt;strong>Enter Server Details&lt;/strong>&lt;/p>
 &lt;p>Enter your MCP server&amp;rsquo;s URL and a unique ID. After this, a new server entry will be created in your &lt;code>.vscode/mcp.json&lt;/code> file:&lt;/p>
-&lt;p>
-&lt;img src="../img/mcp-server-example-4.png" alt="mcp.json entry" loading="lazy" />&lt;/p>
+&lt;p>&lt;img src="https://blog-dev.garrardkitchen.com/blog/img/mcp-server-example-4.png" alt="mcp.json entry" loading="lazy" />&lt;/p>
 &lt;/li>
 &lt;li>
 &lt;p>&lt;strong>Start the MCP Server&lt;/strong>&lt;/p>
 &lt;p>Press the start button to activate the connection:&lt;/p>
-&lt;p>
-&lt;img src="../img/mcp-server-example-5.png" alt="Start MCP Server" loading="lazy" />&lt;/p>
+&lt;p>&lt;img src="https://blog-dev.garrardkitchen.com/blog/img/mcp-server-example-5.png" alt="Start MCP Server" loading="lazy" />&lt;/p>
 &lt;/li>
 &lt;li>
 &lt;p>&lt;strong>Interact with the Agent&lt;/strong>&lt;/p>
 &lt;p>Now, go to your Agent pane. For example, you might ask the agent to look up a person. The agent may prompt you for more information:&lt;/p>
-&lt;p>
-&lt;img src="../img/mcp-server-example-7.png" alt="Agent prompt" loading="lazy" />&lt;/p>
+&lt;p>&lt;img src="https://blog-dev.garrardkitchen.com/blog/img/mcp-server-example-7.png" alt="Agent prompt" loading="lazy" />&lt;/p>
 &lt;p>After providing the requested input and clicking continue, you&amp;rsquo;ll see the agent&amp;rsquo;s response:&lt;/p>
-&lt;p>
-&lt;img src="../img/mcp-server-example-8.png" alt="Agent response" loading="lazy" />&lt;/p>
+&lt;p>&lt;img src="https://blog-dev.garrardkitchen.com/blog/img/mcp-server-example-8.png" alt="Agent response" loading="lazy" />&lt;/p>
 &lt;/li>
 &lt;/ol>
 &lt;hr>
@@ -96,8 +88,7 @@ title="Copy code"
 &lt;/div>
 &lt;/div>
 &lt;p>This is how my MCP Remote Server looks in the Inspector. I have listed the tools to review WhoIs and have enter my name to get a response:&lt;/p>
-&lt;p>
-&lt;img src="../img/mcp-server-example-9.png" alt="alt text" loading="lazy" />&lt;/p>
+&lt;p>&lt;img src="https://blog-dev.garrardkitchen.com/blog/img/mcp-server-example-9.png" alt="alt text" loading="lazy" />&lt;/p>
 &lt;hr>
 &lt;h2>How Does This Help?&lt;span class="hx-absolute -hx-mt-20" id="how-does-this-help">&lt;/span>
 &lt;a href="#how-does-this-help" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>By connecting an MCP server, you enable VSCode and its AI-powered extensions (like Copilot) to access richer, real-time context about your project. This leads to smarter, more relevant suggestions and a more seamless development experience.&lt;/p>

@@ -1,0 +1,64 @@
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Garrard Kitchen – Model Context Protocol Nuggets</title><link>https://blog-dev.garrardkitchen.com/nuggets/mcp/</link><description>Recent content in Model Context Protocol Nuggets on Garrard Kitchen</description><generator>Hugo -- gohugo.io</generator><language>en</language><atom:link href="https://blog-dev.garrardkitchen.com/nuggets/mcp/index.xml" rel="self" type="application/rss+xml"/><item><title>Local MCP Checklist</title><link>https://blog-dev.garrardkitchen.com/nuggets/mcp/mcp-local/</link><pubDate>Thu, 17 Apr 2025 00:00:00 +0000</pubDate><guid>https://blog-dev.garrardkitchen.com/nuggets/mcp/mcp-local/</guid><description>
+&lt;p>This checklist helps you review a local MCP server&amp;rsquo;s command, permissions, transport, and failure behavior before enabling it. That matters because the process can often act with the same filesystem and credential access as its host.&lt;/p>
+&lt;h2>Checklist&lt;span class="hx-absolute -hx-mt-20" id="checklist">&lt;/span>
+&lt;a href="#checklist" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;ul>
+&lt;li>Read the configured command, arguments, and working directory.&lt;/li>
+&lt;li>Pin or verify the package or executable you are launching.&lt;/li>
+&lt;li>Keep JSON-RPC messages on standard output; route diagnostics to standard error.&lt;/li>
+&lt;li>Pass only the environment variables the server needs.&lt;/li>
+&lt;li>Prefer read-only tools and narrow path allow-lists.&lt;/li>
+&lt;li>Validate tool arguments and cap output size.&lt;/li>
+&lt;li>Require confirmation for writes, commands, or external side effects.&lt;/li>
+&lt;li>Confirm how the host stops orphaned or unresponsive processes.&lt;/li>
+&lt;li>Inspect logs for secrets before sharing diagnostics.&lt;/li>
+&lt;/ul>
+&lt;h2>Links&lt;span class="hx-absolute -hx-mt-20" id="links">&lt;/span>
+&lt;a href="#links" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;ul>
+&lt;li>&lt;a href="https://github.com/garrardkitchen/mcp-example" target="_blank" rel="noopener">Local example&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://modelcontextprotocol.io/specification/2025-06-18/basic/transports" target="_blank" rel="noopener">MCP transports&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://code.visualstudio.com/docs/copilot/chat/mcp-servers" target="_blank" rel="noopener">VS Code MCP servers&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;h2>Closing thought&lt;span class="hx-absolute -hx-mt-20" id="closing-thought">&lt;/span>
+&lt;a href="#closing-thought" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>A short local MCP configuration can launch a highly capable process, so its review should be proportional to the capability—not to the number of lines.&lt;/p></description></item><item><title>Remote MCP Checklist</title><link>https://blog-dev.garrardkitchen.com/nuggets/mcp/mcp-remote/</link><pubDate>Thu, 17 Apr 2025 00:00:00 +0000</pubDate><guid>https://blog-dev.garrardkitchen.com/nuggets/mcp/mcp-remote/</guid><description>
+&lt;p>This checklist helps you review a remote MCP endpoint&amp;rsquo;s identity, authority, transport, and data handling. That matters because a convenient shared server can otherwise become a shared escalation path.&lt;/p>
+&lt;h2>Checklist&lt;span class="hx-absolute -hx-mt-20" id="checklist">&lt;/span>
+&lt;a href="#checklist" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;ul>
+&lt;li>Verify the HTTPS endpoint and who operates it.&lt;/li>
+&lt;li>Use OAuth or another approved short-lived credential mechanism.&lt;/li>
+&lt;li>Confirm issuer, audience, scopes, and token expiry are validated.&lt;/li>
+&lt;li>Separate authentication from per-tool and per-resource authorisation.&lt;/li>
+&lt;li>Test tenant isolation with deliberately cross-tenant identifiers.&lt;/li>
+&lt;li>Set timeouts, request limits, and rate limits.&lt;/li>
+&lt;li>Make mutating operations idempotent where retries are possible.&lt;/li>
+&lt;li>Redact secrets and personal data from logs and traces.&lt;/li>
+&lt;li>Treat server-supplied text as untrusted content.&lt;/li>
+&lt;li>Define how access is revoked and how incidents are audited.&lt;/li>
+&lt;/ul>
+&lt;h2>Links&lt;span class="hx-absolute -hx-mt-20" id="links">&lt;/span>
+&lt;a href="#links" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;ul>
+&lt;li>&lt;a href="https://github.com/garrardkitchen/mcp-server-example" target="_blank" rel="noopener">Remote example&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://blog-dev.garrardkitchen.com/blog/mcp-server-example/" >Remote server walk-through&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://modelcontextprotocol.io/specification/2025-06-18/basic/authorization" target="_blank" rel="noopener">MCP authorisation&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;h2>Closing thought&lt;span class="hx-absolute -hx-mt-20" id="closing-thought">&lt;/span>
+&lt;a href="#closing-thought" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>Connectivity answers whether a host can call a remote MCP server; identity and authorisation answer whether it should.&lt;/p></description></item><item><title>VS Code MCP Checklist</title><link>https://blog-dev.garrardkitchen.com/nuggets/mcp/mcp-vscode/</link><pubDate>Thu, 17 Apr 2025 00:00:00 +0000</pubDate><guid>https://blog-dev.garrardkitchen.com/nuggets/mcp/mcp-vscode/</guid><description>
+&lt;p>This checklist shows what to inspect before enabling an MCP server in VS Code and how to keep tool use observable. That matters because a server can turn a chat interaction into a real operation on local or remote systems.&lt;/p>
+&lt;h2>Checklist&lt;span class="hx-absolute -hx-mt-20" id="checklist">&lt;/span>
+&lt;a href="#checklist" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;ul>
+&lt;li>Review the server definition committed to the workspace.&lt;/li>
+&lt;li>Do not approve a command merely because the repository is trusted.&lt;/li>
+&lt;li>Check executable paths, arguments, environment input, and endpoint ownership.&lt;/li>
+&lt;li>Prefer input variables or approved secret storage over literal credentials.&lt;/li>
+&lt;li>Inspect the server&amp;rsquo;s discovered tools and disable capabilities you do not need.&lt;/li>
+&lt;li>Read tool arguments before approving consequential calls.&lt;/li>
+&lt;li>Keep workspace trust, extension trust, and MCP server trust as separate decisions.&lt;/li>
+&lt;li>Re-check configuration changes during code review.&lt;/li>
+&lt;li>Stop or remove servers that are no longer needed.&lt;/li>
+&lt;/ul>
+&lt;h2>Links&lt;span class="hx-absolute -hx-mt-20" id="links">&lt;/span>
+&lt;a href="#links" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;ul>
+&lt;li>&lt;a href="https://code.visualstudio.com/docs/copilot/chat/mcp-servers" target="_blank" rel="noopener">VS Code MCP server documentation&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://modelcontextprotocol.io/docs/learn/architecture" target="_blank" rel="noopener">MCP architecture&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;h2>Closing thought&lt;span class="hx-absolute -hx-mt-20" id="closing-thought">&lt;/span>
+&lt;a href="#closing-thought" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>The most important action in a tool-enabled editor is often the pause before deciding what has earned permission to run.&lt;/p></description></item></channel></rss>

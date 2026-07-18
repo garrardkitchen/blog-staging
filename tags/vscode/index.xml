@@ -1,4 +1,4 @@
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Garrard Kitchen – Vscode</title><link>https://blog-dev.garrardkitchen.com/tags/vscode/</link><description>Recent content in Vscode on Garrard Kitchen</description><generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Wed, 08 Jul 2026 07:49:14 +0100</lastBuildDate><atom:link href="https://blog-dev.garrardkitchen.com/tags/vscode/index.xml" rel="self" type="application/rss+xml"/><item><title>A practical guide to .http files</title><link>https://blog-dev.garrardkitchen.com/blog/dot-http-files/</link><pubDate>Wed, 08 Jul 2026 07:49:14 +0100</pubDate><guid>https://blog-dev.garrardkitchen.com/blog/dot-http-files/</guid><description>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Garrard Kitchen – Vscode</title><link>https://blog-dev.garrardkitchen.com/tags/vscode/</link><description>Recent content in Vscode on Garrard Kitchen</description><generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Wed, 08 Jul 2026 07:49:14 +0100</lastBuildDate><atom:link href="https://blog-dev.garrardkitchen.com/tags/vscode/index.xml" rel="self" type="application/rss+xml"/><item><title>A practical guide to .http files</title><link>https://blog-dev.garrardkitchen.com/engineering/dot-http-files/</link><pubDate>Wed, 08 Jul 2026 07:49:14 +0100</pubDate><guid>https://blog-dev.garrardkitchen.com/engineering/dot-http-files/</guid><description>
 &lt;p>&lt;em>A Practical Guide to .http Files - Ditch Postman, Keep Your API Calls in Source Control&lt;/em>&lt;/p>
 &lt;p>If you&amp;rsquo;ve spent any time bouncing between a browser tab, Postman, and your terminal just to test an endpoint, I&amp;rsquo;ve got good news: there&amp;rsquo;s a simpler way, and it lives right next to your code. &lt;code>.http&lt;/code> files let you write, save, and share HTTP requests as plain text — version-controlled, reviewable in a pull request, and runnable with a single click in VS Code, Visual Studio, JetBrains IDEs, or via CLI tools like &lt;code>httpyac&lt;/code>.&lt;/p>
 &lt;p>I use these on every project now, from quick API prototyping to full integration test suites. Here&amp;rsquo;s how to get the most out of them.&lt;/p>
@@ -196,7 +196,7 @@ title="Copy code"
 &lt;div class="hx-mt-6 hx-leading-7 first:hx-mt-0">&lt;p>Don&amp;rsquo;t reach for &lt;code>.http&lt;/code> files as a substitute for real integration or contract tests. They&amp;rsquo;re excellent for exploration and documentation, but they won&amp;rsquo;t catch regressions on their own — keep your automated test suite as the source of truth for correctness.&lt;/p>&lt;/div>
 &lt;/div>
 &lt;/div>
-&lt;p>They&amp;rsquo;re not a full replacement for a proper automated test suite or a tool like Postman/Insomnia when you need elaborate scripting, mocking, or team collaboration features at scale. But for the day-to-day of &amp;ldquo;let me just check this endpoint,&amp;rdquo; they&amp;rsquo;ve earned a permanent place in my toolkit — and I&amp;rsquo;d encourage you to give them a real trial on your next project.&lt;/p></description></item><item><title>Setting Up a Model Context Protocol (MCP) Remote Server in VSCode</title><link>https://blog-dev.garrardkitchen.com/blog/mcp-server-example/</link><pubDate>Wed, 23 Apr 2025 13:29:21 +0100</pubDate><guid>https://blog-dev.garrardkitchen.com/blog/mcp-server-example/</guid><description>
+&lt;p>They&amp;rsquo;re not a full replacement for a proper automated test suite or a tool like Postman/Insomnia when you need elaborate scripting, mocking, or team collaboration features at scale. But for the day-to-day of &amp;ldquo;let me just check this endpoint,&amp;rdquo; they&amp;rsquo;ve earned a permanent place in my toolkit — and I&amp;rsquo;d encourage you to give them a real trial on your next project.&lt;/p></description></item><item><title>Setting Up a Model Context Protocol (MCP) Remote Server in VSCode</title><link>https://blog-dev.garrardkitchen.com/ai/mcp-server-example/</link><pubDate>Wed, 23 Apr 2025 13:29:21 +0100</pubDate><guid>https://blog-dev.garrardkitchen.com/ai/mcp-server-example/</guid><description>
 &lt;p>In this article, you&amp;rsquo;ll learn how VS Code connects to a remote MCP server, where trust boundaries sit, and how to troubleshoot the transport. That matters because useful AI integration depends as much on explicit trust and verification as it does on model capability.&lt;/p>
 &lt;h2>Summary&lt;span class="hx-absolute -hx-mt-20" id="summary">&lt;/span>
 &lt;a href="#summary" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>This guide walks you through the process of connecting a Model Context Protocol (MCP) remote server to Visual Studio Code (VSCode). You&amp;rsquo;ll learn what MCP is, why it&amp;rsquo;s useful, and how to set up and use an MCP server to provide richer, real-time context to AI-powered tools like GitHub Copilot.&lt;/p>
@@ -220,47 +220,39 @@ title="Copy code"
 &lt;li>
 &lt;p>&lt;strong>Open the Agent Pane in VSCode&lt;/strong>&lt;/p>
 &lt;p>Move to the Agent pane and press the tools icon:&lt;/p>
-&lt;p>
-&lt;img src="../img/mcp-server-example.png" alt="Agent pane tools icon" loading="lazy" />&lt;/p>
+&lt;p>&lt;img src="https://blog-dev.garrardkitchen.com/blog/img/mcp-server-example.png" alt="Agent pane tools icon" loading="lazy" />&lt;/p>
 &lt;/li>
 &lt;li>
 &lt;p>&lt;strong>Add More Tools&lt;/strong>&lt;/p>
 &lt;p>This will open a list of available tools. Select the &lt;code>+ Add More Tools&lt;/code> option:&lt;/p>
-&lt;p>
-&lt;img src="../img/mcp-server-example-1.png" alt="Add More Tools" loading="lazy" />&lt;/p>
+&lt;p>&lt;img src="https://blog-dev.garrardkitchen.com/blog/img/mcp-server-example-1.png" alt="Add More Tools" loading="lazy" />&lt;/p>
 &lt;/li>
 &lt;li>
 &lt;p>&lt;strong>Add MCP Server&lt;/strong>&lt;/p>
 &lt;p>Click on &lt;code>+ Add MCP Server...&lt;/code>:&lt;/p>
-&lt;p>
-&lt;img src="../img/mcp-server-example-2.png" alt="Add MCP Server" loading="lazy" />&lt;/p>
+&lt;p>&lt;img src="https://blog-dev.garrardkitchen.com/blog/img/mcp-server-example-2.png" alt="Add MCP Server" loading="lazy" />&lt;/p>
 &lt;/li>
 &lt;li>
 &lt;p>&lt;strong>Select Server Type&lt;/strong>&lt;/p>
 &lt;p>Since MCP servers uses HTTP to push real-time events, select the highlighted HTTP Server option:&lt;/p>
-&lt;p>
-&lt;img src="../img/mcp-server-example-3.png" alt="Select HTTP Server" loading="lazy" />&lt;/p>
+&lt;p>&lt;img src="https://blog-dev.garrardkitchen.com/blog/img/mcp-server-example-3.png" alt="Select HTTP Server" loading="lazy" />&lt;/p>
 &lt;/li>
 &lt;li>
 &lt;p>&lt;strong>Enter Server Details&lt;/strong>&lt;/p>
 &lt;p>Enter your MCP server&amp;rsquo;s URL and a unique ID. After this, a new server entry will be created in your &lt;code>.vscode/mcp.json&lt;/code> file:&lt;/p>
-&lt;p>
-&lt;img src="../img/mcp-server-example-4.png" alt="mcp.json entry" loading="lazy" />&lt;/p>
+&lt;p>&lt;img src="https://blog-dev.garrardkitchen.com/blog/img/mcp-server-example-4.png" alt="mcp.json entry" loading="lazy" />&lt;/p>
 &lt;/li>
 &lt;li>
 &lt;p>&lt;strong>Start the MCP Server&lt;/strong>&lt;/p>
 &lt;p>Press the start button to activate the connection:&lt;/p>
-&lt;p>
-&lt;img src="../img/mcp-server-example-5.png" alt="Start MCP Server" loading="lazy" />&lt;/p>
+&lt;p>&lt;img src="https://blog-dev.garrardkitchen.com/blog/img/mcp-server-example-5.png" alt="Start MCP Server" loading="lazy" />&lt;/p>
 &lt;/li>
 &lt;li>
 &lt;p>&lt;strong>Interact with the Agent&lt;/strong>&lt;/p>
 &lt;p>Now, go to your Agent pane. For example, you might ask the agent to look up a person. The agent may prompt you for more information:&lt;/p>
-&lt;p>
-&lt;img src="../img/mcp-server-example-7.png" alt="Agent prompt" loading="lazy" />&lt;/p>
+&lt;p>&lt;img src="https://blog-dev.garrardkitchen.com/blog/img/mcp-server-example-7.png" alt="Agent prompt" loading="lazy" />&lt;/p>
 &lt;p>After providing the requested input and clicking continue, you&amp;rsquo;ll see the agent&amp;rsquo;s response:&lt;/p>
-&lt;p>
-&lt;img src="../img/mcp-server-example-8.png" alt="Agent response" loading="lazy" />&lt;/p>
+&lt;p>&lt;img src="https://blog-dev.garrardkitchen.com/blog/img/mcp-server-example-8.png" alt="Agent response" loading="lazy" />&lt;/p>
 &lt;/li>
 &lt;/ol>
 &lt;hr>
@@ -294,8 +286,7 @@ title="Copy code"
 &lt;/div>
 &lt;/div>
 &lt;p>This is how my MCP Remote Server looks in the Inspector. I have listed the tools to review WhoIs and have enter my name to get a response:&lt;/p>
-&lt;p>
-&lt;img src="../img/mcp-server-example-9.png" alt="alt text" loading="lazy" />&lt;/p>
+&lt;p>&lt;img src="https://blog-dev.garrardkitchen.com/blog/img/mcp-server-example-9.png" alt="alt text" loading="lazy" />&lt;/p>
 &lt;hr>
 &lt;h2>How Does This Help?&lt;span class="hx-absolute -hx-mt-20" id="how-does-this-help">&lt;/span>
 &lt;a href="#how-does-this-help" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>By connecting an MCP server, you enable VSCode and its AI-powered extensions (like Copilot) to access richer, real-time context about your project. This leads to smarter, more relevant suggestions and a more seamless development experience.&lt;/p>
@@ -326,7 +317,7 @@ title="Copy code"
 &lt;li>&lt;a href="https://code.visualstudio.com/docs/copilot/chat/mcp-servers" target="_blank" rel="noopener">VS Code: MCP servers&lt;/a>&lt;/li>
 &lt;/ul>
 &lt;h2>Closing thought&lt;span class="hx-absolute -hx-mt-20" id="closing-thought">&lt;/span>
-&lt;a href="#closing-thought" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>A green connection in VS Code proves that MCP messages can travel; trust begins only when the server&amp;rsquo;s tools, identities, side effects, and failure modes have also been examined.&lt;/p></description></item><item><title>Prompts</title><link>https://blog-dev.garrardkitchen.com/blog/prompts/</link><pubDate>Fri, 18 Apr 2025 00:00:00 +0000</pubDate><guid>https://blog-dev.garrardkitchen.com/blog/prompts/</guid><description>
+&lt;a href="#closing-thought" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>A green connection in VS Code proves that MCP messages can travel; trust begins only when the server&amp;rsquo;s tools, identities, side effects, and failure modes have also been examined.&lt;/p></description></item><item><title>Prompts</title><link>https://blog-dev.garrardkitchen.com/ai/prompts/</link><pubDate>Fri, 18 Apr 2025 00:00:00 +0000</pubDate><guid>https://blog-dev.garrardkitchen.com/ai/prompts/</guid><description>
 &lt;p>In this article, you&amp;rsquo;ll learn how prompt files and repository instructions shape GitHub Copilot interactions without replacing review and verification. That matters because useful AI integration depends as much on explicit trust and verification as it does on model capability.&lt;/p>
 &lt;h2>Summary&lt;span class="hx-absolute -hx-mt-20" id="summary">&lt;/span>
 &lt;a href="#summary" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>This post explains what prompts are in the context of GitHub Copilot Chat, how to create reusable prompts in the &lt;code>.github/prompts&lt;/code> directory, and how to automatically include them in Copilot Chat using the &lt;code>github.copilot.chat.codeGeneration.instructions&lt;/code> setting. An example and useful references are provided.&lt;/p>

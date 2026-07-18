@@ -1,4 +1,4 @@
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Garrard Kitchen – Docker-Compose</title><link>https://blog-dev.garrardkitchen.com/tags/docker-compose/</link><description>Recent content in Docker-Compose on Garrard Kitchen</description><generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Mon, 21 Sep 2020 16:36:35 +0100</lastBuildDate><atom:link href="https://blog-dev.garrardkitchen.com/tags/docker-compose/index.xml" rel="self" type="application/rss+xml"/><item><title>Nodejs Container Restart Policy</title><link>https://blog-dev.garrardkitchen.com/blog/nodejs-container-restart-policy/</link><pubDate>Mon, 21 Sep 2020 16:36:35 +0100</pubDate><guid>https://blog-dev.garrardkitchen.com/blog/nodejs-container-restart-policy/</guid><description>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Garrard Kitchen – Docker-Compose</title><link>https://blog-dev.garrardkitchen.com/tags/docker-compose/</link><description>Recent content in Docker-Compose on Garrard Kitchen</description><generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Mon, 21 Sep 2020 16:36:35 +0100</lastBuildDate><atom:link href="https://blog-dev.garrardkitchen.com/tags/docker-compose/index.xml" rel="self" type="application/rss+xml"/><item><title>Nodejs Container Restart Policy</title><link>https://blog-dev.garrardkitchen.com/cloud/nodejs-container-restart-policy/</link><pubDate>Mon, 21 Sep 2020 16:36:35 +0100</pubDate><guid>https://blog-dev.garrardkitchen.com/cloud/nodejs-container-restart-policy/</guid><description>
 &lt;p>In this article, you&amp;rsquo;ll learn how process failure, container restart policies, and orchestration each cover a different part of Node.js resilience. That distinction matters because cloud failures usually emerge at the seams between configuration, identity, networking, and operations.&lt;/p>
 &lt;p>If by accident to deploy a solution using the &lt;a href="https://nodejs.org/en/" target="_blank" rel="noopener">Node.js&lt;/a> &lt;a href="https://nodejs.org/dist/latest-v14.x/docs/api/cluster.html" target="_blank" rel="noopener">Cluster API&lt;/a> and do not fork exited processes then the following &lt;code>docker-compose&lt;/code> restart_policy will not help you:&lt;/p>
 &lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
@@ -82,7 +82,7 @@ title="Copy code"
 &lt;/div>
 &lt;hr>
 &lt;p>To avoid the container not restarting due to lack of process availability to deal with demand in the above scenario, you can&amp;rsquo;t use the &lt;code>on-failure&lt;/code> condition in the restart_policy. You must use the &amp;lsquo;any&amp;rsquo; condition. This section incidentally replaces the old &lt;code>restart&lt;/code> sub-option.&lt;/p>
-&lt;p>&lt;img src="../img/2020-09-21-16-39-00.png" alt="" loading="lazy" />&lt;/p>
+&lt;p>&lt;img src="https://blog-dev.garrardkitchen.com/blog/img/2020-09-21-16-39-00.png" alt="" loading="lazy" />&lt;/p>
 &lt;hr>
 &lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
 &lt;div class="filename not-prose" dir="auto">docker-compose.yml&lt;/div>&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-yml" data-lang="yml">&lt;span class="line">&lt;span class="cl">&lt;span class="nt">deploy&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
@@ -114,7 +114,7 @@ title="Copy code"
 &lt;hr>
 &lt;p>Additionally, I found one further interesting facts when looking into this issue.&lt;/p>
 &lt;p>If you&amp;rsquo;re using &lt;code>Docker Stack Deploy&lt;/code> (think stack in Portainer) using a docker-compose file to deploy to your swarm and you&amp;rsquo;re using &lt;code>restart: always&lt;/code>, then beware, the &lt;code>restart&lt;/code> is not supported.&lt;/p>
-&lt;p>&lt;img src="../img/2020-09-21-16-38-12.png" alt="" loading="lazy" />&lt;/p>
+&lt;p>&lt;img src="https://blog-dev.garrardkitchen.com/blog/img/2020-09-21-16-38-12.png" alt="" loading="lazy" />&lt;/p>
 &lt;p>ref: 👆 &lt;a href="https://docs.docker.com/compose/compose-file/" target="_blank" rel="noopener">compose-file&lt;/a>&lt;/p>
 &lt;hr>
 &lt;h2>2026 technical review&lt;span class="hx-absolute -hx-mt-20" id="2026-technical-review">&lt;/span>
