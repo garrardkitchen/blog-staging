@@ -1,4 +1,531 @@
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Garrard Kitchen – Blog</title><link>https://blog-dev.garrardkitchen.com/blog/</link><description>Recent content in Blog on Garrard Kitchen</description><generator>Hugo -- gohugo.io</generator><language>en</language><atom:link href="https://blog-dev.garrardkitchen.com/blog/index.xml" rel="self" type="application/rss+xml"/><item><title>From Dockerfile to Durable Service: How Containers Are Created, Scheduled, Scaled, and Recovered</title><link>https://blog-dev.garrardkitchen.com/cloud/how-containers-live/</link><pubDate>Thu, 16 Jul 2026 07:49:14 +0100</pubDate><guid>https://blog-dev.garrardkitchen.com/cloud/how-containers-live/</guid><description>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Garrard Kitchen – Blog</title><link>https://blog-dev.garrardkitchen.com/blog/</link><description>Recent content in Blog on Garrard Kitchen</description><generator>Hugo -- gohugo.io</generator><language>en</language><atom:link href="https://blog-dev.garrardkitchen.com/blog/index.xml" rel="self" type="application/rss+xml"/><item><title>MCP Explorer: Install, Explore, and Test MCP Servers with Confidence</title><link>https://blog-dev.garrardkitchen.com/ai/mcp-explorer-x-install-use-test/</link><pubDate>Thu, 23 Jul 2026 00:00:00 +0000</pubDate><guid>https://blog-dev.garrardkitchen.com/ai/mcp-explorer-x-install-use-test/</guid><description>
+&lt;h2>What you will learn today&lt;span class="hx-absolute -hx-mt-20" id="what-you-will-learn-today">&lt;/span>
+&lt;a href="#what-you-will-learn-today" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>Today you will learn how to:&lt;/p>
+&lt;ul>
+&lt;li>install MCP Explorer with Docker or Podman and persist its state correctly;&lt;/li>
+&lt;li>connect a Streamable HTTP MCP server and configure an LLM;&lt;/li>
+&lt;li>use the ten capabilities I think deliver the most value;&lt;/li>
+&lt;li>move from visual exploration to repeatable workflow, load, security, and regression tests;&lt;/li>
+&lt;li>use the &lt;code>mcp-http&lt;/code> CLI despite a current packaging caveat; and&lt;/li>
+&lt;li>recognise the security boundaries that still belong to you.&lt;/li>
+&lt;/ul>
+&lt;p>Why is this important? MCP makes tools, prompts, and resources available to AI applications through a shared protocol, but a successful handshake proves very little. We still need to see schemas, inspect tool inputs and outputs, exercise human approval paths, test failure modes, observe latency, and prevent credentials from leaking into logs or history. &lt;a href="https://mcp-explorer-x-docs.garrardkitchen.com/" target="_blank" rel="noopener">MCP Explorer&lt;/a> puts those activities in one workbench, shortening the distance between “the server connected” and “I trust how it behaves.”&lt;/p>
+&lt;figure>
+&lt;img src="https://blog-dev.garrardkitchen.com/blog/img/mcp-explorer-architecture.svg" alt="CP Explorer architecture: browser, gateway, API, MCP servers, LLMs, Azure and persistent data">
+&lt;figcaption>fig 5 — CP Explorer architecture: browser, gateway, API, MCP servers, LLMs, Azure and persistent data.&lt;/figcaption>
+&lt;/figure>
+&lt;h2>What MCP Explorer is&lt;span class="hx-absolute -hx-mt-20" id="what-mcp-explorer-is">&lt;/span>
+&lt;a href="#what-mcp-explorer-is" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>MCP Explorer is a Vue 4 single-page application backed by an ASP.NET Core 10 API. A YARP gateway serves the UI and proxies API traffic. The backend talks to MCP servers over Streamable HTTP, streams events to the browser, persists state to local JSON-based storage, and can integrate with LLM providers, Azure, and Microsoft Dev Tunnels. The default single-container deployment packages the gateway, frontend, API, and &lt;code>devtunnel&lt;/code> CLI together.&lt;/p>
+&lt;p>This is a clean gateway pattern: the browser has one origin, the gateway hides internal service topology, and the API acts as an anti-corruption layer between UI concerns and MCP/LLM/Azure integrations. It is deliberately a developer workbench rather than a production MCP gateway.&lt;/p>
+&lt;h2>Install MCP Explorer&lt;span class="hx-absolute -hx-mt-20" id="install-mcp-explorer">&lt;/span>
+&lt;a href="#install-mcp-explorer" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;h3>Prerequisites&lt;span class="hx-absolute -hx-mt-20" id="prerequisites">&lt;/span>
+&lt;a href="#prerequisites" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>You need:&lt;/p>
+&lt;ul>
+&lt;li>Docker 20.10 or later, or Podman 5 or later;&lt;/li>
+&lt;li>a browser; and&lt;/li>
+&lt;li>an MCP server reachable over Streamable HTTP.&lt;/li>
+&lt;/ul>
+&lt;p>The optional CLI requires the .NET 10 SDK. Azure-powered connection and certificate features also require an authenticated Azure identity with only the permissions needed for the operation.&lt;/p>
+&lt;h3>The tested single-container installation&lt;span class="hx-absolute -hx-mt-20" id="the-tested-single-container-installation">&lt;/span>
+&lt;a href="#the-tested-single-container-installation" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>The following command works on macOS and Linux. It binds only to the local machine, persists application state in a named Docker volume, and gives the container a stable name:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">docker pull garrardkitchen/mcp-explorer-x:latest
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">docker run -d &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> --name mcp-explorer-x &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> --restart unless-stopped &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> --add-host host.docker.internal:host-gateway &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> -p 127.0.0.1:8091:8080 &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> -v mcp-explorer-data:/data &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> -e &lt;span class="nv">PREFERENCES__StoragePath&lt;/span>&lt;span class="o">=&lt;/span>/data/settings.json &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> -e &lt;span class="nv">ASPNETCORE_ENVIRONMENT&lt;/span>&lt;span class="o">=&lt;/span>Production &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> garrardkitchen/mcp-explorer-x:latest&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>Open &lt;a href="http://localhost:8091" target="_blank" rel="noopener">http://localhost:8091&lt;/a>.&lt;/p>
+&lt;p>Why these flags matter:&lt;/p>
+&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th>Choice&lt;/th>
+&lt;th>Reason&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td>&lt;code>127.0.0.1:8091:8080&lt;/code>&lt;/td>
+&lt;td>Keeps the workbench off your LAN by default. Deliberately change the bind address only if other machines must reach it.&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>mcp-explorer-data:/data&lt;/code>&lt;/td>
+&lt;td>Keeps connections, models, workflows, histories, certificates, and protection material outside the disposable container.&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>PREFERENCES__StoragePath=/data/settings.json&lt;/code>&lt;/td>
+&lt;td>Aligns the application’s storage path with the mounted volume.&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>Production&lt;/code>&lt;/td>
+&lt;td>Avoids development error detail and Swagger exposure.&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>--restart unless-stopped&lt;/code>&lt;/td>
+&lt;td>Restarts the workbench after Docker or host restarts.&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>--add-host host.docker.internal:host-gateway&lt;/code>&lt;/td>
+&lt;td>Makes host-run MCP servers reachable by the same hostname on Docker Engine and Docker Desktop.&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;p>The dedicated &lt;a href="https://mcp-explorer-x-docs.garrardkitchen.com/docs/getting-started/quickstart/" target="_blank" rel="noopener">Quick Start&lt;/a> currently mixes a &lt;code>/root/.local/share/McpExplorer&lt;/code> mount with &lt;code>/data/settings.json&lt;/code>; that would place the configured settings file outside the mounted path. The command above uses one consistent &lt;code>/data&lt;/code> boundary. It also uses the real Docker Hub image rather than the placeholder GHCR image that still appears on parts of the site.&lt;/p>
+&lt;h3>Windows via WSL and Podman&lt;span class="hx-absolute -hx-mt-20" id="windows-via-wsl-and-podman">&lt;/span>
+&lt;a href="#windows-via-wsl-and-podman" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>The Windows deployment used for this guide runs from a WSL bash shell with Podman. It stores Explorer data in the WSL home directory and mounts the Windows Azure CLI profile through &lt;code>/mnt/c&lt;/code>.&lt;/p>
+&lt;p>Prefer Podman’s normal isolated network with an explicit localhost port mapping:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">&lt;span class="nv">dataRoot&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$HOME&lt;/span>&lt;span class="s2">/.config/McpExplorerX-docker&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">WINDOWS_AZURE_CONFIG&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s2">&amp;#34;/mnt/c/Users/kitcheng/.azure&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">mkdir -p &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$dataRoot&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">podman run --rm -it &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> -p 127.0.0.1:8091:8080 &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> -v &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="si">${&lt;/span>&lt;span class="nv">dataRoot&lt;/span>&lt;span class="si">}&lt;/span>&lt;span class="s2">:/root/.local/share/McpExplorer&amp;#34;&lt;/span> &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> -v &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="si">${&lt;/span>&lt;span class="nv">WINDOWS_AZURE_CONFIG&lt;/span>&lt;span class="si">}&lt;/span>&lt;span class="s2">:/root/.azure:ro&amp;#34;&lt;/span> &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> -e &lt;span class="nv">AZURE_CONFIG_DIR&lt;/span>&lt;span class="o">=&lt;/span>/root/.azure &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> -e &lt;span class="nv">HOST_DATA_PATH&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$dataRoot&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> -e &lt;span class="nv">MCP_DATA_PATH&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$dataRoot&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> -e &lt;span class="nv">HOST_AZURE_CONFIG_DIR&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="si">${&lt;/span>&lt;span class="nv">WINDOWS_AZURE_CONFIG&lt;/span>&lt;span class="si">}&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> -e &lt;span class="nv">ASPNETCORE_ENVIRONMENT&lt;/span>&lt;span class="o">=&lt;/span>Production &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> garrardkitchen/mcp-explorer-x:latest&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>Open &lt;a href="http://localhost:8091" target="_blank" rel="noopener">http://localhost:8091&lt;/a>. The &lt;code>/root/.local/share/McpExplorer&lt;/code> target is intentional here: without &lt;code>PREFERENCES__StoragePath&lt;/code>, that is the application’s default Linux data directory. &lt;code>HOST_DATA_PATH&lt;/code> tells Explorer which WSL host path to place in copied &lt;code>mcp-http --data-path&lt;/code> commands. &lt;code>MCP_DATA_PATH&lt;/code> and &lt;code>HOST_AZURE_CONFIG_DIR&lt;/code> are primarily Compose interpolation variables; they are retained here as useful deployment metadata, while the bind mounts and &lt;code>AZURE_CONFIG_DIR&lt;/code> perform the direct &lt;code>podman run&lt;/code> wiring.&lt;/p>
+&lt;p>If an MCP server is listening only on the WSL host’s loopback interface and cannot be reached through &lt;code>host.containers.internal&lt;/code>, use host networking instead:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">&lt;span class="nv">dataRoot&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$HOME&lt;/span>&lt;span class="s2">/.config/McpExplorerX-docker&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">WINDOWS_AZURE_CONFIG&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s2">&amp;#34;/mnt/c/Users/kitcheng/.azure&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">mkdir -p &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$dataRoot&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">podman run --rm -it &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> --network host &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> -v &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="si">${&lt;/span>&lt;span class="nv">dataRoot&lt;/span>&lt;span class="si">}&lt;/span>&lt;span class="s2">:/root/.local/share/McpExplorer&amp;#34;&lt;/span> &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> -v &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="si">${&lt;/span>&lt;span class="nv">WINDOWS_AZURE_CONFIG&lt;/span>&lt;span class="si">}&lt;/span>&lt;span class="s2">:/root/.azure:ro&amp;#34;&lt;/span> &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> -e &lt;span class="nv">AZURE_CONFIG_DIR&lt;/span>&lt;span class="o">=&lt;/span>/root/.azure &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> -e &lt;span class="nv">HOST_DATA_PATH&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$dataRoot&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> -e &lt;span class="nv">MCP_DATA_PATH&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$dataRoot&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> -e &lt;span class="nv">HOST_AZURE_CONFIG_DIR&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="si">${&lt;/span>&lt;span class="nv">WINDOWS_AZURE_CONFIG&lt;/span>&lt;span class="si">}&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> -e &lt;span class="nv">ASPNETCORE_ENVIRONMENT&lt;/span>&lt;span class="o">=&lt;/span>Production &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> -e &lt;span class="nv">DOTNET_RUNNING_IN_CONTAINER&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="nb">false&lt;/span> &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> garrardkitchen/mcp-explorer-x:latest&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>With &lt;code>--network host&lt;/code>, do not also specify &lt;code>-p 8091:8080&lt;/code>: published ports apply to containers with their own network namespace, while host mode shares the WSL host network. Open &lt;a href="http://localhost:8080" target="_blank" rel="noopener">http://localhost:8080&lt;/a> for this variant. Host networking also gives the container broader access to services listening on the WSL host, so use it only when the isolated mode cannot meet the connectivity requirement. Podman normally provides &lt;code>host.containers.internal&lt;/code> and &lt;code>host.docker.internal&lt;/code>; its exact Windows/WSL behavior is documented in the official &lt;a href="https://docs.podman.io/en/latest/markdown/podman-run.1.html" target="_blank" rel="noopener">&lt;code>podman run&lt;/code> reference&lt;/a>.&lt;/p>
+&lt;p>The Azure profile is mounted read-only deliberately. This prevents the container from changing the Windows Azure CLI cache, but it can also prevent token-cache refresh writes. Refresh the login from Windows/WSL with &lt;code>az login&lt;/code> when needed and retry or restart Explorer. If unattended refresh inside the container is required, change the mount to read-write only after accepting the larger credential-write trust boundary.&lt;/p>
+&lt;h3>Optional Azure integration&lt;span class="hx-absolute -hx-mt-20" id="optional-azure-integration">&lt;/span>
+&lt;a href="#optional-azure-integration" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>For local development, MCP Explorer can reuse your Azure CLI session. Treat the following as an alternative installation command. If you already ran the basic installation, remove only its disposable container first—the named data volume remains intact:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">docker stop mcp-explorer-x
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">docker rm mcp-explorer-x&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>Then recreate it with the Azure mount:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">docker run -d &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> --name mcp-explorer-x &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> --restart unless-stopped &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> --add-host host.docker.internal:host-gateway &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> -p 127.0.0.1:8091:8080 &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> -v mcp-explorer-data:/data &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> -v &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$HOME&lt;/span>&lt;span class="s2">/.azure:/root/.azure&amp;#34;&lt;/span> &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> -e &lt;span class="nv">PREFERENCES__StoragePath&lt;/span>&lt;span class="o">=&lt;/span>/data/settings.json &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> -e &lt;span class="nv">AZURE_CONFIG_DIR&lt;/span>&lt;span class="o">=&lt;/span>/root/.azure &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> -e &lt;span class="nv">ASPNETCORE_ENVIRONMENT&lt;/span>&lt;span class="o">=&lt;/span>Production &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> garrardkitchen/mcp-explorer-x:latest&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>This Docker variant uses a writable Azure config mount so the Azure CLI can refresh cached tokens inside the container. That also means the container can change valuable credential files, so use the published image only in a trusted local environment. The Windows/Podman variant above intentionally chooses a read-only mount and refreshes the host login instead. In an Azure-hosted deployment, prefer &lt;code>DefaultAzureCredential&lt;/code> with a least-privilege managed identity rather than copying a developer login into the workload.&lt;/p>
+&lt;h3>First smoke test&lt;span class="hx-absolute -hx-mt-20" id="first-smoke-test">&lt;/span>
+&lt;a href="#first-smoke-test" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>Do not stop at “the page opened.” Check both the gateway and API:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">curl -fsS http://localhost:8091/ &amp;gt; /dev/null &lt;span class="o">&amp;amp;&amp;amp;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">echo&lt;/span> &lt;span class="s2">&amp;#34;UI: reachable&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">curl -fsS http://localhost:8091/api/v1/system/info
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">docker logs --tail &lt;span class="m">100&lt;/span> mcp-explorer-x&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>For the foreground Windows/Podman commands, startup logs are already in the active terminal; substitute &lt;code>podman&lt;/code> for &lt;code>docker&lt;/code> in lifecycle commands.&lt;/p>
+&lt;p>A healthy API returns JSON similar to:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-json" data-lang="json">&lt;span class="line">&lt;span class="cl">&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;#34;apiVersion&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="s2">&amp;#34;1.0.0&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;#34;dotnetVersion&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="s2">&amp;#34;.NET 10.0.9&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;#34;dataPath&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="s2">&amp;#34;/data&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>The &lt;code>dataPath&lt;/code> value is a useful persistence assertion: if it is not &lt;code>/data&lt;/code>, your runtime and volume configuration disagree.&lt;/p>
+&lt;h2>Connect your first MCP server&lt;span class="hx-absolute -hx-mt-20" id="connect-your-first-mcp-server">&lt;/span>
+&lt;a href="#connect-your-first-mcp-server" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;ol>
+&lt;li>Open &lt;a href="https://mcp-explorer-x-docs.garrardkitchen.com/docs/connections/managing-connections/" target="_blank" rel="noopener">&lt;strong>Connections&lt;/strong>&lt;/a> and select &lt;strong>New Connection&lt;/strong>.&lt;/li>
+&lt;li>Give the connection a clear environment-aware name, such as &lt;code>Weather API — local&lt;/code>.&lt;/li>
+&lt;li>Enter the Streamable HTTP endpoint.&lt;/li>
+&lt;li>Add authentication only if the server requires it.&lt;/li>
+&lt;li>Save the connection and turn on its connection toggle.&lt;/li>
+&lt;li>Confirm the health indicator becomes green, then open &lt;strong>Tools&lt;/strong>.&lt;/li>
+&lt;/ol>
+&lt;p>If the MCP server runs directly on your host while Explorer runs in Docker, use an endpoint such as:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-text" data-lang="text">&lt;span class="line">&lt;span class="cl">http://host.docker.internal:3000/mcp&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>The installation commands above include &lt;code>--add-host host.docker.internal:host-gateway&lt;/code>, so the hostname is created when the container starts rather than being retrofitted later.&lt;/p>
+&lt;p>Authentication options include custom headers, OAuth, and Azure client credentials. For a static header, choose the correct &lt;code>Raw&lt;/code>, &lt;code>Bearer&lt;/code>, or &lt;code>Basic&lt;/code> mode so a scheme is not added twice. For Azure, prefer a Key Vault reference or certificate over storing a client secret inline. Give each connection its own least-privilege identity and scope.&lt;/p>
+&lt;p>To enable Chat, open &lt;a href="https://mcp-explorer-x-docs.garrardkitchen.com/docs/models/configuring-models/" target="_blank" rel="noopener">&lt;strong>Models&lt;/strong>&lt;/a>, add an OpenAI, Azure OpenAI, Azure AI Foundry, Ollama, LM Studio, or other OpenAI-compatible endpoint, then select that model in Chat. Treat model access and MCP tool access as separate permissions: a model should see only the connections required for that conversation.&lt;/p>
+&lt;h2>The ten capabilities I would use first&lt;span class="hx-absolute -hx-mt-20" id="the-ten-capabilities-i-would-use-first">&lt;/span>
+&lt;a href="#the-ten-capabilities-i-would-use-first" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;h3>1. Schema-driven tool exploration&lt;span class="hx-absolute -hx-mt-20" id="1-schema-driven-tool-exploration">&lt;/span>
+&lt;a href="#1-schema-driven-tool-exploration" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>The &lt;a href="https://mcp-explorer-x-docs.garrardkitchen.com/docs/tools/browsing-tools/" target="_blank" rel="noopener">Tools page&lt;/a> turns each tool’s JSON Schema into a native form: strings, numbers, booleans, enums, arrays, objects, and required-field validation. Press &lt;code>Ctrl+Enter&lt;/code> to run a tool, then inspect the result as a searchable JSON tree.&lt;/p>
+&lt;p>The unusually useful part is the book icon. It generates Markdown reference documentation for one tool or every filtered tool. That creates a fast contract-review loop: discover the server, inspect its schemas, execute examples, and export an API reference without hand-copying definitions.&lt;/p>
+&lt;p>Test it by choosing one harmless read-only tool, verifying every required field is marked, running a valid request, then deliberately submitting a missing or invalid value. The UI and server should fail clearly and consistently.&lt;/p>
+&lt;h3>2. Streaming chat with visible automatic tool calls&lt;span class="hx-absolute -hx-mt-20" id="2-streaming-chat-with-visible-automatic-tool-calls">&lt;/span>
+&lt;a href="#2-streaming-chat-with-visible-automatic-tool-calls" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>&lt;a href="https://mcp-explorer-x-docs.garrardkitchen.com/docs/chat/chat-overview/" target="_blank" rel="noopener">Chat&lt;/a> streams LLM output over SSE and lets the model invoke tools from only the connections you selected. Tool names, inputs, outputs, thinking time, and token use remain visible inline.&lt;/p>
+&lt;p>This is an observable agent loop rather than a black-box chat:&lt;/p>
+&lt;figure>
+&lt;img src="https://blog-dev.garrardkitchen.com/blog/img/mcp-explorer-test-loop.svg" alt="MCP Explorer feedback loop from discovery through testing and automation">
+&lt;figcaption>fig 5 — MCP Explorer feedback loop from discovery through testing and automation.&lt;/figcaption>
+&lt;/figure>
+&lt;p>Test it with a question that cannot be answered from the model alone but can be answered by one connected tool. Confirm the correct tool was selected, inspect its arguments, compare its raw result with the final answer, and repeat with the connection deselected. The second run should not retain accidental tool access.&lt;/p>
+&lt;h3>3. Prompts that flow directly into an LLM or Chat&lt;span class="hx-absolute -hx-mt-20" id="3-prompts-that-flow-directly-into-an-llm-or-chat">&lt;/span>
+&lt;a href="#3-prompts-that-flow-directly-into-an-llm-or-chat" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>&lt;a href="https://mcp-explorer-x-docs.garrardkitchen.com/docs/prompts/using-prompts/" target="_blank" rel="noopener">MCP prompts&lt;/a> are reusable, parameterised message templates. Explorer renders their arguments, executes them, and can send the result directly to an LLM or into a continuing Chat session.&lt;/p>
+&lt;p>This separates prompt ownership from model execution: the MCP server owns the reusable prompt contract, while the operator chooses the model at runtime. Test required and optional arguments, render the prompt without an LLM first, and inspect the exact messages before sending them to a paid or externally hosted model.&lt;/p>
+&lt;h3>4. Dynamic resource templates&lt;span class="hx-absolute -hx-mt-20" id="4-dynamic-resource-templates">&lt;/span>
+&lt;a href="#4-dynamic-resource-templates" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>&lt;a href="https://mcp-explorer-x-docs.garrardkitchen.com/docs/templates/using-templates/" target="_blank" rel="noopener">Resource templates&lt;/a> turn URIs such as &lt;code>db:///{table}/{id}&lt;/code> into forms, resolve the placeholders, and fetch the concrete resource. One template can safely expose a large address space without advertising every possible resource.&lt;/p>
+&lt;p>Test one known value, one missing value, and a boundary value. Check that placeholder encoding prevents a value from changing the intended URI structure. Favour read-only templates for early exploration.&lt;/p>
+&lt;h3>5. Chained workflows and browser-based load tests&lt;span class="hx-absolute -hx-mt-20" id="5-chained-workflows-and-browser-based-load-tests">&lt;/span>
+&lt;a href="#5-chained-workflows-and-browser-based-load-tests" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>&lt;a href="https://mcp-explorer-x-docs.garrardkitchen.com/docs/workflows/building-workflows/" target="_blank" rel="noopener">Workflows&lt;/a> connect tools into repeatable pipelines. A parameter can be a fixed value, a runtime prompt, or output from a previous step. Every execution records duration and per-step input/output, and the same workflow can be run concurrently as a load test.&lt;/p>
+&lt;p>This is a pipeline pattern with explicit dataflow. Start with two read-only tools, pass step one’s result into step two, and assert that the downstream input is exactly what you expected. Then increase concurrency gradually while watching success rate, average duration, server CPU/memory, throttling, and downstream quotas. A load generator without server telemetry is only half a test.&lt;/p>
+&lt;h3>6. Elicitations for human-in-the-loop control&lt;span class="hx-absolute -hx-mt-20" id="6-elicitations-for-human-in-the-loop-control">&lt;/span>
+&lt;a href="#6-elicitations-for-human-in-the-loop-control" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>An MCP tool can pause and ask for more information or confirmation. Explorer renders the &lt;a href="https://mcp-explorer-x-docs.garrardkitchen.com/docs/elicitations/using-elicitations/" target="_blank" rel="noopener">elicitation&lt;/a> from its schema, lets the user accept or decline, resumes the tool, and keeps an audit history.&lt;/p>
+&lt;p>This is the human-in-the-loop pattern that matters most for consequential actions. Test both &lt;strong>Accept&lt;/strong> and &lt;strong>Decline&lt;/strong>, allow an elicitation to time out if you configured a timeout, and verify that declining a destructive operation does not execute it. Never treat the dialog alone as authorisation; the server must enforce identity and permission again.&lt;/p>
+&lt;h3>7. Data Guard across tools, prompts, and chat&lt;span class="hx-absolute -hx-mt-20" id="7-data-guard-across-tools-prompts-and-chat">&lt;/span>
+&lt;a href="#7-data-guard-across-tools-prompts-and-chat" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>&lt;a href="https://mcp-explorer-x-docs.garrardkitchen.com/docs/settings/data-guard/" target="_blank" rel="noopener">Data Guard&lt;/a> combines always-on regex detection, heuristic high-entropy detection, optional AI classification, custom sensitive fields, and explicit allowed fields. Detected values are masked in the UI and encrypted at rest.&lt;/p>
+&lt;p>Use synthetic secrets—not real ones—to test:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-text" data-lang="text">&lt;span class="line">&lt;span class="cl">Authorization: Bearer test-only-token-0123456789
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">apiKey: sk-test-0123456789abcdefghijklmnop
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">connectionString: Server=example;User Id=test;Password=not-a-real-secret&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>Send them through a tool input, tool output, prompt argument, and chat message. Verify masking in the live UI, history, exports, and debug logs. Then test a known false positive before adding an allowed-field exception. AI detection can improve context awareness, but it also adds latency and may send candidate values to the configured model; make that privacy trade-off explicit.&lt;/p>
+&lt;h3>8. Azure-aware authentication and certificate rotation&lt;span class="hx-absolute -hx-mt-20" id="8-azure-aware-authentication-and-certificate-rotation">&lt;/span>
+&lt;a href="#8-azure-aware-authentication-and-certificate-rotation" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>Explorer can browse Entra app registrations, reference client secrets by Key Vault name, &lt;a href="https://mcp-explorer-x-docs.garrardkitchen.com/docs/certificates/using-certificates/" target="_blank" rel="noopener">generate a local certificate&lt;/a>, upload only its public key to an app registration, test token acquisition, monitor expiry, and &lt;a href="https://mcp-explorer-x-docs.garrardkitchen.com/docs/certificates/renewal-and-monitoring/" target="_blank" rel="noopener">rotate certificates&lt;/a> in a safe order.&lt;/p>
+&lt;p>The rotation workflow follows an expand-and-contract pattern:&lt;/p>
+&lt;ol>
+&lt;li>create the successor;&lt;/li>
+&lt;li>upload it everywhere the old certificate is trusted;&lt;/li>
+&lt;li>repoint all consumers;&lt;/li>
+&lt;li>verify the new credential; and&lt;/li>
+&lt;li>only then remove stale credentials.&lt;/li>
+&lt;/ol>
+&lt;p>That order prevents a partial failure from breaking a working connection. Test in a non-production app registration first, grant only the Graph and vault access required, verify token scope and expiry, and inspect the certificate audit log. A private key should never appear in Graph, logs, chat, or a plaintext export.&lt;/p>
+&lt;h3>9. Signal Deck for webhook capture and replay&lt;span class="hx-absolute -hx-mt-20" id="9-signal-deck-for-webhook-capture-and-replay">&lt;/span>
+&lt;a href="#9-signal-deck-for-webhook-capture-and-replay" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>The Dev Tunnels &lt;a href="https://mcp-explorer-x-docs.garrardkitchen.com/docs/dev-tunnels/using-dev-tunnels/" target="_blank" rel="noopener">&lt;strong>Signal Deck&lt;/strong>&lt;/a> creates public HTTPS callbacks, streams requests into a live timeline, archives their headers and bodies with redaction, and replays a captured event to a chosen target. Tool parameters named like &lt;code>webhookUrl&lt;/code> or &lt;code>callbackUrl&lt;/code> can be filled from a running tunnel.&lt;/p>
+&lt;p>This closes a frustrating webhook debugging gap. Send a signed synthetic event, verify its method/path/query/body, pause and replay the timeline, then replay to a disposable public test endpoint. Explorer blocks loopback, link-local, private IPv4 ranges, IPv6 ULA, and IPv6 link-local targets to reduce SSRF risk. Test those negative cases; do not assume the guard exists because the button says Replay.&lt;/p>
+&lt;h3>10. CLI, YAML runbooks, and HTTP regression collections&lt;span class="hx-absolute -hx-mt-20" id="10-cli-yaml-runbooks-and-http-regression-collections">&lt;/span>
+&lt;a href="#10-cli-yaml-runbooks-and-http-regression-collections" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>The &lt;a href="https://mcp-explorer-x-docs.garrardkitchen.com/docs/cli/cli-mcp-commands/" target="_blank" rel="noopener">&lt;code>mcp-http&lt;/code> CLI&lt;/a> lists MCP tools/resources/prompts/templates, invokes tools, &lt;a href="https://mcp-explorer-x-docs.garrardkitchen.com/docs/cli/cli-yaml-runbooks/" target="_blank" rel="noopener">validates YAML runbooks&lt;/a>, chains step outputs, evaluates assertions, schedules repetitions, and runs &lt;a href="https://mcp-explorer-x-docs.garrardkitchen.com/docs/http-api-explorer/collections/" target="_blank" rel="noopener">HTTP endpoint collections&lt;/a> with schema comparisons. The browser remains excellent for discovery; YAML and exit codes make the result repeatable in CI.&lt;/p>
+&lt;p>A runbook can reference environment variables or Key Vault secrets and pass &lt;code>{{ steps.first.property }}&lt;/code> into a later step. Use &lt;code>--validate-only&lt;/code> in pull requests, assertions during execution, and a non-zero exit code as the pipeline gate. The HTTP Explorer complements MCP tests by detecting removed fields, type changes, drift, errors, and latency degradation in ordinary APIs that an MCP tool may depend on.&lt;/p>
+&lt;h2>Install and test the CLI&lt;span class="hx-absolute -hx-mt-20" id="install-and-test-the-cli">&lt;/span>
+&lt;a href="#install-and-test-the-cli" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>The documentation says:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">dotnet tool install -g Garrard.Mcp.Explorer.Cli&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>As tested on 23 July 2026, NuGet.org returns “package not found.” Until the package is published, build it from the linked source:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">git clone https://github.com/garrardkitchen/mcp-explorer-vue.git
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">cd&lt;/span> mcp-explorer-vue
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">dotnet &lt;span class="nb">test&lt;/span> mcp-explorer.slnx -c Release
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">dotnet pack src/Garrard.Mcp.Explorer.Cli/Garrard.Mcp.Explorer.Cli.csproj &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> -c Release &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> -o ./nupkg
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">dotnet tool install -g Garrard.Mcp.Explorer.Cli &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> --add-source ./nupkg
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">mcp-http --version&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>Pin the repository to a reviewed commit or release in automated builds; do not install mutable &lt;code>main&lt;/code> blindly. The source at commit &lt;code>6c47e22e3f8af35ef64ee273d649bb13c6c31580&lt;/code> packed CLI version &lt;code>1.0.0&lt;/code>, and both sample runbook types validated successfully:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">mcp-http mcp runbook &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> --file samples/mcp/mslearn-assertions.yaml &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> --validate-only
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">mcp-http http runbook &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> --file samples/http/httpbin-assertions.yaml &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> --validate-only&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;h2>A practical test strategy&lt;span class="hx-absolute -hx-mt-20" id="a-practical-test-strategy">&lt;/span>
+&lt;a href="#a-practical-test-strategy" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;figure>
+&lt;img src="https://blog-dev.garrardkitchen.com/blog/img/mcp-explorer-security-and-testing.svg" alt="Layered MCP Explorer test strategy from smoke tests to security and CI regression">
+&lt;figcaption>fig 5 — Layered MCP Explorer test strategy from smoke tests to security and CI regression.&lt;/figcaption>
+&lt;/figure>
+&lt;p>Use layers so failures remain diagnosable:&lt;/p>
+&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th>Layer&lt;/th>
+&lt;th>What to prove&lt;/th>
+&lt;th>Suggested evidence&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td>Container smoke&lt;/td>
+&lt;td>Gateway and API start&lt;/td>
+&lt;td>UI HTTP 200; &lt;code>/api/v1/system/info&lt;/code>; clean startup logs&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>Persistence&lt;/td>
+&lt;td>State survives container replacement&lt;/td>
+&lt;td>&lt;code>dataPath&lt;/code> is &lt;code>/data&lt;/code>; create a harmless preference; replace the container; preference remains&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>MCP discovery&lt;/td>
+&lt;td>Negotiation and schemas work&lt;/td>
+&lt;td>Connection green; tools, prompts, resources, and templates listed&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>Functional contracts&lt;/td>
+&lt;td>Inputs and outputs are correct&lt;/td>
+&lt;td>Valid, invalid, missing, boundary, and timeout cases&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>Agent behaviour&lt;/td>
+&lt;td>Tool selection is justified&lt;/td>
+&lt;td>Tool trace matches the question; answer is grounded in raw output&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>Human control&lt;/td>
+&lt;td>Elicitation is enforceable&lt;/td>
+&lt;td>Accept, decline, timeout, and unauthorised-user cases&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>Data protection&lt;/td>
+&lt;td>Secrets do not leak&lt;/td>
+&lt;td>Synthetic canaries masked in UI, storage, exports, and logs&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>Resilience and load&lt;/td>
+&lt;td>Failure is bounded&lt;/td>
+&lt;td>Retry behaviour, concurrency ramp, latency percentiles, throttling&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>Regression&lt;/td>
+&lt;td>Changes are detected&lt;/td>
+&lt;td>YAML assertions and HTTP schema comparisons in CI&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>Supply chain&lt;/td>
+&lt;td>Dependencies are acceptable&lt;/td>
+&lt;td>Pinned source/image digest, vulnerability scan, provenance review&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;p>For a minimal automated smoke check:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">&lt;span class="nb">set&lt;/span> -euo pipefail
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">curl -fsS http://localhost:8091/ &amp;gt; /dev/null
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">info&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="k">$(&lt;/span>curl -fsS http://localhost:8091/api/v1/system/info&lt;span class="k">)&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">printf&lt;/span> &lt;span class="s1">&amp;#39;%s&amp;#39;&lt;/span> &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$info&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> &lt;span class="p">|&lt;/span> jq -e &lt;span class="s1">&amp;#39;
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s1"> .apiVersion != null and
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s1"> .dotnetVersion != null and
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s1"> .dataPath == &amp;#34;/data&amp;#34;
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s1">&amp;#39;&lt;/span> &amp;gt; /dev/null
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">echo&lt;/span> &lt;span class="s2">&amp;#34;MCP Explorer smoke test passed&amp;#34;&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>For CI, start with the complete, passing &lt;a href="examples/mcp-smoke.yaml" >MCP smoke runbook&lt;/a> and &lt;a href="examples/http-smoke.yaml" >HTTP smoke runbook&lt;/a> included with this article:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">mcp-http mcp runbook --file examples/mcp-smoke.yaml --validate-only
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">mcp-http http runbook --file examples/http-smoke.yaml --validate-only
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">mcp-http mcp runbook --file examples/mcp-smoke.yaml
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">mcp-http http runbook --file examples/http-smoke.yaml&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>These public examples prove the CLI and assertion path without requiring saved Explorer state. Fork them and replace the endpoint, tool, parameters, and assertions with your own contracts.&lt;/p>
+&lt;p>Collections are stateful: create &lt;code>MCP Dependencies&lt;/code> under &lt;strong>HTTP API Explorer → Collections&lt;/strong>, establish its baselines, and make the same protected Explorer data directory available to CI. Then point the CLI at that directory explicitly:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">&lt;span class="nb">test&lt;/span> -n &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="si">${&lt;/span>&lt;span class="nv">MCP_EXPLORER_DATA_PATH&lt;/span>&lt;span class="k">:-&lt;/span>&lt;span class="si">}&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">mcp-http --data-path &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$MCP_EXPLORER_DATA_PATH&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> http collection run &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> --name &lt;span class="s2">&amp;#34;MCP Dependencies&amp;#34;&lt;/span> &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> --fail-on-breaking&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>Do not publish or cache the full data directory indiscriminately: it can contain connection definitions, encrypted credentials, certificate material, histories, and the local encryption key. Use a protected CI secret/file mechanism, limit access to the job that needs it, and prefer inline HTTP runbooks when a saved collection is unnecessary.&lt;/p>
+&lt;p>Keep test identities, endpoints, and quotas separate from production. Never put inline secrets in committed runbooks; resolve them from environment variables or Key Vault and redact pipeline output.&lt;/p>
+&lt;h2>What the live verification found&lt;span class="hx-absolute -hx-mt-20" id="what-the-live-verification-found">&lt;/span>
+&lt;a href="#what-the-live-verification-found" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>I tested the current documentation and source rather than treating every example as executable:&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>garrardkitchen/mcp-explorer-x:latest&lt;/code> pulled successfully on Apple Silicon.&lt;/li>
+&lt;li>The single-container UI returned HTTP 200.&lt;/li>
+&lt;li>&lt;code>GET /api/v1/system/info&lt;/code> returned HTTP 200 with API &lt;code>1.0.0&lt;/code>, .NET &lt;code>10.0.9&lt;/code>, and the corrected &lt;code>/data&lt;/code> path.&lt;/li>
+&lt;li>The NuGet global-tool command failed because the CLI package is not currently on NuGet.org.&lt;/li>
+&lt;li>Packing and installing CLI &lt;code>1.0.0&lt;/code> from source succeeded.&lt;/li>
+&lt;li>MCP and HTTP sample runbooks both passed &lt;code>--validate-only&lt;/code>.&lt;/li>
+&lt;li>The four .NET test projects passed 298 tests in Release configuration.&lt;/li>
+&lt;/ul>
+&lt;p>There is also a &lt;strong>high-severity production-readiness concern&lt;/strong>: restore reported the transitive &lt;code>Microsoft.OpenApi&lt;/code> &lt;code>2.4.1&lt;/code> package against &lt;a href="https://github.com/advisories/GHSA-v5pm-xwqc-g5wc" target="_blank" rel="noopener">GHSA-v5pm-xwqc-g5wc&lt;/a> in the API and API test projects. Run:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">dotnet list mcp-explorer.slnx package &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> --vulnerable &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> --include-transitive&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>Resolve that advisory, rebuild the image, and rerun the complete test suite before treating a source deployment as production-ready. Passing tests do not cancel a known vulnerable dependency.&lt;/p>
+&lt;h2>Operating and upgrading safely&lt;span class="hx-absolute -hx-mt-20" id="operating-and-upgrading-safely">&lt;/span>
+&lt;a href="#operating-and-upgrading-safely" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>Before upgrading, export encrypted application data from &lt;strong>Settings&lt;/strong>, protect the passphrase separately, and record the image digest you are running. Then:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">docker pull garrardkitchen/mcp-explorer-x:latest
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">docker stop mcp-explorer-x
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">docker rm mcp-explorer-x&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>Rerun the tested installation command. The named &lt;code>mcp-explorer-data&lt;/code> volume remains intact. Re-run the smoke, persistence, connection, and security-canary tests after every upgrade. For repeatable environments, replace &lt;code>:latest&lt;/code> with a reviewed immutable digest.&lt;/p>
+&lt;p>For the WSL/Podman variants, press &lt;code>Ctrl+C&lt;/code> to stop the foreground container; &lt;code>--rm&lt;/code> removes only the container, while the bind-mounted &lt;code>dataRoot&lt;/code> remains. Run &lt;code>podman pull garrardkitchen/mcp-explorer-x:latest&lt;/code>, restart with the chosen Podman command, and repeat the same verification checks.&lt;/p>
+&lt;p>MCP Explorer is most valuable when you treat it not as a colourful catalogue of tools, but as an observable bridge from discovery to evidence: schema to invocation, invocation to trace, trace to test, and test to automation.&lt;/p>
+&lt;p>If MCP lets an AI system reach beyond its model, then the defining question is no longer merely &lt;strong>“Can the agent call the tool?”&lt;/strong>—it is &lt;strong>“What evidence would make us comfortable letting it call the tool when nobody is watching?”&lt;/strong>&lt;/p></description></item><item><title>From Dockerfile to Durable Service: How Containers Are Created, Scheduled, Scaled, and Recovered</title><link>https://blog-dev.garrardkitchen.com/cloud/how-containers-live/</link><pubDate>Thu, 16 Jul 2026 07:49:14 +0100</pubDate><guid>https://blog-dev.garrardkitchen.com/cloud/how-containers-live/</guid><description>
 &lt;p>Containers are often introduced as “a lightweight way to package an application.” That is true, but incomplete. The interesting engineering question begins after the image has been built:&lt;/p>
 &lt;p>&lt;strong>Who decides where the container runs, who notices when it dies, who replaces it, and who adds capacity when demand rises?&lt;/strong>&lt;/p>
 &lt;p>This article follows a container through its whole life—from source code and Dockerfile, to image, to runtime process, to scheduled workload, to recovery and scale. We will compare Docker Desktop, Podman, Kubernetes, and Azure Kubernetes Service (AKS); map their capabilities; build secure images; and finish with GitHub Actions and GitLab CI/CD examples.&lt;/p>
